@@ -19,7 +19,7 @@ window.FAZAYAH = {
   ui: {
     en: {
       nav_courses: "Courses", nav_pricing: "Prices", nav_faq: "FAQ", lang_label: "Language",
-      hero_eyebrow: "Courses in mineral engineering",
+      hero_eyebrow: "Fazayah School of Mineral Engineering",
       hero_title: "Learn mineral engineering, taught in your language.",
       hero_body: "Nine complete courses, from ore and mineral basics to plant design, mine economics and sustainable operations. Every lesson, exercise and project brief is available in five languages.",
       hero_cta: "Browse the courses", hero_cta2: "See prices",
@@ -56,7 +56,7 @@ window.FAZAYAH = {
 
     ar: {
       nav_courses: "الدورات", nav_pricing: "الأسعار", nav_faq: "الأسئلة الشائعة", lang_label: "اللغة",
-      hero_eyebrow: "دورات في هندسة التعدين والمعادن",
+      hero_eyebrow: "مدرسة Fazayah لهندسة التعدين والمعادن",
       hero_title: "تعلّم هندسة التعدين والمعادن بلغتك.",
       hero_body: "تسع دورات كاملة، من أساسيات الخامات والمعادن إلى تصميم المصانع واقتصاديات المناجم والتشغيل المستدام. كل درس وتمرين ومشروع متاح بخمس لغات.",
       hero_cta: "تصفّح الدورات", hero_cta2: "عرض الأسعار",
@@ -93,7 +93,7 @@ window.FAZAYAH = {
 
     ur: {
       nav_courses: "کورسز", nav_pricing: "قیمتیں", nav_faq: "عمومی سوالات", lang_label: "زبان",
-      hero_eyebrow: "معدنی انجینئرنگ کے کورسز",
+      hero_eyebrow: "Fazayah اسکول برائے معدنی انجینئرنگ",
       hero_title: "معدنی انجینئرنگ اپنی زبان میں سیکھیں۔",
       hero_body: "نو مکمل کورسز، کچ دھات اور معدنیات کی بنیادی باتوں سے لے کر پلانٹ ڈیزائن، کان کی معاشیات اور پائیدار آپریشنز تک۔ ہر سبق، مشق اور پروجیکٹ پانچ زبانوں میں دستیاب ہے۔",
       hero_cta: "کورسز دیکھیں", hero_cta2: "قیمتیں دیکھیں",
@@ -130,7 +130,7 @@ window.FAZAYAH = {
 
     fr: {
       nav_courses: "Cours", nav_pricing: "Tarifs", nav_faq: "FAQ", lang_label: "Langue",
-      hero_eyebrow: "Cours de génie minéral",
+      hero_eyebrow: "École de génie minéral Fazayah",
       hero_title: "Apprenez le génie minéral, dans votre langue.",
       hero_body: "Neuf cours complets, des bases des minerais et des minéraux jusqu'à la conception d'usines, l'économie minière et l'exploitation durable. Chaque leçon, exercice et projet est disponible en cinq langues.",
       hero_cta: "Parcourir les cours", hero_cta2: "Voir les tarifs",
@@ -167,7 +167,7 @@ window.FAZAYAH = {
 
     es: {
       nav_courses: "Cursos", nav_pricing: "Precios", nav_faq: "Preguntas", lang_label: "Idioma",
-      hero_eyebrow: "Cursos de ingeniería de minerales",
+      hero_eyebrow: "Escuela de Ingeniería de Minerales Fazayah",
       hero_title: "Aprende ingeniería de minerales, en tu idioma.",
       hero_body: "Nueve cursos completos, desde los fundamentos de menas y minerales hasta el diseño de plantas, la economía minera y la operación sostenible. Cada lección, ejercicio y proyecto está disponible en cinco idiomas.",
       hero_cta: "Ver los cursos", hero_cta2: "Ver precios",

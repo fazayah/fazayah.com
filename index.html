@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fazayah Courses</title>
+<meta name="description" content="Complete web and app development courses in English, Arabic, Urdu, French and Spanish, with one subscription for all of them.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="#top">Fazayah<span>.</span></a>
+    <nav class="site-nav">
+      <a href="#courses" data-i18n="nav_courses">Courses</a>
+      <a href="#pricing" data-i18n="nav_pricing">Prices</a>
+      <a href="#faq" data-i18n="nav_faq">FAQ</a>
+    </nav>
+    <select id="lang-select" class="lang-select" aria-label="Language"></select>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-text">
+        <p class="eyebrow" data-i18n="hero_eyebrow">Courses in web and app development</p>
+        <h1 data-i18n="hero_title">Learn to build websites and apps, taught in your language.</h1>
+        <p class="lede" data-i18n="hero_body"></p>
+        <div class="hero-actions">
+          <a class="btn btn-solid" href="#courses" data-i18n="hero_cta">Browse the courses</a>
+          <a class="btn" href="#pricing" data-i18n="hero_cta2">See prices</a>
+        </div>
+        <div class="tally" id="tally"></div>
+        <p class="updated" data-i18n="updated"></p>
+      </div>
+      <div class="picker">
+        <p class="eyebrow" data-i18n="hero_pick">Choose your language</p>
+        <div class="picker-list" id="picker-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="courses">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 data-i18n="courses_title">Course catalog</h2>
+        <p class="lede" data-i18n="courses_body"></p>
+      </div>
+      <div class="seg" id="level-filter"></div>
+      <div class="catalog" id="catalog"></div>
+    </div>
+  </section>
+
+  <section class="section" id="pricing">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 data-i18n="pricing_title">Subscription prices</h2>
+        <p class="lede" data-i18n="pricing_body"></p>
+      </div>
+      <div class="seg" id="billing"></div>
+      <div class="plans" id="plans"></div>
+      <p class="notice" id="plan-notice" role="status" aria-live="polite"></p>
+      <p class="fine" data-i18n="usd_note"></p>
+    </div>
+  </section>
+
+  <section class="section" id="faq-section">
+    <div class="wrap" id="faq-wrap">
+      <h2 id="faq-title" data-i18n="faq_title">Common questions</h2>
+      <div class="faq" id="faq"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© 2026 Fazayah. <span data-i18n="rights">All rights reserved.</span></span>
+    <span data-i18n="updated"></span>
+  </div>
+</footer>
+
+<script src="assets/data-ui.js"></script>
+<script src="assets/data-courses.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -73,6 +73,77 @@ window.FAZAYAH.courses = [
     }
   },
   {
+    code: "FZ-102", level: "beginner", weeks: 7, lessons: 52, projects: 3,
+    stack: ["Mineral identification", "Geological maps", "Drill core logging", "XRD and microscopy"],
+    t: {
+      en: {
+        title: "Geology and Mineralogy for Engineers",
+        summary: "Read rocks, maps and drill core well enough to work with geologists and understand the ore you are given.",
+        prereq: "Secondary-school science. Can be taken alongside FZ-101.",
+        outcome: "A logged drill core, an interpreted geological cross-section and a mineralogy report for one ore.",
+        modules: [
+          ["Earth materials", "The rock cycle; igneous, sedimentary and metamorphic rocks; rock-forming minerals"],
+          ["Mineral identification", "Physical properties, crystal systems, optical microscopy, X-ray diffraction"],
+          ["Ore deposit types", "Porphyry, epithermal, sedimentary, magmatic and placer deposits; alteration and zoning"],
+          ["Structures and maps", "Faults, folds and joints; reading geological maps; cross-sections"],
+          ["Exploration and drill core", "Geochemical and geophysical surveys, drilling methods, core logging, quality control of samples"]
+        ]
+      },
+      ar: {
+        title: "الجيولوجيا وعلم المعادن للمهندسين",
+        summary: "اقرأ الصخور والخرائط ولُباب الحفر بما يكفي للعمل مع الجيولوجيين وفهم الخام الذي بين يديك.",
+        prereq: "علوم المرحلة الثانوية. يمكن دراستها بالتزامن مع FZ-101.",
+        outcome: "لُباب حفر موصوف، ومقطع جيولوجي مفسَّر، وتقرير معدني عن خام واحد.",
+        modules: [
+          ["مواد الأرض", "دورة الصخور؛ الصخور النارية والرسوبية والمتحولة؛ المعادن المكوِّنة للصخور"],
+          ["تمييز المعادن", "الخصائص الفيزيائية، الأنظمة البلورية، المجهر الضوئي، حيود الأشعة السينية"],
+          ["أنواع رواسب الخامات", "الرواسب البورفيرية والإبيثرمالية والرسوبية والصهارية والغرينية؛ التحوّر والتمنطق"],
+          ["التراكيب والخرائط", "الصدوع والطيات والفواصل؛ قراءة الخرائط الجيولوجية؛ المقاطع العرضية"],
+          ["الاستكشاف ولُباب الحفر", "المسوح الجيوكيميائية والجيوفيزيائية، طرق الحفر، وصف اللُّباب، ضبط جودة العينات"]
+        ]
+      },
+      ur: {
+        title: "انجینئرز کے لیے ارضیات اور معدنیات",
+        summary: "چٹانوں، نقشوں اور ڈرل کور کو اتنا سمجھیں کہ ماہرینِ ارضیات کے ساتھ کام کر سکیں اور ملنے والی کچ دھات کو سمجھ سکیں۔",
+        prereq: "ثانوی اسکول کی سائنس۔ FZ-101 کے ساتھ ساتھ کیا جا سکتا ہے۔",
+        outcome: "ایک لاگ شدہ ڈرل کور، ایک تشریح شدہ ارضیاتی کراس سیکشن اور ایک کچ دھات کی منرالوجی رپورٹ۔",
+        modules: [
+          ["زمینی مواد", "چٹانوں کا چکر؛ آتشی، رسوبی اور متغیرہ چٹانیں؛ چٹان ساز معدنیات"],
+          ["معدنیات کی شناخت", "طبعی خصوصیات، کرسٹل سسٹمز، آپٹیکل مائیکروسکوپی، ایکس رے ڈفریکشن"],
+          ["کچ دھات کے ذخائر کی اقسام", "پورفیری، ایپی تھرمل، رسوبی، میگمیٹک اور پلیسر ذخائر؛ آلٹریشن اور زوننگ"],
+          ["ساختیں اور نقشے", "فالٹس، فولڈز اور جوائنٹس؛ ارضیاتی نقشے پڑھنا؛ کراس سیکشنز"],
+          ["تلاش اور ڈرل کور", "جیو کیمیکل اور جیو فزیکل سروے، ڈرلنگ کے طریقے، کور لاگنگ، نمونوں کے معیار کی جانچ"]
+        ]
+      },
+      fr: {
+        title: "Géologie et minéralogie pour ingénieurs",
+        summary: "Lisez les roches, les cartes et les carottes de forage assez bien pour travailler avec les géologues et comprendre le minerai que vous recevez.",
+        prereq: "Sciences du lycée. Peut être suivi en parallèle de FZ-101.",
+        outcome: "Une carotte de forage décrite, une coupe géologique interprétée et un rapport minéralogique sur un minerai.",
+        modules: [
+          ["Les matériaux de la Terre", "Cycle des roches ; roches magmatiques, sédimentaires et métamorphiques ; minéraux constitutifs des roches"],
+          ["Identification des minéraux", "Propriétés physiques, systèmes cristallins, microscopie optique, diffraction des rayons X"],
+          ["Types de gisements", "Gisements porphyriques, épithermaux, sédimentaires, magmatiques et alluvionnaires ; altération et zonation"],
+          ["Structures et cartes", "Failles, plis et diaclases ; lecture des cartes géologiques ; coupes"],
+          ["Exploration et carottes de forage", "Levés géochimiques et géophysiques, méthodes de forage, description des carottes, contrôle qualité des échantillons"]
+        ]
+      },
+      es: {
+        title: "Geología y mineralogía para ingenieros",
+        summary: "Lee rocas, mapas y testigos de sondaje lo bastante bien como para trabajar con geólogos y entender la mena que recibes.",
+        prereq: "Ciencias de secundaria. Puede cursarse a la vez que FZ-101.",
+        outcome: "Un testigo de sondaje descrito, una sección geológica interpretada y un informe mineralógico de una mena.",
+        modules: [
+          ["Materiales de la Tierra", "Ciclo de las rocas; rocas ígneas, sedimentarias y metamórficas; minerales formadores de rocas"],
+          ["Identificación de minerales", "Propiedades físicas, sistemas cristalinos, microscopía óptica, difracción de rayos X"],
+          ["Tipos de yacimientos", "Yacimientos porfídicos, epitermales, sedimentarios, magmáticos y de placer; alteración y zonación"],
+          ["Estructuras y mapas", "Fallas, pliegues y diaclasas; lectura de mapas geológicos; secciones"],
+          ["Exploración y testigos de sondaje", "Prospección geoquímica y geofísica, métodos de perforación, descripción de testigos, control de calidad de muestras"]
+        ]
+      }
+    }
+  },
+  {
     code: "FZ-201", level: "intermediate", weeks: 10, lessons: 72, projects: 3,
     stack: ["Bond work index", "Partition curves", "Population balance", "Circuit simulation"],
     t: {
@@ -286,6 +357,77 @@ window.FAZAYAH.courses = [
     }
   },
   {
+    code: "FZ-204", level: "intermediate", weeks: 9, lessons: 62, projects: 3,
+    stack: ["Rock mass rating", "Blast design", "Fleet matching", "Ventilation surveys"],
+    t: {
+      en: {
+        title: "Mining Methods, Drilling and Blasting",
+        summary: "Break rock and move it safely, at the surface and underground, with the right equipment for the job.",
+        prereq: "FZ-101. FZ-102 is recommended.",
+        outcome: "A blast design, a matched loading and hauling fleet, and a ventilation plan for a sample mine.",
+        modules: [
+          ["Rock mechanics basics", "Rock strength, stress and strain, rock mass classification (RMR and Q), failure modes"],
+          ["Drilling and blasting", "Drill types, explosives, blast pattern design, fragmentation, control of vibration and flyrock"],
+          ["Loading and hauling", "Shovels, loaders and trucks, fleet matching, conveyors, cycle times and productivity"],
+          ["Underground operations", "Development, stoping and caving methods, backfill, ground support, ventilation"],
+          ["Mine safety and services", "Dewatering, power supply, gas and dust monitoring, emergency response, automation and remote operation"]
+        ]
+      },
+      ar: {
+        title: "طرق التعدين والحفر والتفجير",
+        summary: "كسِّر الصخر وانقله بأمان، على السطح وتحت الأرض، بالمعدات المناسبة لكل عمل.",
+        prereq: "دورة FZ-101، ويُنصح بدورة FZ-102.",
+        outcome: "تصميم تفجير، وأسطول تحميل ونقل متوافق، وخطة تهوية لمنجم نموذجي.",
+        modules: [
+          ["أساسيات ميكانيكا الصخور", "مقاومة الصخور، الإجهاد والانفعال، تصنيف الكتل الصخرية (RMR و Q)، أنماط الانهيار"],
+          ["الحفر والتفجير", "أنواع الحفارات، المتفجرات، تصميم شبكة التفجير، التفتت، التحكم في الاهتزاز والصخور المتطايرة"],
+          ["التحميل والنقل", "الجرافات واللوادر والشاحنات، توافق الأسطول، السيور الناقلة، أزمنة الدورة والإنتاجية"],
+          ["العمليات تحت الأرض", "أعمال التطوير، طرق الحجرات والتكهيف، الردم، تدعيم الصخور، التهوية"],
+          ["سلامة المنجم وخدماته", "نزح المياه، الإمداد بالكهرباء، مراقبة الغازات والغبار، الاستجابة للطوارئ، الأتمتة والتشغيل عن بُعد"]
+        ]
+      },
+      ur: {
+        title: "کان کنی کے طریقے، ڈرلنگ اور بلاسٹنگ",
+        summary: "چٹان کو توڑیں اور محفوظ طریقے سے منتقل کریں، سطح پر اور زیرِ زمین، کام کے لیے موزوں آلات کے ساتھ۔",
+        prereq: "FZ-101۔ FZ-102 کی سفارش کی جاتی ہے۔",
+        outcome: "ایک نمونہ کان کے لیے بلاسٹ ڈیزائن، ہم آہنگ لوڈنگ اور ہالنگ فلیٹ، اور وینٹیلیشن پلان۔",
+        modules: [
+          ["راک میکینکس کی بنیادیں", "چٹان کی مضبوطی، اسٹریس اور اسٹرین، راک ماس کی درجہ بندی (RMR اور Q)، ناکامی کی صورتیں"],
+          ["ڈرلنگ اور بلاسٹنگ", "ڈرل کی اقسام، دھماکا خیز مواد، بلاسٹ پیٹرن ڈیزائن، فریگمنٹیشن، ارتعاش اور فلائی راک پر قابو"],
+          ["لوڈنگ اور ہالنگ", "شاولز، لوڈرز اور ٹرک، فلیٹ میچنگ، کنویئرز، سائیکل ٹائم اور پیداواری صلاحیت"],
+          ["زیرِ زمین آپریشنز", "ڈیولپمنٹ، اسٹوپنگ اور کیونگ کے طریقے، بیک فل، گراؤنڈ سپورٹ، وینٹیلیشن"],
+          ["کان کی حفاظت اور خدمات", "پانی کی نکاسی، بجلی کی فراہمی، گیس اور گرد کی نگرانی، ہنگامی ردِعمل، آٹومیشن اور ریموٹ آپریشن"]
+        ]
+      },
+      fr: {
+        title: "Méthodes d'exploitation, forage et tir à l'explosif",
+        summary: "Abattez la roche et transportez-la en sécurité, en surface comme en souterrain, avec les équipements adaptés.",
+        prereq: "FZ-101. FZ-102 est recommandé.",
+        outcome: "Un plan de tir, une flotte de chargement et de transport bien assortie et un plan d'aérage pour une mine type.",
+        modules: [
+          ["Bases de mécanique des roches", "Résistance des roches, contraintes et déformations, classification des massifs rocheux (RMR et Q), modes de rupture"],
+          ["Forage et tir", "Types de foreuses, explosifs, conception du schéma de tir, fragmentation, maîtrise des vibrations et des projections"],
+          ["Chargement et transport", "Pelles, chargeuses et camions, adéquation de la flotte, convoyeurs, temps de cycle et productivité"],
+          ["Travaux souterrains", "Travaux préparatoires, méthodes par chambres et par foudroyage, remblayage, soutènement, aérage"],
+          ["Sécurité et services de la mine", "Exhaure, alimentation électrique, surveillance des gaz et des poussières, intervention d'urgence, automatisation et téléconduite"]
+        ]
+      },
+      es: {
+        title: "Métodos de explotación, perforación y voladura",
+        summary: "Fragmenta la roca y muévela con seguridad, en superficie y en subterráneo, con el equipo adecuado para cada tarea.",
+        prereq: "FZ-101. Se recomienda FZ-102.",
+        outcome: "Un diseño de voladura, una flota de carguío y transporte bien dimensionada y un plan de ventilación para una mina de ejemplo.",
+        modules: [
+          ["Fundamentos de mecánica de rocas", "Resistencia de la roca, esfuerzo y deformación, clasificación del macizo rocoso (RMR y Q), modos de falla"],
+          ["Perforación y voladura", "Tipos de perforadoras, explosivos, diseño de mallas de voladura, fragmentación, control de vibraciones y proyecciones"],
+          ["Carguío y transporte", "Palas, cargadores y camiones, dimensionamiento de la flota, correas transportadoras, tiempos de ciclo y productividad"],
+          ["Operaciones subterráneas", "Desarrollo, métodos por caserones y por hundimiento, relleno, fortificación, ventilación"],
+          ["Seguridad y servicios de mina", "Drenaje, energía eléctrica, monitoreo de gases y polvo, respuesta a emergencias, automatización y operación remota"]
+        ]
+      }
+    }
+  },
+  {
     code: "FZ-301", level: "advanced", weeks: 6, lessons: 44, projects: 3,
     stack: ["Block models", "Kriging", "Pit optimization", "Discounted cash flow"],
     t: {
@@ -423,6 +565,77 @@ window.FAZAYAH.courses = [
           ["Control de procesos y datos", "Instrumentación, lazos de control, analizadores en línea, aprendizaje automático para optimizar la planta"],
           ["Relaves, agua y energía", "Relaves filtrados y apilados en seco, el Estándar Global de la Industria sobre Gestión de Relaves, balance hídrico, descarbonización"],
           ["Minerales críticos y reciclaje", "Litio, tierras raras, níquel y cobalto; reciclaje de baterías; minería urbana"]
+        ]
+      }
+    }
+  },
+  {
+    code: "FZ-303", level: "advanced", weeks: 7, lessons: 48, projects: 3,
+    stack: ["CIL and CIP", "SX-EW", "Pelletizing", "Washability curves"],
+    t: {
+      en: {
+        title: "Commodity Flowsheets: Gold, Copper, Iron Ore and Coal",
+        summary: "Study how real plants treat the main commodities, and why each flowsheet looks the way it does.",
+        prereq: "FZ-202 and FZ-203.",
+        outcome: "A comparison of two flowsheets for one commodity, covering cost, recovery and environmental trade-offs.",
+        modules: [
+          ["Gold", "Free-milling and refractory ores, gravity recovery, carbon-in-leach and carbon-in-pulp, cyanide management"],
+          ["Copper", "Sulphide flotation and smelting, heap leaching of oxides with SX-EW, molybdenum and gold as by-products"],
+          ["Iron ore", "Beneficiation of hematite and magnetite, magnetic separation, pelletizing and sintering"],
+          ["Coal", "Washability, dense medium cyclones, fine coal flotation, dewatering, product quality"],
+          ["Industrial and battery minerals", "Phosphate and potash, lithium from brine and spodumene, graphite, rare earths"]
+        ]
+      },
+      ar: {
+        title: "مخططات معالجة السلع: الذهب والنحاس وخام الحديد والفحم",
+        summary: "ادرس كيف تعالج المصانع الفعلية السلع الرئيسية، ولماذا يأخذ كل مخطط شكله.",
+        prereq: "دورتا FZ-202 و FZ-203.",
+        outcome: "مقارنة بين مخططين لمعالجة سلعة واحدة من حيث التكلفة والاستخلاص والأثر البيئي.",
+        modules: [
+          ["الذهب", "الخامات سهلة المعالجة والخامات المستعصية، الاستخلاص بالجاذبية، الكربون في الإذابة (CIL) والكربون في اللب (CIP)، إدارة السيانيد"],
+          ["النحاس", "تعويم الكبريتيدات وصهرها، إذابة الأكاسيد في الأكوام مع SX-EW، الموليبدينوم والذهب كمنتجات ثانوية"],
+          ["خام الحديد", "إثراء الهيماتيت والماغنيتيت، الفصل المغناطيسي، التكوير والتلبيد"],
+          ["الفحم", "قابلية الغسل، سيكلونات الوسط الثقيل، تعويم الفحم الناعم، نزع الماء، جودة المنتج"],
+          ["المعادن الصناعية ومعادن البطاريات", "الفوسفات والبوتاس، الليثيوم من المحاليل الملحية والسبودومين، الغرافيت، العناصر الأرضية النادرة"]
+        ]
+      },
+      ur: {
+        title: "اجناس کے فلو شیٹس: سونا، تانبا، خام لوہا اور کوئلہ",
+        summary: "دیکھیں کہ حقیقی پلانٹس اہم اجناس کو کیسے پروسیس کرتے ہیں، اور ہر فلو شیٹ ویسا کیوں ہے جیسا وہ ہے۔",
+        prereq: "FZ-202 اور FZ-203۔",
+        outcome: "ایک جنس کے دو فلو شیٹس کا موازنہ، لاگت، ریکوری اور ماحولیاتی اثرات کے لحاظ سے۔",
+        modules: [
+          ["سونا", "فری ملنگ اور ریفریکٹری کچ دھاتیں، گریویٹی ریکوری، کاربن اِن لیچ اور کاربن اِن پلپ، سائنائیڈ کا انتظام"],
+          ["تانبا", "سلفائیڈ فلوٹیشن اور سمیلٹنگ، SX-EW کے ساتھ آکسائیڈ ہیپ لیچنگ، ضمنی مصنوعات مولبڈینم اور سونا"],
+          ["خام لوہا", "ہیماٹائٹ اور میگنیٹائٹ کی بینیفیشی ایشن، مقناطیسی علیحدگی، پیلیٹائزنگ اور سنٹرنگ"],
+          ["کوئلہ", "واش ایبلٹی، ڈینس میڈیم سائیکلونز، باریک کوئلے کی فلوٹیشن، ڈی واٹرنگ، پروڈکٹ کا معیار"],
+          ["صنعتی اور بیٹری معدنیات", "فاسفیٹ اور پوٹاش، برائن اور اسپوڈومین سے لیتھیم، گریفائٹ، نایاب ارضی عناصر"]
+        ]
+      },
+      fr: {
+        title: "Schémas de traitement par substance : or, cuivre, minerai de fer et charbon",
+        summary: "Étudiez comment de vraies usines traitent les principales substances, et pourquoi chaque schéma a cette forme.",
+        prereq: "FZ-202 et FZ-203.",
+        outcome: "Une comparaison de deux schémas de traitement pour une même substance : coûts, récupération et compromis environnementaux.",
+        modules: [
+          ["Or", "Minerais libres et réfractaires, récupération gravimétrique, charbon en lixiviation (CIL) et charbon en pulpe (CIP), gestion du cyanure"],
+          ["Cuivre", "Flottation et fusion des sulfures, lixiviation en tas des oxydes avec SX-EW, molybdène et or en sous-produits"],
+          ["Minerai de fer", "Enrichissement de l'hématite et de la magnétite, séparation magnétique, bouletage et agglomération"],
+          ["Charbon", "Lavabilité, cyclones à milieu dense, flottation des fines, déshydratation, qualité du produit"],
+          ["Minéraux industriels et de batteries", "Phosphate et potasse, lithium des saumures et du spodumène, graphite, terres rares"]
+        ]
+      },
+      es: {
+        title: "Diagramas de flujo por producto: oro, cobre, mineral de hierro y carbón",
+        summary: "Estudia cómo las plantas reales tratan los principales productos minerales y por qué cada diagrama tiene esa forma.",
+        prereq: "FZ-202 y FZ-203.",
+        outcome: "Una comparación de dos diagramas de flujo para un mismo producto: costos, recuperación y efectos ambientales.",
+        modules: [
+          ["Oro", "Menas de libre molienda y refractarias, recuperación gravimétrica, carbón en lixiviación (CIL) y carbón en pulpa (CIP), manejo del cianuro"],
+          ["Cobre", "Flotación y fundición de sulfuros, lixiviación en pilas de óxidos con SX-EW, molibdeno y oro como subproductos"],
+          ["Mineral de hierro", "Beneficio de hematita y magnetita, separación magnética, peletización y sinterización"],
+          ["Carbón", "Lavabilidad, ciclones de medio denso, flotación de finos, desaguado, calidad del producto"],
+          ["Minerales industriales y de baterías", "Fosfato y potasa, litio de salmueras y de espodumeno, grafito, tierras raras"]
         ]
       }
     }

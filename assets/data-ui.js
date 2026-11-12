@@ -19,18 +19,18 @@ window.FAZAYAH = {
   ui: {
     en: {
       nav_courses: "Courses", nav_pricing: "Prices", nav_faq: "FAQ", lang_label: "Language",
-      hero_eyebrow: "Courses in web and app development",
-      hero_title: "Learn to build websites and apps, taught in your language.",
-      hero_body: "Six complete courses, from your first HTML page to multilingual, AI-assisted apps in production. Every lesson, exercise and project brief is available in five languages.",
+      hero_eyebrow: "Courses in mineral engineering",
+      hero_title: "Learn mineral engineering, taught in your language.",
+      hero_body: "Six complete courses, from ore and mineral basics to plant design, mine economics and sustainable operations. Every lesson, exercise and project brief is available in five languages.",
       hero_cta: "Browse the courses", hero_cta2: "See prices",
-      hero_pick: "Choose your language", phrase: "Build it in your language",
+      hero_pick: "Choose your language", phrase: "Learn it in your language",
       n_courses: "courses", n_modules: "modules", n_lessons: "lessons", n_languages: "languages",
       updated: "Curriculum reviewed November 2026",
       courses_title: "Course catalog",
       courses_body: "Open a course to read its full syllabus. Courses are numbered in the order we recommend taking them.",
       filter_label: "Level", all: "All", beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced",
       weeks: "weeks", lessons: "lessons", projects: "projects",
-      syllabus: "Syllabus", outcome: "You finish with", stack: "Tools you use", prereq: "Before you start",
+      syllabus: "Syllabus", outcome: "You finish with", stack: "Methods and tools", prereq: "Before you start",
       pricing_title: "Subscription prices",
       pricing_body: "One subscription opens every course in every language. Cancel any time.",
       monthly: "Monthly", yearly: "Yearly", per_month: "/ month", per_year: "/ year",
@@ -47,8 +47,8 @@ window.FAZAYAH = {
       faq_title: "Common questions",
       faq: [
         ["Which languages are the courses in?", "English, Arabic, Urdu, French and Spanish. You can switch language at any time from the top of the page."],
-        ["Do I need experience?", "No. FZ-101 starts from zero, and every course lists what you should know before you begin."],
-        ["How are the courses kept current?", "We review each course every quarter against the current versions of its tools, and show the date of the last review in the catalog."],
+        ["Do I need experience?", "No industry experience. FZ-101 starts from school-level chemistry and maths, and every course lists what you should know before you begin."],
+        ["How are the courses kept current?", "We review each course every quarter against current industry practice and standards, and show the date of the last review in the catalog."],
         ["Can I cancel?", "Yes, at any time. Your access continues until the end of the period you have paid for."]
       ],
       rights: "All rights reserved."
@@ -56,18 +56,18 @@ window.FAZAYAH = {
 
     ar: {
       nav_courses: "الدورات", nav_pricing: "الأسعار", nav_faq: "الأسئلة الشائعة", lang_label: "اللغة",
-      hero_eyebrow: "دورات في تطوير المواقع والتطبيقات",
-      hero_title: "تعلّم بناء المواقع والتطبيقات بلغتك.",
-      hero_body: "ست دورات كاملة، من أول صفحة HTML إلى تطبيقات متعددة اللغات مدعومة بالذكاء الاصطناعي في بيئة الإنتاج. كل درس وتمرين ومشروع متاح بخمس لغات.",
+      hero_eyebrow: "دورات في هندسة التعدين والمعادن",
+      hero_title: "تعلّم هندسة التعدين والمعادن بلغتك.",
+      hero_body: "ست دورات كاملة، من أساسيات الخامات والمعادن إلى تصميم المصانع واقتصاديات المناجم والتشغيل المستدام. كل درس وتمرين ومشروع متاح بخمس لغات.",
       hero_cta: "تصفّح الدورات", hero_cta2: "عرض الأسعار",
-      hero_pick: "اختر لغتك", phrase: "ابنِه بلغتك",
+      hero_pick: "اختر لغتك", phrase: "تعلّمه بلغتك",
       n_courses: "دورات", n_modules: "وحدة", n_lessons: "درسًا", n_languages: "لغات",
       updated: "آخر مراجعة للمنهج: نوفمبر 2026",
       courses_title: "دليل الدورات",
       courses_body: "افتح أي دورة لقراءة منهجها الكامل. الدورات مرقّمة بالترتيب الذي ننصح باتباعه.",
       filter_label: "المستوى", all: "الكل", beginner: "مبتدئ", intermediate: "متوسط", advanced: "متقدم",
       weeks: "أسابيع", lessons: "درسًا", projects: "مشاريع",
-      syllabus: "المنهج", outcome: "ما تنجزه في النهاية", stack: "الأدوات المستخدمة", prereq: "قبل أن تبدأ",
+      syllabus: "المنهج", outcome: "ما تنجزه في النهاية", stack: "الطرق والأدوات", prereq: "قبل أن تبدأ",
       pricing_title: "أسعار الاشتراك",
       pricing_body: "اشتراك واحد يفتح لك كل الدورات بكل اللغات. يمكنك الإلغاء في أي وقت.",
       monthly: "شهري", yearly: "سنوي", per_month: "/ شهريًا", per_year: "/ سنويًا",
@@ -84,8 +84,8 @@ window.FAZAYAH = {
       faq_title: "أسئلة شائعة",
       faq: [
         ["بأي لغات تتوفر الدورات؟", "بالإنجليزية والعربية والأردية والفرنسية والإسبانية. يمكنك تبديل اللغة في أي وقت من أعلى الصفحة."],
-        ["هل أحتاج إلى خبرة سابقة؟", "لا. تبدأ دورة FZ-101 من الصفر، وكل دورة تذكر ما ينبغي أن تعرفه قبل البدء."],
-        ["كيف تبقى الدورات محدَّثة؟", "نراجع كل دورة كل ثلاثة أشهر وفق الإصدارات الحالية لأدواتها، ونعرض تاريخ آخر مراجعة في دليل الدورات."],
+        ["هل أحتاج إلى خبرة سابقة؟", "لا تحتاج إلى خبرة في الصناعة. تبدأ دورة FZ-101 من كيمياء ورياضيات المرحلة الثانوية، وكل دورة تذكر ما ينبغي أن تعرفه قبل البدء."],
+        ["كيف تبقى الدورات محدَّثة؟", "نراجع كل دورة كل ثلاثة أشهر وفق الممارسات والمعايير الحالية في الصناعة، ونعرض تاريخ آخر مراجعة في دليل الدورات."],
         ["هل يمكنني إلغاء الاشتراك؟", "نعم، في أي وقت. يبقى وصولك قائمًا حتى نهاية الفترة المدفوعة."]
       ],
       rights: "جميع الحقوق محفوظة."
@@ -93,18 +93,18 @@ window.FAZAYAH = {
 
     ur: {
       nav_courses: "کورسز", nav_pricing: "قیمتیں", nav_faq: "عمومی سوالات", lang_label: "زبان",
-      hero_eyebrow: "ویب اور ایپ ڈیولپمنٹ کے کورسز",
-      hero_title: "ویب سائٹس اور ایپس بنانا اپنی زبان میں سیکھیں۔",
-      hero_body: "چھ مکمل کورسز، پہلے HTML صفحے سے لے کر پروڈکشن میں چلنے والی کثیر لسانی، AI سے لیس ایپس تک۔ ہر سبق، مشق اور پروجیکٹ پانچ زبانوں میں دستیاب ہے۔",
+      hero_eyebrow: "معدنی انجینئرنگ کے کورسز",
+      hero_title: "معدنی انجینئرنگ اپنی زبان میں سیکھیں۔",
+      hero_body: "چھ مکمل کورسز، کچ دھات اور معدنیات کی بنیادی باتوں سے لے کر پلانٹ ڈیزائن، کان کی معاشیات اور پائیدار آپریشنز تک۔ ہر سبق، مشق اور پروجیکٹ پانچ زبانوں میں دستیاب ہے۔",
       hero_cta: "کورسز دیکھیں", hero_cta2: "قیمتیں دیکھیں",
-      hero_pick: "اپنی زبان منتخب کریں", phrase: "اپنی زبان میں بنائیں",
+      hero_pick: "اپنی زبان منتخب کریں", phrase: "اپنی زبان میں سیکھیں",
       n_courses: "کورسز", n_modules: "ماڈیولز", n_lessons: "اسباق", n_languages: "زبانیں",
       updated: "نصاب کا تازہ ترین جائزہ: نومبر 2026",
       courses_title: "کورس کیٹلاگ",
       courses_body: "مکمل نصاب پڑھنے کے لیے کوئی بھی کورس کھولیں۔ کورسز کے نمبر اسی ترتیب میں ہیں جس میں ہم انہیں کرنے کا مشورہ دیتے ہیں۔",
       filter_label: "سطح", all: "سب", beginner: "ابتدائی", intermediate: "درمیانی", advanced: "اعلیٰ",
       weeks: "ہفتے", lessons: "اسباق", projects: "پروجیکٹس",
-      syllabus: "نصاب", outcome: "اختتام پر آپ کے پاس ہوگا", stack: "استعمال ہونے والے ٹولز", prereq: "شروع کرنے سے پہلے",
+      syllabus: "نصاب", outcome: "اختتام پر آپ کے پاس ہوگا", stack: "طریقے اور ٹولز", prereq: "شروع کرنے سے پہلے",
       pricing_title: "سبسکرپشن کی قیمتیں",
       pricing_body: "ایک سبسکرپشن سے ہر کورس ہر زبان میں کھل جاتا ہے۔ کسی بھی وقت منسوخ کریں۔",
       monthly: "ماہانہ", yearly: "سالانہ", per_month: "/ ماہانہ", per_year: "/ سالانہ",
@@ -121,8 +121,8 @@ window.FAZAYAH = {
       faq_title: "عمومی سوالات",
       faq: [
         ["کورسز کن زبانوں میں ہیں؟", "انگریزی، عربی، اردو، فرانسیسی اور ہسپانوی میں۔ آپ صفحے کے اوپر سے کسی بھی وقت زبان بدل سکتے ہیں۔"],
-        ["کیا پہلے سے تجربہ ضروری ہے؟", "نہیں۔ FZ-101 بالکل ابتدا سے شروع ہوتا ہے، اور ہر کورس بتاتا ہے کہ شروع کرنے سے پہلے آپ کو کیا آنا چاہیے۔"],
-        ["کورسز کو تازہ کیسے رکھا جاتا ہے؟", "ہم ہر تین ماہ بعد ہر کورس کا اس کے ٹولز کے موجودہ ورژنز کے مطابق جائزہ لیتے ہیں، اور آخری جائزے کی تاریخ کیٹلاگ میں دکھاتے ہیں۔"],
+        ["کیا پہلے سے تجربہ ضروری ہے؟", "صنعتی تجربہ ضروری نہیں۔ FZ-101 اسکول کی سطح کی کیمسٹری اور ریاضی سے شروع ہوتا ہے، اور ہر کورس بتاتا ہے کہ شروع کرنے سے پہلے آپ کو کیا آنا چاہیے۔"],
+        ["کورسز کو تازہ کیسے رکھا جاتا ہے؟", "ہم ہر تین ماہ بعد ہر کورس کا صنعت کے موجودہ طریقوں اور معیارات کے مطابق جائزہ لیتے ہیں، اور آخری جائزے کی تاریخ کیٹلاگ میں دکھاتے ہیں۔"],
         ["کیا میں سبسکرپشن منسوخ کر سکتا ہوں؟", "جی ہاں، کسی بھی وقت۔ ادا شدہ مدت کے اختتام تک آپ کی رسائی برقرار رہتی ہے۔"]
       ],
       rights: "جملہ حقوق محفوظ ہیں۔"
@@ -130,18 +130,18 @@ window.FAZAYAH = {
 
     fr: {
       nav_courses: "Cours", nav_pricing: "Tarifs", nav_faq: "FAQ", lang_label: "Langue",
-      hero_eyebrow: "Cours de développement web et d'applications",
-      hero_title: "Apprenez à créer des sites web et des applications, dans votre langue.",
-      hero_body: "Six cours complets, de votre première page HTML jusqu'aux applications multilingues assistées par l'IA en production. Chaque leçon, exercice et projet est disponible en cinq langues.",
+      hero_eyebrow: "Cours de génie minéral",
+      hero_title: "Apprenez le génie minéral, dans votre langue.",
+      hero_body: "Six cours complets, des bases des minerais et des minéraux jusqu'à la conception d'usines, l'économie minière et l'exploitation durable. Chaque leçon, exercice et projet est disponible en cinq langues.",
       hero_cta: "Parcourir les cours", hero_cta2: "Voir les tarifs",
-      hero_pick: "Choisissez votre langue", phrase: "Créez-le dans votre langue",
+      hero_pick: "Choisissez votre langue", phrase: "Apprenez-le dans votre langue",
       n_courses: "cours", n_modules: "modules", n_lessons: "leçons", n_languages: "langues",
       updated: "Programme révisé en novembre 2026",
       courses_title: "Catalogue des cours",
       courses_body: "Ouvrez un cours pour lire son programme complet. Les cours sont numérotés dans l'ordre que nous recommandons.",
       filter_label: "Niveau", all: "Tous", beginner: "Débutant", intermediate: "Intermédiaire", advanced: "Avancé",
       weeks: "semaines", lessons: "leçons", projects: "projets",
-      syllabus: "Programme", outcome: "À la fin, vous aurez", stack: "Outils utilisés", prereq: "Avant de commencer",
+      syllabus: "Programme", outcome: "À la fin, vous aurez", stack: "Méthodes et outils", prereq: "Avant de commencer",
       pricing_title: "Tarifs d'abonnement",
       pricing_body: "Un seul abonnement donne accès à tous les cours dans toutes les langues. Résiliable à tout moment.",
       monthly: "Mensuel", yearly: "Annuel", per_month: "/ mois", per_year: "/ an",
@@ -158,8 +158,8 @@ window.FAZAYAH = {
       faq_title: "Questions fréquentes",
       faq: [
         ["Dans quelles langues sont les cours ?", "En anglais, arabe, ourdou, français et espagnol. Vous pouvez changer de langue à tout moment en haut de la page."],
-        ["Faut-il de l'expérience ?", "Non. FZ-101 part de zéro, et chaque cours indique ce qu'il faut savoir avant de commencer."],
-        ["Comment les cours restent-ils à jour ?", "Nous révisons chaque cours tous les trimestres selon les versions actuelles de ses outils, et la date de la dernière révision figure dans le catalogue."],
+        ["Faut-il de l'expérience ?", "Aucune expérience du secteur n'est requise. FZ-101 part de la chimie et des mathématiques du lycée, et chaque cours indique ce qu'il faut savoir avant de commencer."],
+        ["Comment les cours restent-ils à jour ?", "Nous révisons chaque cours tous les trimestres selon les pratiques et les normes actuelles du secteur, et la date de la dernière révision figure dans le catalogue."],
         ["Puis-je résilier ?", "Oui, à tout moment. Votre accès reste actif jusqu'à la fin de la période payée."]
       ],
       rights: "Tous droits réservés."
@@ -167,18 +167,18 @@ window.FAZAYAH = {
 
     es: {
       nav_courses: "Cursos", nav_pricing: "Precios", nav_faq: "Preguntas", lang_label: "Idioma",
-      hero_eyebrow: "Cursos de desarrollo web y de aplicaciones",
-      hero_title: "Aprende a crear sitios web y aplicaciones, en tu idioma.",
-      hero_body: "Seis cursos completos, desde tu primera página HTML hasta aplicaciones multilingües con IA en producción. Cada lección, ejercicio y proyecto está disponible en cinco idiomas.",
+      hero_eyebrow: "Cursos de ingeniería de minerales",
+      hero_title: "Aprende ingeniería de minerales, en tu idioma.",
+      hero_body: "Seis cursos completos, desde los fundamentos de menas y minerales hasta el diseño de plantas, la economía minera y la operación sostenible. Cada lección, ejercicio y proyecto está disponible en cinco idiomas.",
       hero_cta: "Ver los cursos", hero_cta2: "Ver precios",
-      hero_pick: "Elige tu idioma", phrase: "Créalo en tu idioma",
+      hero_pick: "Elige tu idioma", phrase: "Apréndelo en tu idioma",
       n_courses: "cursos", n_modules: "módulos", n_lessons: "lecciones", n_languages: "idiomas",
       updated: "Plan de estudios revisado en noviembre de 2026",
       courses_title: "Catálogo de cursos",
       courses_body: "Abre un curso para leer su temario completo. Los cursos están numerados en el orden que recomendamos.",
       filter_label: "Nivel", all: "Todos", beginner: "Principiante", intermediate: "Intermedio", advanced: "Avanzado",
       weeks: "semanas", lessons: "lecciones", projects: "proyectos",
-      syllabus: "Temario", outcome: "Al terminar tendrás", stack: "Herramientas que usarás", prereq: "Antes de empezar",
+      syllabus: "Temario", outcome: "Al terminar tendrás", stack: "Métodos y herramientas", prereq: "Antes de empezar",
       pricing_title: "Precios de suscripción",
       pricing_body: "Una sola suscripción abre todos los cursos en todos los idiomas. Cancela cuando quieras.",
       monthly: "Mensual", yearly: "Anual", per_month: "/ mes", per_year: "/ año",
@@ -195,8 +195,8 @@ window.FAZAYAH = {
       faq_title: "Preguntas frecuentes",
       faq: [
         ["¿En qué idiomas están los cursos?", "En inglés, árabe, urdu, francés y español. Puedes cambiar de idioma en cualquier momento desde la parte superior de la página."],
-        ["¿Necesito experiencia?", "No. FZ-101 empieza desde cero, y cada curso indica lo que conviene saber antes de empezar."],
-        ["¿Cómo se mantienen al día los cursos?", "Revisamos cada curso cada trimestre según las versiones actuales de sus herramientas, y mostramos la fecha de la última revisión en el catálogo."],
+        ["¿Necesito experiencia?", "No hace falta experiencia en el sector. FZ-101 parte de la química y las matemáticas de secundaria, y cada curso indica lo que conviene saber antes de empezar."],
+        ["¿Cómo se mantienen al día los cursos?", "Revisamos cada curso cada trimestre según las prácticas y normas actuales del sector, y mostramos la fecha de la última revisión en el catálogo."],
         ["¿Puedo cancelar?", "Sí, en cualquier momento. Tu acceso sigue activo hasta el final del periodo pagado."]
       ],
       rights: "Todos los derechos reservados."

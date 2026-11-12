@@ -3,426 +3,426 @@
 window.FAZAYAH.courses = [
   {
     code: "FZ-101", level: "beginner", weeks: 8, lessons: 64, projects: 4,
-    stack: ["HTML", "CSS", "JavaScript", "Git", "VS Code"],
+    stack: ["Sieve analysis", "Assay data", "Flowsheets", "Spreadsheets"],
     t: {
       en: {
-        title: "Web Foundations: HTML, CSS and JavaScript",
-        summary: "Start from an empty file and finish with a responsive, accessible website published on your own domain.",
-        prereq: "No experience needed. A computer and a browser are enough.",
-        outcome: "A published personal site and three smaller pages for your portfolio.",
+        title: "Introduction to Mineral Engineering",
+        summary: "Follow an ore from the deposit to a saleable product, and learn the measurements and balances every later course relies on.",
+        prereq: "Secondary-school chemistry and maths. No industry experience needed.",
+        outcome: "A complete mass balance for a simple concentrator and a sampling plan for a real ore.",
         modules: [
-          ["How the web works", "Browsers, servers, URLs and HTTP; setting up your editor and terminal; putting a first page online"],
-          ["HTML that means something", "Semantic structure, links, forms, images and media, accessibility basics"],
-          ["CSS layout", "The box model, Flexbox, Grid, responsive design, custom properties"],
-          ["JavaScript essentials", "Values and functions, arrays and objects, the DOM, events"],
-          ["Working like a developer", "Git and GitHub, fetch and JSON, debugging with DevTools, deploying a site"]
+          ["Minerals, ores and deposits", "Mineral properties, ore types, grade and cut-off, how deposits form"],
+          ["From mine to metal", "Exploration, mining, processing, smelting and refining, mine closure"],
+          ["Sampling and measurement", "Sampling theory, particle size analysis, assays, moisture and density"],
+          ["Mass balances", "Recovery, grade and yield, the two-product formula, balancing a flowsheet"],
+          ["Safety and environment", "Site hazards, dust and noise, tailings and water, regulations"]
         ]
       },
       ar: {
-        title: "أساسيات الويب: HTML و CSS و JavaScript",
-        summary: "ابدأ من ملف فارغ وانتهِ بموقع متجاوب وسهل الوصول منشور على نطاقك الخاص.",
-        prereq: "لا تحتاج إلى خبرة. يكفي حاسوب ومتصفح.",
-        outcome: "موقع شخصي منشور وثلاث صفحات أصغر لمعرض أعمالك.",
+        title: "مدخل إلى هندسة التعدين والمعادن",
+        summary: "تتبّع الخام من الراسب إلى منتج قابل للبيع، وتعلّم القياسات والموازنات التي تعتمد عليها كل الدورات اللاحقة.",
+        prereq: "كيمياء ورياضيات المرحلة الثانوية. لا تحتاج إلى خبرة في الصناعة.",
+        outcome: "موازنة كتلة كاملة لمصنع تركيز بسيط وخطة لأخذ العينات من خام حقيقي.",
         modules: [
-          ["كيف يعمل الويب", "المتصفحات والخوادم والعناوين وبروتوكول HTTP؛ إعداد المحرر والطرفية؛ نشر أول صفحة"],
-          ["HTML ذات معنى", "البنية الدلالية، الروابط، النماذج، الصور والوسائط، أساسيات سهولة الوصول"],
-          ["التخطيط باستخدام CSS", "نموذج الصندوق، Flexbox، Grid، التصميم المتجاوب، الخصائص المخصصة"],
-          ["أساسيات JavaScript", "القيم والدوال، المصفوفات والكائنات، DOM، الأحداث"],
-          ["العمل كمطوّر", "Git و GitHub، fetch و JSON، تتبع الأخطاء بأدوات DevTools، نشر الموقع"]
+          ["المعادن والخامات والرواسب", "خصائص المعادن، أنواع الخامات، الرتبة والرتبة الحدّية، كيف تتكوّن الرواسب"],
+          ["من المنجم إلى الفلز", "الاستكشاف، التعدين، المعالجة، الصهر والتنقية، إغلاق المنجم"],
+          ["أخذ العينات والقياس", "نظرية أخذ العينات، تحليل حجم الحبيبات، التحاليل الكيميائية، الرطوبة والكثافة"],
+          ["موازنات الكتلة", "الاستخلاص، الرتبة والمردود، معادلة المنتجَين، موازنة مخطط المعالجة"],
+          ["السلامة والبيئة", "مخاطر الموقع، الغبار والضوضاء، المخلفات والمياه، اللوائح التنظيمية"]
         ]
       },
       ur: {
-        title: "ویب کی بنیادیں: HTML، CSS اور JavaScript",
-        summary: "خالی فائل سے شروع کریں اور اپنے ڈومین پر شائع شدہ ریسپانسیو، قابلِ رسائی ویب سائٹ پر ختم کریں۔",
-        prereq: "کسی تجربے کی ضرورت نہیں۔ ایک کمپیوٹر اور براؤزر کافی ہیں۔",
-        outcome: "ایک شائع شدہ ذاتی ویب سائٹ اور آپ کے پورٹ فولیو کے لیے تین چھوٹے صفحات۔",
+        title: "معدنی انجینئرنگ کا تعارف",
+        summary: "کچ دھات کو ذخیرے سے قابلِ فروخت پروڈکٹ تک دیکھیں، اور وہ پیمائشیں اور بیلنس سیکھیں جن پر بعد کا ہر کورس انحصار کرتا ہے۔",
+        prereq: "ثانوی اسکول کی کیمسٹری اور ریاضی۔ صنعتی تجربہ ضروری نہیں۔",
+        outcome: "ایک سادہ کنسنٹریٹر کا مکمل ماس بیلنس اور ایک حقیقی کچ دھات کے لیے سیمپلنگ پلان۔",
         modules: [
-          ["ویب کیسے کام کرتا ہے", "براؤزر، سرور، URL اور HTTP؛ ایڈیٹر اور ٹرمینل کی تیاری؛ پہلا صفحہ آن لائن کرنا"],
-          ["بامعنی HTML", "سیمینٹک ڈھانچہ، لنکس، فارمز، تصاویر اور میڈیا، رسائی کی بنیادی باتیں"],
-          ["CSS لے آؤٹ", "باکس ماڈل، Flexbox، Grid، ریسپانسیو ڈیزائن، کسٹم پراپرٹیز"],
-          ["JavaScript کی بنیادی باتیں", "ویلیوز اور فنکشنز، ارے اور آبجیکٹس، DOM، ایونٹس"],
-          ["ڈیولپر کی طرح کام کرنا", "Git اور GitHub، fetch اور JSON، DevTools سے ڈیبگنگ، سائٹ ڈپلائے کرنا"]
+          ["معدنیات، کچ دھاتیں اور ذخائر", "معدنیات کی خصوصیات، کچ دھات کی اقسام، گریڈ اور کٹ آف، ذخائر کیسے بنتے ہیں"],
+          ["کان سے دھات تک", "تلاش، کان کنی، پروسیسنگ، سمیلٹنگ اور ریفائننگ، کان کی بندش"],
+          ["سیمپلنگ اور پیمائش", "سیمپلنگ تھیوری، ذرات کے سائز کا تجزیہ، ایسے، نمی اور کثافت"],
+          ["ماس بیلنس", "ریکوری، گریڈ اور ییلڈ، ٹو پروڈکٹ فارمولا، فلو شیٹ کا بیلنس"],
+          ["حفاظت اور ماحول", "سائٹ کے خطرات، گرد اور شور، ٹیلنگز اور پانی، ضوابط"]
         ]
       },
       fr: {
-        title: "Fondations du web : HTML, CSS et JavaScript",
-        summary: "Partez d'un fichier vide et terminez avec un site adaptatif et accessible, publié sur votre propre domaine.",
-        prereq: "Aucune expérience requise. Un ordinateur et un navigateur suffisent.",
-        outcome: "Un site personnel publié et trois pages plus petites pour votre portfolio.",
+        title: "Introduction au génie minéral",
+        summary: "Suivez un minerai du gisement jusqu'au produit vendable, et apprenez les mesures et les bilans sur lesquels reposent tous les cours suivants.",
+        prereq: "Chimie et mathématiques du lycée. Aucune expérience du secteur n'est requise.",
+        outcome: "Un bilan matière complet pour un concentrateur simple et un plan d'échantillonnage pour un minerai réel.",
         modules: [
-          ["Comment fonctionne le web", "Navigateurs, serveurs, URL et HTTP ; installation de l'éditeur et du terminal ; mise en ligne d'une première page"],
-          ["Un HTML qui a du sens", "Structure sémantique, liens, formulaires, images et médias, bases de l'accessibilité"],
-          ["Mise en page CSS", "Modèle de boîte, Flexbox, Grid, design adaptatif, propriétés personnalisées"],
-          ["L'essentiel de JavaScript", "Valeurs et fonctions, tableaux et objets, le DOM, les événements"],
-          ["Travailler comme un développeur", "Git et GitHub, fetch et JSON, débogage avec les DevTools, déploiement d'un site"]
+          ["Minéraux, minerais et gisements", "Propriétés des minéraux, types de minerais, teneur et teneur de coupure, formation des gisements"],
+          ["De la mine au métal", "Exploration, exploitation, traitement, fusion et raffinage, fermeture de la mine"],
+          ["Échantillonnage et mesures", "Théorie de l'échantillonnage, analyse granulométrique, analyses chimiques, humidité et densité"],
+          ["Bilans matière", "Récupération, teneur et rendement, formule à deux produits, bilan d'un schéma de traitement"],
+          ["Sécurité et environnement", "Dangers sur site, poussières et bruit, résidus et eau, réglementation"]
         ]
       },
       es: {
-        title: "Fundamentos web: HTML, CSS y JavaScript",
-        summary: "Empieza con un archivo vacío y termina con un sitio adaptable y accesible, publicado en tu propio dominio.",
-        prereq: "No hace falta experiencia. Basta con un ordenador y un navegador.",
-        outcome: "Un sitio personal publicado y tres páginas más pequeñas para tu portafolio.",
+        title: "Introducción a la ingeniería de minerales",
+        summary: "Sigue una mena desde el yacimiento hasta un producto vendible y aprende las mediciones y los balances en los que se apoyan todos los cursos posteriores.",
+        prereq: "Química y matemáticas de secundaria. No hace falta experiencia en el sector.",
+        outcome: "Un balance de masa completo de una concentradora sencilla y un plan de muestreo para una mena real.",
         modules: [
-          ["Cómo funciona la web", "Navegadores, servidores, URL y HTTP; preparación del editor y la terminal; publicación de una primera página"],
-          ["HTML con significado", "Estructura semántica, enlaces, formularios, imágenes y medios, bases de accesibilidad"],
-          ["Maquetación con CSS", "Modelo de caja, Flexbox, Grid, diseño adaptable, propiedades personalizadas"],
-          ["Lo esencial de JavaScript", "Valores y funciones, arrays y objetos, el DOM, eventos"],
-          ["Trabajar como desarrollador", "Git y GitHub, fetch y JSON, depuración con DevTools, despliegue de un sitio"]
+          ["Minerales, menas y yacimientos", "Propiedades de los minerales, tipos de mena, ley y ley de corte, cómo se forman los yacimientos"],
+          ["De la mina al metal", "Exploración, explotación, procesamiento, fundición y refinación, cierre de mina"],
+          ["Muestreo y medición", "Teoría del muestreo, análisis granulométrico, ensayos químicos, humedad y densidad"],
+          ["Balances de masa", "Recuperación, ley y rendimiento, fórmula de dos productos, balance de un diagrama de flujo"],
+          ["Seguridad y medio ambiente", "Peligros en la faena, polvo y ruido, relaves y agua, normativa"]
         ]
       }
     }
   },
   {
     code: "FZ-201", level: "intermediate", weeks: 10, lessons: 72, projects: 3,
-    stack: ["TypeScript", "React", "Next.js", "Tailwind CSS", "Playwright"],
+    stack: ["Bond work index", "Partition curves", "Population balance", "Circuit simulation"],
     t: {
       en: {
-        title: "Frontend Engineering with React and TypeScript",
-        summary: "Build fast, typed, tested interfaces the way product teams do.",
-        prereq: "FZ-101, or equivalent HTML, CSS and JavaScript.",
-        outcome: "A complete dashboard application with sign-in, tests and a performance report.",
+        title: "Comminution and Classification",
+        summary: "Size and operate the crushing, grinding and classification circuits that use most of a plant's energy.",
+        prereq: "FZ-101.",
+        outcome: "A sized crushing and grinding circuit with an energy estimate, worked out from ore test data.",
         modules: [
-          ["TypeScript for interfaces", "Types, generics, narrowing, typing component props and API data"],
-          ["React fundamentals", "Components, state, effects, forms, lists and keys"],
-          ["Application structure with Next.js", "Routing, server and client components, data fetching, caching"],
-          ["Styling and accessibility", "Design tokens, Tailwind CSS, keyboard and screen-reader support"],
-          ["Quality and performance", "Unit and end-to-end tests, Core Web Vitals, bundle analysis"]
+          ["Breakage and energy", "The laws of Rittinger, Kick and Bond; Bond work index; specific energy"],
+          ["Crushing", "Jaw, gyratory and cone crushers, high-pressure grinding rolls, reduction ratio, circuit layouts"],
+          ["Grinding", "Ball, rod, SAG and AG mills; liners and media; critical speed; mill power"],
+          ["Screening and classification", "Screens, hydrocyclones, partition curves, cut size"],
+          ["Circuit design and control", "Closed circuits, circulating load, population balance models, energy efficiency"]
         ]
       },
       ar: {
-        title: "هندسة الواجهات باستخدام React و TypeScript",
-        summary: "ابنِ واجهات سريعة ومضبوطة الأنواع ومُختبَرة كما تفعل فرق المنتجات.",
-        prereq: "دورة FZ-101 أو ما يعادلها في HTML و CSS و JavaScript.",
-        outcome: "تطبيق لوحة تحكم كامل مع تسجيل دخول واختبارات وتقرير أداء.",
+        title: "التفتيت والتصنيف",
+        summary: "حدّد أحجام دوائر التكسير والطحن والتصنيف وشغّلها، وهي التي تستهلك معظم طاقة المصنع.",
+        prereq: "دورة FZ-101.",
+        outcome: "دائرة تكسير وطحن محدَّدة الأحجام مع تقدير للطاقة، محسوبة من بيانات اختبار الخام.",
         modules: [
-          ["TypeScript للواجهات", "الأنواع، الأنواع العامة، تضييق الأنواع، تحديد أنواع خصائص المكوّنات وبيانات الـ API"],
-          ["أساسيات React", "المكوّنات، الحالة، التأثيرات، النماذج، القوائم والمفاتيح"],
-          ["بنية التطبيق مع Next.js", "التوجيه، مكوّنات الخادم والعميل، جلب البيانات، التخزين المؤقت"],
-          ["التنسيق وسهولة الوصول", "رموز التصميم، Tailwind CSS، دعم لوحة المفاتيح وقارئات الشاشة"],
-          ["الجودة والأداء", "اختبارات الوحدة والاختبارات الشاملة، Core Web Vitals، تحليل حجم الحزم"]
+          ["التكسّر والطاقة", "قوانين Rittinger و Kick و Bond؛ معامل الشغل لـ Bond؛ الطاقة النوعية"],
+          ["التكسير", "الكسارات الفكية والمخروطية والدوّارة، أسطوانات الطحن عالية الضغط، نسبة التصغير، ترتيبات الدوائر"],
+          ["الطحن", "طواحين الكرات والقضبان وطواحين SAG و AG؛ البطانات ووسائط الطحن؛ السرعة الحرجة؛ قدرة الطاحونة"],
+          ["الغربلة والتصنيف", "الغرابيل، الهيدروسيكلونات، منحنيات الفصل، حجم القطع"],
+          ["تصميم الدوائر والتحكم فيها", "الدوائر المغلقة، الحمل الدوّار، نماذج موازنة التعداد، كفاءة الطاقة"]
         ]
       },
       ur: {
-        title: "React اور TypeScript کے ساتھ فرنٹ اینڈ انجینئرنگ",
-        summary: "تیز، ٹائپ شدہ اور ٹیسٹ شدہ انٹرفیس اسی طرح بنائیں جیسے پروڈکٹ ٹیمیں بناتی ہیں۔",
-        prereq: "FZ-101، یا HTML، CSS اور JavaScript کی مساوی مہارت۔",
-        outcome: "سائن اِن، ٹیسٹس اور کارکردگی کی رپورٹ کے ساتھ ایک مکمل ڈیش بورڈ ایپلیکیشن۔",
+        title: "کمینیوشن اور کلاسیفیکیشن",
+        summary: "کرشنگ، گرائنڈنگ اور کلاسیفیکیشن سرکٹس کا سائز طے کریں اور انہیں چلائیں، جو پلانٹ کی زیادہ تر توانائی استعمال کرتے ہیں۔",
+        prereq: "FZ-101۔",
+        outcome: "کچ دھات کے ٹیسٹ ڈیٹا سے تیار کردہ، توانائی کے تخمینے کے ساتھ ایک سائز شدہ کرشنگ اور گرائنڈنگ سرکٹ۔",
         modules: [
-          ["انٹرفیس کے لیے TypeScript", "ٹائپس، جینرکس، نیروئنگ، کمپوننٹ پراپس اور API ڈیٹا کی ٹائپنگ"],
-          ["React کی بنیادیں", "کمپوننٹس، اسٹیٹ، ایفیکٹس، فارمز، فہرستیں اور کیز"],
-          ["Next.js کے ساتھ ایپلیکیشن کا ڈھانچہ", "روٹنگ، سرور اور کلائنٹ کمپوننٹس، ڈیٹا فیچنگ، کیشنگ"],
-          ["اسٹائلنگ اور رسائی", "ڈیزائن ٹوکنز، Tailwind CSS، کی بورڈ اور اسکرین ریڈر سپورٹ"],
-          ["معیار اور کارکردگی", "یونٹ اور اینڈ ٹو اینڈ ٹیسٹس، Core Web Vitals، بنڈل کا تجزیہ"]
+          ["ٹوٹ پھوٹ اور توانائی", "Rittinger، Kick اور Bond کے قوانین؛ Bond ورک انڈیکس؛ مخصوص توانائی"],
+          ["کرشنگ", "جا، جائریٹری اور کون کرشرز، ہائی پریشر گرائنڈنگ رولز، ریڈکشن ریشو، سرکٹ کی ترتیب"],
+          ["گرائنڈنگ", "بال، راڈ، SAG اور AG ملز؛ لائنرز اور میڈیا؛ کریٹیکل اسپیڈ؛ مل پاور"],
+          ["اسکریننگ اور کلاسیفیکیشن", "اسکرینز، ہائیڈرو سائیکلونز، پارٹیشن کروز، کٹ سائز"],
+          ["سرکٹ ڈیزائن اور کنٹرول", "کلوزڈ سرکٹس، سرکولیٹنگ لوڈ، پاپولیشن بیلنس ماڈلز، توانائی کی بچت"]
         ]
       },
       fr: {
-        title: "Ingénierie frontend avec React et TypeScript",
-        summary: "Construisez des interfaces rapides, typées et testées, comme le font les équipes produit.",
-        prereq: "FZ-101, ou un niveau équivalent en HTML, CSS et JavaScript.",
-        outcome: "Une application de tableau de bord complète avec connexion, tests et rapport de performance.",
+        title: "Comminution et classification",
+        summary: "Dimensionnez et exploitez les circuits de concassage, de broyage et de classification, qui consomment l'essentiel de l'énergie d'une usine.",
+        prereq: "FZ-101.",
+        outcome: "Un circuit de concassage et de broyage dimensionné, avec une estimation énergétique, établi à partir de données d'essais sur le minerai.",
         modules: [
-          ["TypeScript pour les interfaces", "Types, génériques, affinage de types, typage des props et des données d'API"],
-          ["Les bases de React", "Composants, état, effets, formulaires, listes et clés"],
-          ["Structurer une application avec Next.js", "Routage, composants serveur et client, récupération des données, mise en cache"],
-          ["Styles et accessibilité", "Jetons de design, Tailwind CSS, navigation au clavier et lecteurs d'écran"],
-          ["Qualité et performance", "Tests unitaires et de bout en bout, Core Web Vitals, analyse du bundle"]
+          ["Fragmentation et énergie", "Lois de Rittinger, Kick et Bond ; indice de Bond ; énergie spécifique"],
+          ["Concassage", "Concasseurs à mâchoires, giratoires et à cône, presses à rouleaux haute pression, rapport de réduction, schémas de circuit"],
+          ["Broyage", "Broyeurs à boulets, à barres, semi-autogènes et autogènes ; blindages et corps broyants ; vitesse critique ; puissance du broyeur"],
+          ["Criblage et classification", "Cribles, hydrocyclones, courbes de partage, maille de coupure"],
+          ["Conception et conduite des circuits", "Circuits fermés, charge circulante, modèles de bilan de population, efficacité énergétique"]
         ]
       },
       es: {
-        title: "Ingeniería frontend con React y TypeScript",
-        summary: "Construye interfaces rápidas, tipadas y probadas como lo hacen los equipos de producto.",
-        prereq: "FZ-101, o un nivel equivalente de HTML, CSS y JavaScript.",
-        outcome: "Una aplicación de panel completa con inicio de sesión, pruebas e informe de rendimiento.",
+        title: "Conminución y clasificación",
+        summary: "Dimensiona y opera los circuitos de trituración, molienda y clasificación, que consumen la mayor parte de la energía de una planta.",
+        prereq: "FZ-101.",
+        outcome: "Un circuito de trituración y molienda dimensionado, con estimación de energía, calculado a partir de datos de ensayo de la mena.",
         modules: [
-          ["TypeScript para interfaces", "Tipos, genéricos, estrechamiento de tipos, tipado de props y de datos de API"],
-          ["Fundamentos de React", "Componentes, estado, efectos, formularios, listas y claves"],
-          ["Estructura de una aplicación con Next.js", "Enrutamiento, componentes de servidor y de cliente, obtención de datos, caché"],
-          ["Estilos y accesibilidad", "Tokens de diseño, Tailwind CSS, soporte de teclado y lectores de pantalla"],
-          ["Calidad y rendimiento", "Pruebas unitarias y de extremo a extremo, Core Web Vitals, análisis del bundle"]
+          ["Fractura y energía", "Leyes de Rittinger, Kick y Bond; índice de trabajo de Bond; energía específica"],
+          ["Trituración", "Trituradoras de mandíbulas, giratorias y de cono, rodillos de alta presión, razón de reducción, configuraciones de circuito"],
+          ["Molienda", "Molinos de bolas, de barras, SAG y AG; revestimientos y medios de molienda; velocidad crítica; potencia del molino"],
+          ["Cribado y clasificación", "Cribas, hidrociclones, curvas de partición, tamaño de corte"],
+          ["Diseño y control de circuitos", "Circuitos cerrados, carga circulante, modelos de balance poblacional, eficiencia energética"]
         ]
       }
     }
   },
   {
     code: "FZ-202", level: "intermediate", weeks: 10, lessons: 70, projects: 3,
-    stack: ["Node.js", "PostgreSQL", "REST", "Docker", "GitHub Actions"],
+    stack: ["Flotation tests", "Grade–recovery curves", "Dense medium separation", "Thickener sizing"],
     t: {
       en: {
-        title: "Backend APIs with Node.js and PostgreSQL",
-        summary: "Design, secure and deploy the server side of a real product, subscriptions included.",
-        prereq: "Comfortable JavaScript. FZ-101 is enough.",
-        outcome: "A documented, deployed API with sign-in, subscription payments in test mode and automated releases.",
+        title: "Mineral Separation: Flotation, Gravity and Magnetic",
+        summary: "Choose and tune the separation method for an ore, then handle the water and tailings that come out of it.",
+        prereq: "FZ-101. FZ-201 is recommended.",
+        outcome: "A separation flowsheet for a given ore with predicted grade and recovery.",
         modules: [
-          ["HTTP services in Node.js", "Routing, validation, error handling, REST design, OpenAPI documentation"],
-          ["Data with PostgreSQL", "Schema design, SQL, migrations, indexes, transactions"],
-          ["Authentication and security", "Sessions and tokens, password hashing, OAuth sign-in, the OWASP Top 10"],
-          ["Payments and subscriptions", "Checkout, webhooks, plans and invoices, handling failed payments"],
-          ["Deployment and operations", "Docker, CI/CD pipelines, logs and metrics, backups"]
+          ["Liberation and separation principles", "Mineral liberation, grade–recovery curves, separation efficiency"],
+          ["Gravity concentration", "Jigs, spirals, shaking tables, dense medium separation, centrifugal concentrators"],
+          ["Magnetic and electrostatic separation", "Low- and high-intensity magnetic separators, wet high-intensity separation, electrostatic separators"],
+          ["Froth flotation", "Surface chemistry, collectors, frothers and modifiers, flotation cells, kinetics"],
+          ["Dewatering and tailings", "Thickeners, filters, flocculants, tailings storage, water recovery"]
         ]
       },
       ar: {
-        title: "واجهات الخادم البرمجية باستخدام Node.js و PostgreSQL",
-        summary: "صمّم جانب الخادم لمنتج حقيقي وأمّنه وانشره، بما في ذلك الاشتراكات.",
-        prereq: "إلمام جيد بلغة JavaScript. دورة FZ-101 كافية.",
-        outcome: "واجهة API موثّقة ومنشورة مع تسجيل دخول ومدفوعات اشتراك في وضع الاختبار وإصدارات مؤتمتة.",
+        title: "فصل المعادن: التعويم والجاذبية والفصل المغناطيسي",
+        summary: "اختر طريقة الفصل المناسبة للخام واضبطها، ثم تعامل مع المياه والمخلفات الناتجة عنها.",
+        prereq: "دورة FZ-101، ويُنصح بدورة FZ-201.",
+        outcome: "مخطط فصل لخام معيّن مع الرتبة ونسبة الاستخلاص المتوقعتين.",
         modules: [
-          ["خدمات HTTP في Node.js", "التوجيه، التحقق من المدخلات، معالجة الأخطاء، تصميم REST، توثيق OpenAPI"],
-          ["البيانات مع PostgreSQL", "تصميم المخطط، SQL، الترحيلات، الفهارس، المعاملات"],
-          ["المصادقة والأمان", "الجلسات والرموز، تجزئة كلمات المرور، تسجيل الدخول عبر OAuth، قائمة OWASP Top 10"],
-          ["المدفوعات والاشتراكات", "صفحة الدفع، الـ webhooks، الخطط والفواتير، التعامل مع المدفوعات الفاشلة"],
-          ["النشر والتشغيل", "Docker، خطوط CI/CD، السجلات والمقاييس، النسخ الاحتياطي"]
+          ["مبادئ التحرّر والفصل", "تحرّر المعادن، منحنيات الرتبة والاستخلاص، كفاءة الفصل"],
+          ["التركيز بالجاذبية", "الجيغات، اللوالب، الطاولات الهزّازة، الفصل بالوسط الثقيل، المركّزات بالطرد المركزي"],
+          ["الفصل المغناطيسي والكهروستاتيكي", "الفواصل المغناطيسية منخفضة وعالية الشدة، الفصل الرطب عالي الشدة، الفواصل الكهروستاتيكية"],
+          ["التعويم الرغوي", "كيمياء السطوح، المجمِّعات والمرغِّيات والمعدِّلات، خلايا التعويم، حركية التعويم"],
+          ["نزع الماء والمخلفات", "المكثِّفات، المرشِّحات، المواد المُلبِّدة، تخزين المخلفات، استرجاع المياه"]
         ]
       },
       ur: {
-        title: "Node.js اور PostgreSQL کے ساتھ بیک اینڈ APIs",
-        summary: "ایک حقیقی پروڈکٹ کا سرور سائیڈ ڈیزائن، محفوظ اور ڈپلائے کریں، سبسکرپشنز سمیت۔",
-        prereq: "JavaScript پر اچھی گرفت۔ FZ-101 کافی ہے۔",
-        outcome: "سائن اِن، ٹیسٹ موڈ میں سبسکرپشن ادائیگیوں اور خودکار ریلیز کے ساتھ ایک دستاویزی، ڈپلائے شدہ API۔",
+        title: "معدنیات کی علیحدگی: فلوٹیشن، گریویٹی اور مقناطیسی",
+        summary: "کچ دھات کے لیے علیحدگی کا طریقہ منتخب کریں اور اسے بہتر بنائیں، پھر اس سے نکلنے والے پانی اور ٹیلنگز کو سنبھالیں۔",
+        prereq: "FZ-101۔ FZ-201 کی سفارش کی جاتی ہے۔",
+        outcome: "ایک دی گئی کچ دھات کے لیے علیحدگی کا فلو شیٹ، متوقع گریڈ اور ریکوری کے ساتھ۔",
         modules: [
-          ["Node.js میں HTTP سروسز", "روٹنگ، ویلیڈیشن، ایرر ہینڈلنگ، REST ڈیزائن، OpenAPI دستاویزات"],
-          ["PostgreSQL کے ساتھ ڈیٹا", "اسکیما ڈیزائن، SQL، مائیگریشنز، انڈیکسز، ٹرانزیکشنز"],
-          ["تصدیق اور سیکیورٹی", "سیشنز اور ٹوکنز، پاس ورڈ ہیشنگ، OAuth سائن اِن، OWASP Top 10"],
-          ["ادائیگیاں اور سبسکرپشنز", "چیک آؤٹ، webhooks، پلانز اور انوائسز، ناکام ادائیگیوں کو سنبھالنا"],
-          ["ڈپلائمنٹ اور آپریشنز", "Docker، CI/CD پائپ لائنز، لاگز اور میٹرکس، بیک اپس"]
+          ["لبریشن اور علیحدگی کے اصول", "معدنیات کی لبریشن، گریڈ–ریکوری کروز، علیحدگی کی کارکردگی"],
+          ["گریویٹی کنسنٹریشن", "جِگز، اسپائرلز، شیکنگ ٹیبلز، ڈینس میڈیم سیپریشن، سینٹری فیوگل کنسنٹریٹرز"],
+          ["مقناطیسی اور الیکٹرو اسٹیٹک علیحدگی", "کم اور زیادہ شدت والے مقناطیسی سیپریٹرز، ویٹ ہائی انٹینسٹی سیپریشن، الیکٹرو اسٹیٹک سیپریٹرز"],
+          ["فروتھ فلوٹیشن", "سطحی کیمیا، کلیکٹرز، فروتھرز اور موڈیفائرز، فلوٹیشن سیلز، کائنیٹکس"],
+          ["ڈی واٹرنگ اور ٹیلنگز", "تھکنرز، فلٹرز، فلوکولینٹس، ٹیلنگز کا ذخیرہ، پانی کی بازیافت"]
         ]
       },
       fr: {
-        title: "API backend avec Node.js et PostgreSQL",
-        summary: "Concevez, sécurisez et déployez le côté serveur d'un vrai produit, abonnements compris.",
-        prereq: "Être à l'aise en JavaScript. FZ-101 suffit.",
-        outcome: "Une API documentée et déployée, avec connexion, paiements d'abonnement en mode test et mises en production automatisées.",
+        title: "Séparation des minéraux : flottation, gravimétrie et magnétisme",
+        summary: "Choisissez et réglez la méthode de séparation adaptée à un minerai, puis gérez l'eau et les résidus qui en sortent.",
+        prereq: "FZ-101. FZ-201 est recommandé.",
+        outcome: "Un schéma de séparation pour un minerai donné, avec la teneur et la récupération prévues.",
         modules: [
-          ["Services HTTP avec Node.js", "Routage, validation, gestion des erreurs, conception REST, documentation OpenAPI"],
-          ["Les données avec PostgreSQL", "Conception de schéma, SQL, migrations, index, transactions"],
-          ["Authentification et sécurité", "Sessions et jetons, hachage des mots de passe, connexion OAuth, le Top 10 de l'OWASP"],
-          ["Paiements et abonnements", "Paiement en ligne, webhooks, offres et factures, gestion des paiements échoués"],
-          ["Déploiement et exploitation", "Docker, pipelines CI/CD, journaux et métriques, sauvegardes"]
+          ["Libération et principes de séparation", "Libération des minéraux, courbes teneur–récupération, efficacité de séparation"],
+          ["Concentration gravimétrique", "Jigs, spirales, tables à secousses, séparation en milieu dense, concentrateurs centrifuges"],
+          ["Séparation magnétique et électrostatique", "Séparateurs magnétiques à basse et haute intensité, séparation humide à haute intensité, séparateurs électrostatiques"],
+          ["Flottation par mousse", "Chimie des surfaces, collecteurs, moussants et modificateurs, cellules de flottation, cinétique"],
+          ["Déshydratation et résidus", "Épaississeurs, filtres, floculants, stockage des résidus, récupération de l'eau"]
         ]
       },
       es: {
-        title: "APIs backend con Node.js y PostgreSQL",
-        summary: "Diseña, protege y despliega el lado servidor de un producto real, suscripciones incluidas.",
-        prereq: "Buen manejo de JavaScript. Con FZ-101 es suficiente.",
-        outcome: "Una API documentada y desplegada, con inicio de sesión, pagos de suscripción en modo de prueba y publicaciones automatizadas.",
+        title: "Separación de minerales: flotación, gravimetría y magnetismo",
+        summary: "Elige y ajusta el método de separación adecuado para una mena, y gestiona después el agua y los relaves que produce.",
+        prereq: "FZ-101. Se recomienda FZ-201.",
+        outcome: "Un diagrama de separación para una mena dada, con la ley y la recuperación previstas.",
         modules: [
-          ["Servicios HTTP en Node.js", "Enrutamiento, validación, manejo de errores, diseño REST, documentación OpenAPI"],
-          ["Datos con PostgreSQL", "Diseño de esquemas, SQL, migraciones, índices, transacciones"],
-          ["Autenticación y seguridad", "Sesiones y tokens, hash de contraseñas, inicio de sesión con OAuth, el OWASP Top 10"],
-          ["Pagos y suscripciones", "Checkout, webhooks, planes y facturas, gestión de pagos fallidos"],
-          ["Despliegue y operaciones", "Docker, pipelines de CI/CD, registros y métricas, copias de seguridad"]
+          ["Liberación y principios de separación", "Liberación mineral, curvas ley–recuperación, eficiencia de separación"],
+          ["Concentración gravimétrica", "Jigs, espirales, mesas vibratorias, separación en medio denso, concentradores centrífugos"],
+          ["Separación magnética y electrostática", "Separadores magnéticos de baja y alta intensidad, separación húmeda de alta intensidad, separadores electrostáticos"],
+          ["Flotación por espuma", "Química de superficies, colectores, espumantes y modificadores, celdas de flotación, cinética"],
+          ["Desaguado y relaves", "Espesadores, filtros, floculantes, depósitos de relaves, recuperación de agua"]
         ]
       }
     }
   },
   {
     code: "FZ-203", level: "intermediate", weeks: 9, lessons: 60, projects: 3,
-    stack: ["React Native", "Expo", "TypeScript", "SQLite"],
+    stack: ["Pourbaix diagrams", "Ellingham diagrams", "SX-EW", "Cyanidation"],
     t: {
       en: {
-        title: "Mobile Apps with React Native",
-        summary: "One codebase, two stores. Build and release an app for iOS and Android.",
-        prereq: "FZ-201, or solid React experience.",
-        outcome: "An app built, signed and ready to submit to the App Store and Google Play.",
+        title: "Extractive Metallurgy: Hydrometallurgy and Pyrometallurgy",
+        summary: "Turn a concentrate into metal, by solution chemistry or by heat, and know when to use which.",
+        prereq: "FZ-101 and basic chemistry.",
+        outcome: "A leach, solvent extraction and electrowinning flowsheet with reagent and energy estimates.",
         modules: [
-          ["Native building blocks", "Expo setup, core components, layout, differences between platforms"],
-          ["Navigation and state", "Stacks and tabs, deep links, server state, forms"],
-          ["Device features", "Camera, location, push notifications, permissions"],
-          ["Offline and storage", "Local database, sync, secure storage, slow networks"],
-          ["Release", "Builds and signing, store listings, over-the-air updates, crash reporting"]
+          ["Thermodynamics for extraction", "Eh–pH (Pourbaix) diagrams, Ellingham diagrams, reaction kinetics"],
+          ["Leaching", "Heap, tank and pressure leaching; gold cyanidation; acid leaching of copper"],
+          ["Solution purification and recovery", "Solvent extraction, ion exchange, carbon adsorption, electrowinning"],
+          ["Pyrometallurgy", "Roasting, smelting, converting, slags, off-gas handling"],
+          ["Refining and products", "Electrorefining, product specifications, by-products, residues"]
         ]
       },
       ar: {
-        title: "تطبيقات الجوّال باستخدام React Native",
-        summary: "شيفرة واحدة ومتجران. ابنِ تطبيقًا لنظامي iOS و Android وأصدره.",
-        prereq: "دورة FZ-201 أو خبرة جيدة في React.",
-        outcome: "تطبيق مبنيّ وموقَّع وجاهز للإرسال إلى App Store و Google Play.",
+        title: "الميتالورجيا الاستخلاصية: المائية والحرارية",
+        summary: "حوّل الركاز إلى فلز، بكيمياء المحاليل أو بالحرارة، واعرف متى تستخدم كل طريقة.",
+        prereq: "دورة FZ-101 وأساسيات الكيمياء.",
+        outcome: "مخطط للإذابة والاستخلاص بالمذيبات والاستخلاص الكهربائي مع تقديرات للكواشف والطاقة.",
         modules: [
-          ["اللبنات الأساسية للتطبيق", "إعداد Expo، المكوّنات الأساسية، التخطيط، الفروق بين المنصّات"],
-          ["التنقل والحالة", "التنقل المكدّس والتبويبات، الروابط العميقة، حالة الخادم، النماذج"],
-          ["مزايا الجهاز", "الكاميرا، الموقع، الإشعارات الفورية، الأذونات"],
-          ["العمل دون اتصال والتخزين", "قاعدة بيانات محلية، المزامنة، التخزين الآمن، الشبكات البطيئة"],
-          ["الإصدار", "البناء والتوقيع، صفحات المتاجر، التحديثات عبر الهواء، تقارير الأعطال"]
+          ["الديناميكا الحرارية للاستخلاص", "مخططات Eh–pH (Pourbaix)، مخططات Ellingham، حركية التفاعلات"],
+          ["الإذابة (Leaching)", "الإذابة في الأكوام والخزانات وتحت الضغط؛ سيندة الذهب؛ الإذابة الحمضية للنحاس"],
+          ["تنقية المحاليل واستخلاص الفلز", "الاستخلاص بالمذيبات، التبادل الأيوني، الامتزاز على الكربون، الاستخلاص الكهربائي"],
+          ["الميتالورجيا الحرارية", "التحميص، الصهر، التحويل، الخبث، معالجة الغازات المنبعثة"],
+          ["التنقية والمنتجات", "التنقية الكهربائية، مواصفات المنتج، المنتجات الثانوية، المتبقيات"]
         ]
       },
       ur: {
-        title: "React Native کے ساتھ موبائل ایپس",
-        summary: "ایک کوڈ بیس، دو اسٹورز۔ iOS اور Android کے لیے ایپ بنائیں اور ریلیز کریں۔",
-        prereq: "FZ-201، یا React کا ٹھوس تجربہ۔",
-        outcome: "ایک ایپ جو بِلڈ اور سائن ہو چکی ہو اور App Store اور Google Play پر جمع کرانے کے لیے تیار ہو۔",
+        title: "ایکسٹریکٹو میٹالرجی: ہائیڈرو اور پائرو میٹالرجی",
+        summary: "کنسنٹریٹ کو محلول کی کیمیا یا حرارت کے ذریعے دھات میں بدلیں، اور جانیں کہ کب کون سا طریقہ استعمال کرنا ہے۔",
+        prereq: "FZ-101 اور بنیادی کیمسٹری۔",
+        outcome: "لیچنگ، سالوینٹ ایکسٹریکشن اور الیکٹرو وِننگ کا فلو شیٹ، ری ایجنٹس اور توانائی کے تخمینوں کے ساتھ۔",
         modules: [
-          ["نیٹو بنیادی اجزا", "Expo سیٹ اپ، بنیادی کمپوننٹس، لے آؤٹ، پلیٹ فارمز کے فرق"],
-          ["نیویگیشن اور اسٹیٹ", "اسٹیکس اور ٹیبز، ڈیپ لنکس، سرور اسٹیٹ، فارمز"],
-          ["ڈیوائس کی خصوصیات", "کیمرا، لوکیشن، پُش نوٹیفکیشنز، اجازتیں"],
-          ["آف لائن اور اسٹوریج", "مقامی ڈیٹا بیس، سنک، محفوظ اسٹوریج، سست نیٹ ورکس"],
-          ["ریلیز", "بِلڈز اور سائننگ، اسٹور لسٹنگز، اوور دی ایئر اپ ڈیٹس، کریش رپورٹنگ"]
+          ["ایکسٹریکشن کے لیے تھرموڈائنامکس", "Eh–pH (Pourbaix) ڈایاگرامز، Ellingham ڈایاگرامز، تعامل کی کائنیٹکس"],
+          ["لیچنگ", "ہیپ، ٹینک اور پریشر لیچنگ؛ سونے کی سائنائیڈیشن؛ تانبے کی ایسڈ لیچنگ"],
+          ["محلول کی صفائی اور دھات کی بازیافت", "سالوینٹ ایکسٹریکشن، آئن ایکسچینج، کاربن ایڈزورپشن، الیکٹرو وِننگ"],
+          ["پائرو میٹالرجی", "روسٹنگ، سمیلٹنگ، کنورٹنگ، سلیگ، خارج ہونے والی گیسوں کا انتظام"],
+          ["ریفائننگ اور مصنوعات", "الیکٹرو ریفائننگ، پروڈکٹ کی خصوصیات، ضمنی مصنوعات، باقیات"]
         ]
       },
       fr: {
-        title: "Applications mobiles avec React Native",
-        summary: "Un seul code, deux boutiques. Créez et publiez une application pour iOS et Android.",
-        prereq: "FZ-201, ou une solide expérience de React.",
-        outcome: "Une application compilée, signée et prête à être soumise à l'App Store et à Google Play.",
+        title: "Métallurgie extractive : hydrométallurgie et pyrométallurgie",
+        summary: "Transformez un concentré en métal, par la chimie des solutions ou par la chaleur, et sachez quand choisir l'une ou l'autre.",
+        prereq: "FZ-101 et des bases de chimie.",
+        outcome: "Un schéma de lixiviation, d'extraction par solvant et d'électro-extraction, avec estimation des réactifs et de l'énergie.",
         modules: [
-          ["Les briques natives", "Installation d'Expo, composants de base, mise en page, différences entre plateformes"],
-          ["Navigation et état", "Piles et onglets, liens profonds, état serveur, formulaires"],
-          ["Fonctions de l'appareil", "Appareil photo, localisation, notifications push, autorisations"],
-          ["Hors ligne et stockage", "Base de données locale, synchronisation, stockage sécurisé, réseaux lents"],
-          ["Publication", "Compilation et signature, fiches des boutiques, mises à jour à distance, rapports de plantage"]
+          ["Thermodynamique de l'extraction", "Diagrammes Eh–pH (Pourbaix), diagrammes d'Ellingham, cinétique des réactions"],
+          ["Lixiviation", "Lixiviation en tas, en cuve et sous pression ; cyanuration de l'or ; lixiviation acide du cuivre"],
+          ["Purification des solutions et récupération", "Extraction par solvant, échange d'ions, adsorption sur charbon actif, électro-extraction"],
+          ["Pyrométallurgie", "Grillage, fusion, convertissage, scories, traitement des gaz"],
+          ["Raffinage et produits", "Électroraffinage, spécifications des produits, sous-produits, résidus"]
         ]
       },
       es: {
-        title: "Aplicaciones móviles con React Native",
-        summary: "Un solo código, dos tiendas. Crea y publica una aplicación para iOS y Android.",
-        prereq: "FZ-201, o experiencia sólida con React.",
-        outcome: "Una aplicación compilada, firmada y lista para enviar a App Store y Google Play.",
+        title: "Metalurgia extractiva: hidrometalurgia y pirometalurgia",
+        summary: "Convierte un concentrado en metal, mediante química de soluciones o mediante calor, y aprende cuándo usar cada vía.",
+        prereq: "FZ-101 y química básica.",
+        outcome: "Un diagrama de lixiviación, extracción por solventes y electroobtención, con estimaciones de reactivos y energía.",
         modules: [
-          ["Piezas nativas", "Configuración de Expo, componentes básicos, maquetación, diferencias entre plataformas"],
-          ["Navegación y estado", "Pilas y pestañas, enlaces profundos, estado del servidor, formularios"],
-          ["Funciones del dispositivo", "Cámara, ubicación, notificaciones push, permisos"],
-          ["Sin conexión y almacenamiento", "Base de datos local, sincronización, almacenamiento seguro, redes lentas"],
-          ["Publicación", "Compilación y firma, fichas de las tiendas, actualizaciones remotas, informes de fallos"]
+          ["Termodinámica de la extracción", "Diagramas Eh–pH (Pourbaix), diagramas de Ellingham, cinética de reacción"],
+          ["Lixiviación", "Lixiviación en pilas, en tanques y a presión; cianuración del oro; lixiviación ácida del cobre"],
+          ["Purificación de soluciones y recuperación", "Extracción por solventes, intercambio iónico, adsorción en carbón activado, electroobtención"],
+          ["Pirometalurgia", "Tostación, fundición, conversión, escorias, manejo de gases"],
+          ["Refinación y productos", "Electrorrefinación, especificaciones de producto, subproductos, residuos"]
         ]
       }
     }
   },
   {
     code: "FZ-301", level: "advanced", weeks: 6, lessons: 44, projects: 3,
-    stack: ["Intl API", "ICU MessageFormat", "i18next", "Unicode CLDR"],
+    stack: ["Block models", "Kriging", "Pit optimization", "Discounted cash flow"],
     t: {
       en: {
-        title: "Multilingual Apps: Translation, Localization and RTL",
-        summary: "Make one product read naturally in many languages, including right-to-left scripts.",
-        prereq: "FZ-201 or FZ-203.",
-        outcome: "An existing app of yours localized into three languages, one of them right-to-left.",
+        title: "Mine Planning and Mineral Economics",
+        summary: "Decide what is worth mining, in what order, and whether the project pays.",
+        prereq: "FZ-101 and confident spreadsheet skills.",
+        outcome: "A pit design, production schedule and cash-flow model for a sample deposit.",
         modules: [
-          ["Internationalization architecture", "Locales, extracting strings, message keys, fallback chains"],
-          ["Messages that survive translation", "Plurals, grammatical gender, interpolation, ICU MessageFormat"],
-          ["Right-to-left and scripts", "Bidirectional text, CSS logical properties, fonts, mirroring icons"],
-          ["Dates, numbers and money", "The Intl API, time zones, calendars, currencies, sorting"],
-          ["Translation workflow", "Translation management, machine translation with human review, pseudo-localization, testing"]
+          ["Resource and reserve estimation", "Drilling data, block models, geostatistics and kriging, reporting under the JORC Code and NI 43-101"],
+          ["Surface mine design", "Pit optimization, slopes and benches, haul roads, scheduling"],
+          ["Underground methods", "Method selection, stoping, caving, ventilation, ground support"],
+          ["Mineral economics", "Cut-off grade, capital and operating costs, discounted cash flow, NPV and IRR"],
+          ["Feasibility studies", "Study stages, risk and sensitivity analysis, commodity prices, permitting"]
         ]
       },
       ar: {
-        title: "التطبيقات متعددة اللغات: الترجمة والتوطين ودعم RTL",
-        summary: "اجعل منتجًا واحدًا يُقرأ بسلاسة بلغات كثيرة، ومنها اللغات المكتوبة من اليمين إلى اليسار.",
-        prereq: "دورة FZ-201 أو FZ-203.",
-        outcome: "أحد تطبيقاتك موطَّنًا بثلاث لغات، إحداها تُكتب من اليمين إلى اليسار.",
+        title: "تخطيط المناجم واقتصاديات المعادن",
+        summary: "قرّر ما يستحق التعدين، وبأي ترتيب، وهل المشروع مجدٍ اقتصاديًا.",
+        prereq: "دورة FZ-101 وإتقان جداول البيانات.",
+        outcome: "تصميم حفرة وجدول إنتاج ونموذج تدفقات نقدية لراسب نموذجي.",
         modules: [
-          ["بنية التدويل", "الإعدادات المحلية، استخراج النصوص، مفاتيح الرسائل، سلاسل اللغات البديلة"],
-          ["رسائل تصمد أمام الترجمة", "صيغ الجمع، التذكير والتأنيث، إدراج المتغيرات، ICU MessageFormat"],
-          ["الكتابة من اليمين إلى اليسار وأنظمة الكتابة", "النص ثنائي الاتجاه، خصائص CSS المنطقية، الخطوط، عكس الأيقونات"],
-          ["التواريخ والأرقام والعملات", "واجهة Intl، المناطق الزمنية، التقاويم، العملات، الترتيب"],
-          ["سير عمل الترجمة", "إدارة الترجمة، الترجمة الآلية مع مراجعة بشرية، التوطين الزائف، الاختبار"]
+          ["تقدير الموارد والاحتياطيات", "بيانات الحفر، النماذج الكتلية، الإحصاء الجيولوجي وطريقة Kriging، إعداد التقارير وفق JORC و NI 43-101"],
+          ["تصميم المناجم السطحية", "تحديد الحفرة المثلى، الميول والمصاطب، طرق النقل، الجدولة"],
+          ["طرق التعدين تحت الأرض", "اختيار الطريقة، التعدين بالحجرات، التعدين بالتكهيف، التهوية، تدعيم الصخور"],
+          ["اقتصاديات المعادن", "الرتبة الحدّية، التكاليف الرأسمالية والتشغيلية، التدفقات النقدية المخصومة، NPV و IRR"],
+          ["دراسات الجدوى", "مراحل الدراسة، تحليل المخاطر والحساسية، أسعار السلع، التراخيص"]
         ]
       },
       ur: {
-        title: "کثیر لسانی ایپس: ترجمہ، لوکلائزیشن اور RTL",
-        summary: "ایک ہی پروڈکٹ کو کئی زبانوں میں فطری انداز میں پڑھنے کے قابل بنائیں، دائیں سے بائیں لکھی جانے والی زبانوں سمیت۔",
-        prereq: "FZ-201 یا FZ-203۔",
-        outcome: "آپ کی اپنی ایک ایپ تین زبانوں میں لوکلائز شدہ، جن میں سے ایک دائیں سے بائیں لکھی جاتی ہو۔",
+        title: "مائن پلاننگ اور معدنی معاشیات",
+        summary: "فیصلہ کریں کہ کیا نکالنا فائدہ مند ہے، کس ترتیب سے، اور آیا منصوبہ منافع بخش ہے۔",
+        prereq: "FZ-101 اور اسپریڈ شیٹس میں اچھی مہارت۔",
+        outcome: "ایک نمونہ ذخیرے کے لیے پِٹ ڈیزائن، پیداواری شیڈول اور کیش فلو ماڈل۔",
         modules: [
-          ["انٹرنیشنلائزیشن کا ڈھانچہ", "لوکیلز، اسٹرنگز نکالنا، میسج کیز، فال بیک چینز"],
-          ["ایسے پیغامات جو ترجمے میں نہ ٹوٹیں", "جمع کے صیغے، تذکیر و تانیث، انٹرپولیشن، ICU MessageFormat"],
-          ["دائیں سے بائیں تحریر اور رسم الخط", "دو طرفہ متن، CSS لاجیکل پراپرٹیز، فونٹس، آئیکنز کو الٹنا"],
-          ["تاریخیں، اعداد اور کرنسی", "Intl API، ٹائم زونز، کیلنڈرز، کرنسیاں، ترتیب"],
-          ["ترجمے کا ورک فلو", "ترجمے کا انتظام، انسانی جائزے کے ساتھ مشینی ترجمہ، سیوڈو لوکلائزیشن، ٹیسٹنگ"]
+          ["وسائل اور ذخائر کا تخمینہ", "ڈرلنگ ڈیٹا، بلاک ماڈلز، جیو اسٹیٹسٹکس اور کریگنگ، JORC کوڈ اور NI 43-101 کے تحت رپورٹنگ"],
+          ["سطحی کان کا ڈیزائن", "پِٹ آپٹیمائزیشن، ڈھلوانیں اور بینچز، ہال روڈز، شیڈولنگ"],
+          ["زیرِ زمین طریقے", "طریقے کا انتخاب، اسٹوپنگ، کیونگ، وینٹیلیشن، گراؤنڈ سپورٹ"],
+          ["معدنی معاشیات", "کٹ آف گریڈ، سرمایہ جاتی اور آپریٹنگ اخراجات، ڈسکاؤنٹڈ کیش فلو، NPV اور IRR"],
+          ["فزیبلٹی اسٹڈیز", "مطالعے کے مراحل، خطرے اور حساسیت کا تجزیہ، اجناس کی قیمتیں، اجازت نامے"]
         ]
       },
       fr: {
-        title: "Applications multilingues : traduction, localisation et RTL",
-        summary: "Faites en sorte qu'un même produit se lise naturellement dans de nombreuses langues, y compris celles écrites de droite à gauche.",
-        prereq: "FZ-201 ou FZ-203.",
-        outcome: "Une de vos applications localisée en trois langues, dont une écrite de droite à gauche.",
+        title: "Planification minière et économie minérale",
+        summary: "Décidez ce qui vaut la peine d'être extrait, dans quel ordre, et si le projet est rentable.",
+        prereq: "FZ-101 et une bonne maîtrise du tableur.",
+        outcome: "Une conception de fosse, un calendrier de production et un modèle de flux de trésorerie pour un gisement type.",
         modules: [
-          ["Architecture d'internationalisation", "Paramètres régionaux, extraction des chaînes, clés de messages, chaînes de repli"],
-          ["Des messages qui résistent à la traduction", "Pluriels, genre grammatical, interpolation, ICU MessageFormat"],
-          ["Droite à gauche et systèmes d'écriture", "Texte bidirectionnel, propriétés logiques CSS, polices, inversion des icônes"],
-          ["Dates, nombres et monnaies", "L'API Intl, fuseaux horaires, calendriers, devises, tri"],
-          ["Flux de traduction", "Gestion des traductions, traduction automatique avec relecture humaine, pseudo-localisation, tests"]
+          ["Estimation des ressources et des réserves", "Données de forage, modèles de blocs, géostatistique et krigeage, déclaration selon le code JORC et la norme NI 43-101"],
+          ["Conception des mines à ciel ouvert", "Optimisation de fosse, pentes et gradins, pistes de roulage, ordonnancement"],
+          ["Méthodes souterraines", "Choix de la méthode, chambres d'abattage, foudroyage, aérage, soutènement"],
+          ["Économie minérale", "Teneur de coupure, coûts d'investissement et d'exploitation, flux de trésorerie actualisés, VAN et TRI"],
+          ["Études de faisabilité", "Étapes d'étude, analyse des risques et de sensibilité, prix des matières premières, autorisations"]
         ]
       },
       es: {
-        title: "Aplicaciones multilingües: traducción, localización y RTL",
-        summary: "Haz que un mismo producto se lea con naturalidad en muchos idiomas, incluidos los que se escriben de derecha a izquierda.",
-        prereq: "FZ-201 o FZ-203.",
-        outcome: "Una aplicación tuya localizada a tres idiomas, uno de ellos de derecha a izquierda.",
+        title: "Planificación minera y economía de minerales",
+        summary: "Decide qué merece la pena extraer, en qué orden, y si el proyecto es rentable.",
+        prereq: "FZ-101 y buen manejo de hojas de cálculo.",
+        outcome: "Un diseño de rajo, un programa de producción y un modelo de flujo de caja para un yacimiento de ejemplo.",
         modules: [
-          ["Arquitectura de internacionalización", "Configuraciones regionales, extracción de textos, claves de mensajes, cadenas de respaldo"],
-          ["Mensajes que sobreviven a la traducción", "Plurales, género gramatical, interpolación, ICU MessageFormat"],
-          ["Derecha a izquierda y sistemas de escritura", "Texto bidireccional, propiedades lógicas de CSS, tipografías, iconos en espejo"],
-          ["Fechas, números y dinero", "La API Intl, zonas horarias, calendarios, monedas, ordenación"],
-          ["Flujo de traducción", "Gestión de traducciones, traducción automática con revisión humana, pseudolocalización, pruebas"]
+          ["Estimación de recursos y reservas", "Datos de sondajes, modelos de bloques, geoestadística y kriging, reportes según el Código JORC y NI 43-101"],
+          ["Diseño de minas a cielo abierto", "Optimización del rajo, taludes y bancos, caminos de acarreo, programación"],
+          ["Métodos subterráneos", "Selección del método, caserones, hundimiento, ventilación, fortificación"],
+          ["Economía de minerales", "Ley de corte, costos de capital y de operación, flujo de caja descontado, VAN y TIR"],
+          ["Estudios de factibilidad", "Etapas de estudio, análisis de riesgo y sensibilidad, precios de los metales, permisos"]
         ]
       }
     }
   },
   {
     code: "FZ-302", level: "advanced", weeks: 6, lessons: 42, projects: 3,
-    stack: ["LLM APIs", "Embeddings", "Vector search", "Evals"],
+    stack: ["Process simulation", "Control loops", "Tailings standard (GISTM)", "Life-cycle assessment"],
     t: {
       en: {
-        title: "AI Features in Web and Mobile Apps",
-        summary: "Add assistants, search and automation to a product, and measure whether they work.",
-        prereq: "FZ-202.",
-        outcome: "A support assistant that answers from your own documents, with an evaluation suite and a cost report.",
+        title: "Plant Design, Process Control and Sustainable Operations",
+        summary: "Bring the unit operations together into a plant that meets its targets for recovery, cost, water and carbon.",
+        prereq: "FZ-201 and FZ-202.",
+        outcome: "A preliminary plant design report with a control strategy, a tailings plan and a carbon estimate.",
         modules: [
-          ["Working with language models", "Prompts, structured output, streaming responses, cost and latency"],
-          ["Retrieval over your own data", "Embeddings, chunking, vector search, citations"],
-          ["Tools and agents", "Function calling, multi-step tasks, human approval steps"],
-          ["Evaluation", "Test sets, automated grading, regression checks, monitoring in production"],
-          ["Safety and privacy", "Prompt injection, data handling, rate limits, fallbacks"]
+          ["Geometallurgy", "Ore variability, geometallurgical domains, linking the mine plan to plant performance"],
+          ["Flowsheet design and simulation", "Testwork programs, equipment sizing, process simulation, scale-up"],
+          ["Process control and data", "Instrumentation, control loops, online analysers, machine learning for plant optimization"],
+          ["Tailings, water and energy", "Filtered and dry-stacked tailings, the Global Industry Standard on Tailings Management, water balance, decarbonization"],
+          ["Critical minerals and recycling", "Lithium, rare earths, nickel and cobalt; battery recycling; urban mining"]
         ]
       },
       ar: {
-        title: "مزايا الذكاء الاصطناعي في تطبيقات الويب والجوّال",
-        summary: "أضف المساعدين والبحث والأتمتة إلى منتجك، وقِس مدى نجاحها.",
-        prereq: "دورة FZ-202.",
-        outcome: "مساعد دعم يجيب من مستنداتك الخاصة، مع مجموعة تقييم وتقرير تكلفة.",
+        title: "تصميم المصانع والتحكم في العمليات والتشغيل المستدام",
+        summary: "اجمع عمليات الوحدة في مصنع يحقق أهدافه في الاستخلاص والتكلفة والمياه والكربون.",
+        prereq: "دورتا FZ-201 و FZ-202.",
+        outcome: "تقرير تصميم أولي لمصنع مع استراتيجية تحكم وخطة للمخلفات وتقدير للانبعاثات الكربونية.",
         modules: [
-          ["العمل مع النماذج اللغوية", "صياغة التعليمات، المخرجات المنظَّمة، الردود المتدفقة، التكلفة وزمن الاستجابة"],
-          ["الاسترجاع من بياناتك الخاصة", "التضمينات، تقطيع النصوص، البحث المتجهي، الاستشهاد بالمصادر"],
-          ["الأدوات والوكلاء", "استدعاء الدوال، المهام متعددة الخطوات، خطوات الموافقة البشرية"],
-          ["التقييم", "مجموعات الاختبار، التصحيح الآلي، فحوص التراجع، المراقبة في بيئة الإنتاج"],
-          ["الأمان والخصوصية", "حقن التعليمات، التعامل مع البيانات، حدود المعدّل، الحلول البديلة"]
+          ["الجيوميتالورجيا", "تباين الخام، النطاقات الجيوميتالورجية، ربط خطة المنجم بأداء المصنع"],
+          ["تصميم مخطط المعالجة والمحاكاة", "برامج الاختبارات، تحديد أحجام المعدات، محاكاة العمليات، التكبير إلى الحجم الصناعي"],
+          ["التحكم في العمليات والبيانات", "أجهزة القياس، حلقات التحكم، المحلِّلات الآنية، تعلّم الآلة لتحسين أداء المصنع"],
+          ["المخلفات والمياه والطاقة", "المخلفات المرشَّحة والتكديس الجاف، المعيار الصناعي العالمي لإدارة المخلفات، موازنة المياه، خفض الكربون"],
+          ["المعادن الحرجة وإعادة التدوير", "الليثيوم، العناصر الأرضية النادرة، النيكل والكوبالت؛ إعادة تدوير البطاريات؛ التعدين الحضري"]
         ]
       },
       ur: {
-        title: "ویب اور موبائل ایپس میں AI فیچرز",
-        summary: "پروڈکٹ میں اسسٹنٹس، سرچ اور آٹومیشن شامل کریں، اور ناپیں کہ وہ کام کر رہے ہیں یا نہیں۔",
-        prereq: "FZ-202۔",
-        outcome: "ایک سپورٹ اسسٹنٹ جو آپ کی اپنی دستاویزات سے جواب دے، جانچ کے مجموعے اور لاگت کی رپورٹ کے ساتھ۔",
+        title: "پلانٹ ڈیزائن، پروسیس کنٹرول اور پائیدار آپریشنز",
+        summary: "یونٹ آپریشنز کو ایک ایسے پلانٹ میں یکجا کریں جو ریکوری، لاگت، پانی اور کاربن کے اہداف پورے کرے۔",
+        prereq: "FZ-201 اور FZ-202۔",
+        outcome: "کنٹرول حکمتِ عملی، ٹیلنگز پلان اور کاربن کے تخمینے کے ساتھ پلانٹ ڈیزائن کی ابتدائی رپورٹ۔",
         modules: [
-          ["لینگویج ماڈلز کے ساتھ کام", "پرامپٹس، اسٹرکچرڈ آؤٹ پٹ، اسٹریمنگ جوابات، لاگت اور تاخیر"],
-          ["اپنے ڈیٹا سے ریٹریول", "ایمبیڈنگز، چنکنگ، ویکٹر سرچ، حوالہ جات"],
-          ["ٹولز اور ایجنٹس", "فنکشن کالنگ، کئی مراحل والے کام، انسانی منظوری کے مراحل"],
-          ["جانچ", "ٹیسٹ سیٹس، خودکار گریڈنگ، ریگریشن چیکس، پروڈکشن میں نگرانی"],
-          ["حفاظت اور رازداری", "پرامپٹ انجیکشن، ڈیٹا کا انتظام، ریٹ لمٹس، متبادل راستے"]
+          ["جیو میٹالرجی", "کچ دھات میں تغیر، جیو میٹالرجیکل ڈومینز، مائن پلان کو پلانٹ کی کارکردگی سے جوڑنا"],
+          ["فلو شیٹ ڈیزائن اور سمولیشن", "ٹیسٹ ورک پروگرامز، آلات کی سائزنگ، پروسیس سمولیشن، اسکیل اَپ"],
+          ["پروسیس کنٹرول اور ڈیٹا", "انسٹرومنٹیشن، کنٹرول لوپس، آن لائن اینالائزرز، پلانٹ کی بہتری کے لیے مشین لرننگ"],
+          ["ٹیلنگز، پانی اور توانائی", "فلٹر شدہ اور ڈرائی اسٹیک ٹیلنگز، ٹیلنگز مینجمنٹ کا عالمی صنعتی معیار، پانی کا بیلنس، کاربن میں کمی"],
+          ["اہم معدنیات اور ری سائیکلنگ", "لیتھیم، نایاب ارضی عناصر، نکل اور کوبالٹ؛ بیٹری ری سائیکلنگ؛ اربن مائننگ"]
         ]
       },
       fr: {
-        title: "Fonctions d'IA dans les applications web et mobiles",
-        summary: "Ajoutez des assistants, de la recherche et de l'automatisation à un produit, et mesurez si cela fonctionne.",
-        prereq: "FZ-202.",
-        outcome: "Un assistant de support qui répond à partir de vos propres documents, avec une suite d'évaluation et un rapport de coûts.",
+        title: "Conception d'usine, contrôle des procédés et exploitation durable",
+        summary: "Assemblez les opérations unitaires en une usine qui atteint ses objectifs de récupération, de coût, d'eau et de carbone.",
+        prereq: "FZ-201 et FZ-202.",
+        outcome: "Un rapport de conception préliminaire d'usine avec une stratégie de contrôle, un plan de gestion des résidus et une estimation carbone.",
         modules: [
-          ["Travailler avec les modèles de langage", "Prompts, sorties structurées, réponses en streaming, coût et latence"],
-          ["Recherche dans vos propres données", "Embeddings, découpage des documents, recherche vectorielle, citations"],
-          ["Outils et agents", "Appel de fonctions, tâches en plusieurs étapes, étapes de validation humaine"],
-          ["Évaluation", "Jeux de tests, notation automatisée, contrôles de régression, suivi en production"],
-          ["Sécurité et confidentialité", "Injection de prompts, traitement des données, limites de débit, solutions de repli"]
+          ["Géométallurgie", "Variabilité du minerai, domaines géométallurgiques, lien entre le plan minier et la performance de l'usine"],
+          ["Conception et simulation des schémas de traitement", "Programmes d'essais, dimensionnement des équipements, simulation des procédés, mise à l'échelle"],
+          ["Contrôle des procédés et données", "Instrumentation, boucles de régulation, analyseurs en ligne, apprentissage automatique pour l'optimisation de l'usine"],
+          ["Résidus, eau et énergie", "Résidus filtrés et empilés à sec, la Norme industrielle mondiale pour la gestion des résidus miniers, bilan hydrique, décarbonation"],
+          ["Minéraux critiques et recyclage", "Lithium, terres rares, nickel et cobalt ; recyclage des batteries ; mine urbaine"]
         ]
       },
       es: {
-        title: "Funciones de IA en aplicaciones web y móviles",
-        summary: "Añade asistentes, búsqueda y automatización a un producto, y mide si funcionan.",
-        prereq: "FZ-202.",
-        outcome: "Un asistente de soporte que responde a partir de tus propios documentos, con un conjunto de evaluación y un informe de costes.",
+        title: "Diseño de plantas, control de procesos y operación sostenible",
+        summary: "Integra las operaciones unitarias en una planta que cumpla sus metas de recuperación, costo, agua y carbono.",
+        prereq: "FZ-201 y FZ-202.",
+        outcome: "Un informe de diseño preliminar de planta con estrategia de control, plan de relaves y estimación de carbono.",
         modules: [
-          ["Trabajar con modelos de lenguaje", "Prompts, salida estructurada, respuestas en streaming, coste y latencia"],
-          ["Recuperación sobre tus propios datos", "Embeddings, fragmentación de documentos, búsqueda vectorial, citas"],
-          ["Herramientas y agentes", "Llamadas a funciones, tareas de varios pasos, pasos de aprobación humana"],
-          ["Evaluación", "Conjuntos de prueba, calificación automática, comprobaciones de regresión, monitorización en producción"],
-          ["Seguridad y privacidad", "Inyección de prompts, tratamiento de datos, límites de uso, alternativas de respaldo"]
+          ["Geometalurgia", "Variabilidad de la mena, dominios geometalúrgicos, vínculo entre el plan minero y el desempeño de la planta"],
+          ["Diseño y simulación de diagramas de flujo", "Programas de pruebas, dimensionamiento de equipos, simulación de procesos, escalamiento"],
+          ["Control de procesos y datos", "Instrumentación, lazos de control, analizadores en línea, aprendizaje automático para optimizar la planta"],
+          ["Relaves, agua y energía", "Relaves filtrados y apilados en seco, el Estándar Global de la Industria sobre Gestión de Relaves, balance hídrico, descarbonización"],
+          ["Minerales críticos y reciclaje", "Litio, tierras raras, níquel y cobalto; reciclaje de baterías; minería urbana"]
         ]
       }
     }

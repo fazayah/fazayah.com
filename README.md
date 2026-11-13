@@ -11,3 +11,5 @@ Static site: course catalogs for two schools (mechanical engineering and mineral
 The first school in `schools` in `assets/data-ui.js` is the one visitors see first; `?school=mineral` links straight to the other.
 
 To open enrollment, put each plan's payment link in its `checkout` field in `assets/data-ui.js`.
+
+`nuclear-engineering-guide.html` is a standalone page: a free advanced nuclear engineering reference guide, marked as a draft for study only. It does not use the course data files.

@@ -3,8 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Fazayah Mineral Engineering</title>
-<meta name="description" content="Complete mineral engineering courses in English, Arabic, Urdu, French and Spanish, with one subscription for all of them.">
+<title>Fazayah School of Mechanical Engineering</title>
+<meta name="description" content="Complete mechanical engineering and mineral engineering courses in English, Arabic, Urdu, French and Spanish, with one subscription for all of them.">
+<meta name="theme-color" content="#f2f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c141d" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap">
@@ -27,9 +32,10 @@
   <section class="hero">
     <div class="wrap">
       <div class="hero-text">
-        <p class="eyebrow" data-i18n="hero_eyebrow">Courses in web and app development</p>
-        <h1 data-i18n="hero_title">Learn to build websites and apps, taught in your language.</h1>
-        <p class="lede" data-i18n="hero_body"></p>
+        <div class="seg school-switch"></div>
+        <p class="eyebrow" data-i18n-school="hero_eyebrow">Fazayah School of Mechanical Engineering</p>
+        <h1 data-i18n-school="hero_title">Learn mechanical engineering, taught in your language.</h1>
+        <p class="lede" data-i18n-school="hero_body"></p>
         <div class="hero-actions">
           <a class="btn btn-solid" href="#courses" data-i18n="hero_cta">Browse the courses</a>
           <a class="btn" href="#pricing" data-i18n="hero_cta2">See prices</a>
@@ -50,6 +56,7 @@
         <h2 data-i18n="courses_title">Course catalog</h2>
         <p class="lede" data-i18n="courses_body"></p>
       </div>
+      <div class="seg school-switch"></div>
       <div class="seg" id="level-filter"></div>
       <div class="catalog" id="catalog"></div>
     </div>
@@ -85,6 +92,11 @@
 
 <script src="assets/data-ui.js"></script>
 <script src="assets/data-courses.js"></script>
+<script src="assets/data-mechanical.js"></script>
+<script src="assets/data-mechanical.ar.js"></script>
+<script src="assets/data-mechanical.ur.js"></script>
+<script src="assets/data-mechanical.fr.js"></script>
+<script src="assets/data-mechanical.es.js"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>

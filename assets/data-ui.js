@@ -10,6 +10,9 @@ window.FAZAYAH = {
 
   /* Prices in US dollars. `checkout` is the payment link for the plan;
      while it is empty the button tells visitors enrollment is not open yet. */
+  /* Schools, in the order they are offered. The first one is shown by default. */
+  schools: ["mechanical", "mineral"],
+
   plans: [
     { id: "free", monthly: 0, yearly: 0, checkout: "" },
     { id: "pro", monthly: 19, yearly: 190, checkout: "", featured: true },
@@ -19,9 +22,13 @@ window.FAZAYAH = {
   ui: {
     en: {
       nav_courses: "Courses", nav_pricing: "Prices", nav_faq: "FAQ", lang_label: "Language",
-      hero_eyebrow: "Fazayah School of Mineral Engineering",
-      hero_title: "Learn mineral engineering, taught in your language.",
-      hero_body: "Nine complete courses, from ore and mineral basics to plant design, mine economics and sustainable operations. Every lesson, exercise and project brief is available in five languages.",
+      school_label: "School", school_mechanical: "Mechanical Engineering", school_mineral: "Mineral Engineering",
+      hero_eyebrow_mechanical: "Fazayah School of Mechanical Engineering",
+      hero_title_mechanical: "Learn mechanical engineering, taught in your language.",
+      hero_body_mechanical: "Fourteen complete courses, from statics and engineering drawing to machine design, simulation, robotics and energy systems. Every lesson, exercise and project brief is available in five languages.",
+      hero_eyebrow_mineral: "Fazayah School of Mineral Engineering",
+      hero_title_mineral: "Learn mineral engineering, taught in your language.",
+      hero_body_mineral: "Nine complete courses, from ore and mineral basics to plant design, mine economics and sustainable operations. Every lesson, exercise and project brief is available in five languages.",
       hero_cta: "Browse the courses", hero_cta2: "See prices",
       hero_pick: "Choose your language", phrase: "Learn it in your language",
       n_courses: "courses", n_modules: "modules", n_lessons: "lessons", n_languages: "languages",
@@ -32,7 +39,7 @@ window.FAZAYAH = {
       weeks: "weeks", lessons: "lessons", projects: "projects",
       syllabus: "Syllabus", outcome: "You finish with", stack: "Methods and tools", prereq: "Before you start",
       pricing_title: "Subscription prices",
-      pricing_body: "One subscription opens every course in every language. Cancel any time.",
+      pricing_body: "One subscription opens every course in both schools, in every language. Cancel any time.",
       monthly: "Monthly", yearly: "Yearly", per_month: "/ month", per_year: "/ year",
       yearly_note: "2 months free compared with paying monthly",
       free_name: "Free", free_desc: "Try every course before you pay.",
@@ -47,7 +54,7 @@ window.FAZAYAH = {
       faq_title: "Common questions",
       faq: [
         ["Which languages are the courses in?", "English, Arabic, Urdu, French and Spanish. You can switch language at any time from the top of the page."],
-        ["Do I need experience?", "No industry experience. FZ-101 starts from school-level chemistry and maths, and every course lists what you should know before you begin."],
+        ["Do I need experience?", "No industry experience. The 101 course in each school starts from school-level science and maths, and every course lists what you should know before you begin."],
         ["How are the courses kept current?", "We review each course every quarter against current industry practice and standards, and show the date of the last review in the catalog."],
         ["Can I cancel?", "Yes, at any time. Your access continues until the end of the period you have paid for."]
       ],
@@ -56,12 +63,16 @@ window.FAZAYAH = {
 
     ar: {
       nav_courses: "الدورات", nav_pricing: "الأسعار", nav_faq: "الأسئلة الشائعة", lang_label: "اللغة",
-      hero_eyebrow: "مدرسة Fazayah لهندسة التعدين والمعادن",
-      hero_title: "تعلّم هندسة التعدين والمعادن بلغتك.",
-      hero_body: "تسع دورات كاملة، من أساسيات الخامات والمعادن إلى تصميم المصانع واقتصاديات المناجم والتشغيل المستدام. كل درس وتمرين ومشروع متاح بخمس لغات.",
+      school_label: "المدرسة", school_mechanical: "الهندسة الميكانيكية", school_mineral: "هندسة التعدين والمعادن",
+      hero_eyebrow_mechanical: "مدرسة Fazayah للهندسة الميكانيكية",
+      hero_title_mechanical: "تعلّم الهندسة الميكانيكية بلغتك.",
+      hero_body_mechanical: "أربع عشرة دورة كاملة، من الاستاتيكا والرسم الهندسي إلى تصميم الآلات والمحاكاة والروبوتات وأنظمة الطاقة. كل درس وتمرين ومشروع متاح بخمس لغات.",
+      hero_eyebrow_mineral: "مدرسة Fazayah لهندسة التعدين والمعادن",
+      hero_title_mineral: "تعلّم هندسة التعدين والمعادن بلغتك.",
+      hero_body_mineral: "تسع دورات كاملة، من أساسيات الخامات والمعادن إلى تصميم المصانع واقتصاديات المناجم والتشغيل المستدام. كل درس وتمرين ومشروع متاح بخمس لغات.",
       hero_cta: "تصفّح الدورات", hero_cta2: "عرض الأسعار",
       hero_pick: "اختر لغتك", phrase: "تعلّمه بلغتك",
-      n_courses: "دورات", n_modules: "وحدة", n_lessons: "درسًا", n_languages: "لغات",
+      n_courses: "دورات", n_courses_11: "دورة", n_modules: "وحدة", n_lessons: "درسًا", n_languages: "لغات",
       updated: "آخر مراجعة للمنهج: نوفمبر 2026",
       courses_title: "دليل الدورات",
       courses_body: "افتح أي دورة لقراءة منهجها الكامل. الدورات مرقّمة بالترتيب الذي ننصح باتباعه.",
@@ -69,7 +80,7 @@ window.FAZAYAH = {
       weeks: "أسابيع", lessons: "درسًا", projects: "مشاريع",
       syllabus: "المنهج", outcome: "ما تنجزه في النهاية", stack: "الطرق والأدوات", prereq: "قبل أن تبدأ",
       pricing_title: "أسعار الاشتراك",
-      pricing_body: "اشتراك واحد يفتح لك كل الدورات بكل اللغات. يمكنك الإلغاء في أي وقت.",
+      pricing_body: "اشتراك واحد يفتح لك كل الدورات في المدرستين بكل اللغات. يمكنك الإلغاء في أي وقت.",
       monthly: "شهري", yearly: "سنوي", per_month: "/ شهريًا", per_year: "/ سنويًا",
       yearly_note: "شهران مجانًا مقارنةً بالدفع الشهري",
       free_name: "مجاني", free_desc: "جرّب كل دورة قبل أن تدفع.",
@@ -84,7 +95,7 @@ window.FAZAYAH = {
       faq_title: "أسئلة شائعة",
       faq: [
         ["بأي لغات تتوفر الدورات؟", "بالإنجليزية والعربية والأردية والفرنسية والإسبانية. يمكنك تبديل اللغة في أي وقت من أعلى الصفحة."],
-        ["هل أحتاج إلى خبرة سابقة؟", "لا تحتاج إلى خبرة في الصناعة. تبدأ دورة FZ-101 من كيمياء ورياضيات المرحلة الثانوية، وكل دورة تذكر ما ينبغي أن تعرفه قبل البدء."],
+        ["هل أحتاج إلى خبرة سابقة؟", "لا تحتاج إلى خبرة في الصناعة. تبدأ دورة 101 في كل مدرسة من علوم ورياضيات المرحلة الثانوية، وكل دورة تذكر ما ينبغي أن تعرفه قبل البدء."],
         ["كيف تبقى الدورات محدَّثة؟", "نراجع كل دورة كل ثلاثة أشهر وفق الممارسات والمعايير الحالية في الصناعة، ونعرض تاريخ آخر مراجعة في دليل الدورات."],
         ["هل يمكنني إلغاء الاشتراك؟", "نعم، في أي وقت. يبقى وصولك قائمًا حتى نهاية الفترة المدفوعة."]
       ],
@@ -93,9 +104,13 @@ window.FAZAYAH = {
 
     ur: {
       nav_courses: "کورسز", nav_pricing: "قیمتیں", nav_faq: "عمومی سوالات", lang_label: "زبان",
-      hero_eyebrow: "Fazayah اسکول برائے معدنی انجینئرنگ",
-      hero_title: "معدنی انجینئرنگ اپنی زبان میں سیکھیں۔",
-      hero_body: "نو مکمل کورسز، کچ دھات اور معدنیات کی بنیادی باتوں سے لے کر پلانٹ ڈیزائن، کان کی معاشیات اور پائیدار آپریشنز تک۔ ہر سبق، مشق اور پروجیکٹ پانچ زبانوں میں دستیاب ہے۔",
+      school_label: "اسکول", school_mechanical: "مکینیکل انجینئرنگ", school_mineral: "معدنی انجینئرنگ",
+      hero_eyebrow_mechanical: "Fazayah اسکول برائے مکینیکل انجینئرنگ",
+      hero_title_mechanical: "مکینیکل انجینئرنگ اپنی زبان میں سیکھیں۔",
+      hero_body_mechanical: "چودہ مکمل کورسز، اسٹیٹکس اور انجینئرنگ ڈرائنگ سے لے کر مشین ڈیزائن، سمولیشن، روبوٹکس اور توانائی کے نظاموں تک۔ ہر سبق، مشق اور پروجیکٹ پانچ زبانوں میں دستیاب ہے۔",
+      hero_eyebrow_mineral: "Fazayah اسکول برائے معدنی انجینئرنگ",
+      hero_title_mineral: "معدنی انجینئرنگ اپنی زبان میں سیکھیں۔",
+      hero_body_mineral: "نو مکمل کورسز، کچ دھات اور معدنیات کی بنیادی باتوں سے لے کر پلانٹ ڈیزائن، کان کی معاشیات اور پائیدار آپریشنز تک۔ ہر سبق، مشق اور پروجیکٹ پانچ زبانوں میں دستیاب ہے۔",
       hero_cta: "کورسز دیکھیں", hero_cta2: "قیمتیں دیکھیں",
       hero_pick: "اپنی زبان منتخب کریں", phrase: "اپنی زبان میں سیکھیں",
       n_courses: "کورسز", n_modules: "ماڈیولز", n_lessons: "اسباق", n_languages: "زبانیں",
@@ -106,7 +121,7 @@ window.FAZAYAH = {
       weeks: "ہفتے", lessons: "اسباق", projects: "پروجیکٹس",
       syllabus: "نصاب", outcome: "اختتام پر آپ کے پاس ہوگا", stack: "طریقے اور ٹولز", prereq: "شروع کرنے سے پہلے",
       pricing_title: "سبسکرپشن کی قیمتیں",
-      pricing_body: "ایک سبسکرپشن سے ہر کورس ہر زبان میں کھل جاتا ہے۔ کسی بھی وقت منسوخ کریں۔",
+      pricing_body: "ایک سبسکرپشن سے دونوں اسکولوں کا ہر کورس ہر زبان میں کھل جاتا ہے۔ کسی بھی وقت منسوخ کریں۔",
       monthly: "ماہانہ", yearly: "سالانہ", per_month: "/ ماہانہ", per_year: "/ سالانہ",
       yearly_note: "ماہانہ ادائیگی کے مقابلے میں دو مہینے مفت",
       free_name: "مفت", free_desc: "ادائیگی سے پہلے ہر کورس آزمائیں۔",
@@ -121,7 +136,7 @@ window.FAZAYAH = {
       faq_title: "عمومی سوالات",
       faq: [
         ["کورسز کن زبانوں میں ہیں؟", "انگریزی، عربی، اردو، فرانسیسی اور ہسپانوی میں۔ آپ صفحے کے اوپر سے کسی بھی وقت زبان بدل سکتے ہیں۔"],
-        ["کیا پہلے سے تجربہ ضروری ہے؟", "صنعتی تجربہ ضروری نہیں۔ FZ-101 اسکول کی سطح کی کیمسٹری اور ریاضی سے شروع ہوتا ہے، اور ہر کورس بتاتا ہے کہ شروع کرنے سے پہلے آپ کو کیا آنا چاہیے۔"],
+        ["کیا پہلے سے تجربہ ضروری ہے؟", "صنعتی تجربہ ضروری نہیں۔ ہر اسکول کا 101 کورس اسکول کی سطح کی سائنس اور ریاضی سے شروع ہوتا ہے، اور ہر کورس بتاتا ہے کہ شروع کرنے سے پہلے آپ کو کیا آنا چاہیے۔"],
         ["کورسز کو تازہ کیسے رکھا جاتا ہے؟", "ہم ہر تین ماہ بعد ہر کورس کا صنعت کے موجودہ طریقوں اور معیارات کے مطابق جائزہ لیتے ہیں، اور آخری جائزے کی تاریخ کیٹلاگ میں دکھاتے ہیں۔"],
         ["کیا میں سبسکرپشن منسوخ کر سکتا ہوں؟", "جی ہاں، کسی بھی وقت۔ ادا شدہ مدت کے اختتام تک آپ کی رسائی برقرار رہتی ہے۔"]
       ],
@@ -130,9 +145,13 @@ window.FAZAYAH = {
 
     fr: {
       nav_courses: "Cours", nav_pricing: "Tarifs", nav_faq: "FAQ", lang_label: "Langue",
-      hero_eyebrow: "École de génie minéral Fazayah",
-      hero_title: "Apprenez le génie minéral, dans votre langue.",
-      hero_body: "Neuf cours complets, des bases des minerais et des minéraux jusqu'à la conception d'usines, l'économie minière et l'exploitation durable. Chaque leçon, exercice et projet est disponible en cinq langues.",
+      school_label: "École", school_mechanical: "Génie mécanique", school_mineral: "Génie minéral",
+      hero_eyebrow_mechanical: "École de génie mécanique Fazayah",
+      hero_title_mechanical: "Apprenez le génie mécanique, dans votre langue.",
+      hero_body_mechanical: "Quatorze cours complets, de la statique et du dessin technique jusqu'à la conception de machines, la simulation, la robotique et les systèmes énergétiques. Chaque leçon, exercice et projet est disponible en cinq langues.",
+      hero_eyebrow_mineral: "École de génie minéral Fazayah",
+      hero_title_mineral: "Apprenez le génie minéral, dans votre langue.",
+      hero_body_mineral: "Neuf cours complets, des bases des minerais et des minéraux jusqu'à la conception d'usines, l'économie minière et l'exploitation durable. Chaque leçon, exercice et projet est disponible en cinq langues.",
       hero_cta: "Parcourir les cours", hero_cta2: "Voir les tarifs",
       hero_pick: "Choisissez votre langue", phrase: "Apprenez-le dans votre langue",
       n_courses: "cours", n_modules: "modules", n_lessons: "leçons", n_languages: "langues",
@@ -143,7 +162,7 @@ window.FAZAYAH = {
       weeks: "semaines", lessons: "leçons", projects: "projets",
       syllabus: "Programme", outcome: "À la fin, vous aurez", stack: "Méthodes et outils", prereq: "Avant de commencer",
       pricing_title: "Tarifs d'abonnement",
-      pricing_body: "Un seul abonnement donne accès à tous les cours dans toutes les langues. Résiliable à tout moment.",
+      pricing_body: "Un seul abonnement donne accès à tous les cours des deux écoles, dans toutes les langues. Résiliable à tout moment.",
       monthly: "Mensuel", yearly: "Annuel", per_month: "/ mois", per_year: "/ an",
       yearly_note: "2 mois offerts par rapport au paiement mensuel",
       free_name: "Gratuit", free_desc: "Essayez chaque cours avant de payer.",
@@ -158,7 +177,7 @@ window.FAZAYAH = {
       faq_title: "Questions fréquentes",
       faq: [
         ["Dans quelles langues sont les cours ?", "En anglais, arabe, ourdou, français et espagnol. Vous pouvez changer de langue à tout moment en haut de la page."],
-        ["Faut-il de l'expérience ?", "Aucune expérience du secteur n'est requise. FZ-101 part de la chimie et des mathématiques du lycée, et chaque cours indique ce qu'il faut savoir avant de commencer."],
+        ["Faut-il de l'expérience ?", "Aucune expérience du secteur n'est requise. Le cours 101 de chaque école part des sciences et des mathématiques du lycée, et chaque cours indique ce qu'il faut savoir avant de commencer."],
         ["Comment les cours restent-ils à jour ?", "Nous révisons chaque cours tous les trimestres selon les pratiques et les normes actuelles du secteur, et la date de la dernière révision figure dans le catalogue."],
         ["Puis-je résilier ?", "Oui, à tout moment. Votre accès reste actif jusqu'à la fin de la période payée."]
       ],
@@ -167,9 +186,13 @@ window.FAZAYAH = {
 
     es: {
       nav_courses: "Cursos", nav_pricing: "Precios", nav_faq: "Preguntas", lang_label: "Idioma",
-      hero_eyebrow: "Escuela de Ingeniería de Minerales Fazayah",
-      hero_title: "Aprende ingeniería de minerales, en tu idioma.",
-      hero_body: "Nueve cursos completos, desde los fundamentos de menas y minerales hasta el diseño de plantas, la economía minera y la operación sostenible. Cada lección, ejercicio y proyecto está disponible en cinco idiomas.",
+      school_label: "Escuela", school_mechanical: "Ingeniería mecánica", school_mineral: "Ingeniería de minerales",
+      hero_eyebrow_mechanical: "Escuela de Ingeniería Mecánica Fazayah",
+      hero_title_mechanical: "Aprende ingeniería mecánica, en tu idioma.",
+      hero_body_mechanical: "Catorce cursos completos, desde la estática y el dibujo técnico hasta el diseño de máquinas, la simulación, la robótica y los sistemas de energía. Cada lección, ejercicio y proyecto está disponible en cinco idiomas.",
+      hero_eyebrow_mineral: "Escuela de Ingeniería de Minerales Fazayah",
+      hero_title_mineral: "Aprende ingeniería de minerales, en tu idioma.",
+      hero_body_mineral: "Nueve cursos completos, desde los fundamentos de menas y minerales hasta el diseño de plantas, la economía minera y la operación sostenible. Cada lección, ejercicio y proyecto está disponible en cinco idiomas.",
       hero_cta: "Ver los cursos", hero_cta2: "Ver precios",
       hero_pick: "Elige tu idioma", phrase: "Apréndelo en tu idioma",
       n_courses: "cursos", n_modules: "módulos", n_lessons: "lecciones", n_languages: "idiomas",
@@ -180,7 +203,7 @@ window.FAZAYAH = {
       weeks: "semanas", lessons: "lecciones", projects: "proyectos",
       syllabus: "Temario", outcome: "Al terminar tendrás", stack: "Métodos y herramientas", prereq: "Antes de empezar",
       pricing_title: "Precios de suscripción",
-      pricing_body: "Una sola suscripción abre todos los cursos en todos los idiomas. Cancela cuando quieras.",
+      pricing_body: "Una sola suscripción abre todos los cursos de las dos escuelas, en todos los idiomas. Cancela cuando quieras.",
       monthly: "Mensual", yearly: "Anual", per_month: "/ mes", per_year: "/ año",
       yearly_note: "2 meses gratis frente al pago mensual",
       free_name: "Gratis", free_desc: "Prueba cada curso antes de pagar.",
@@ -195,7 +218,7 @@ window.FAZAYAH = {
       faq_title: "Preguntas frecuentes",
       faq: [
         ["¿En qué idiomas están los cursos?", "En inglés, árabe, urdu, francés y español. Puedes cambiar de idioma en cualquier momento desde la parte superior de la página."],
-        ["¿Necesito experiencia?", "No hace falta experiencia en el sector. FZ-101 parte de la química y las matemáticas de secundaria, y cada curso indica lo que conviene saber antes de empezar."],
+        ["¿Necesito experiencia?", "No hace falta experiencia en el sector. El curso 101 de cada escuela parte de las ciencias y las matemáticas de secundaria, y cada curso indica lo que conviene saber antes de empezar."],
         ["¿Cómo se mantienen al día los cursos?", "Revisamos cada curso cada trimestre según las prácticas y normas actuales del sector, y mostramos la fecha de la última revisión en el catálogo."],
         ["¿Puedo cancelar?", "Sí, en cualquier momento. Tu acceso sigue activo hasta el final del periodo pagado."]
       ],

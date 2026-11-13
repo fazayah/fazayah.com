@@ -134,6 +134,9 @@ h2 { font-size: clamp(1.6rem, 3.2vw, 2.25rem); font-weight: 700; }
   background: var(--surface); cursor: pointer; font-size: 0.9375rem;
 }
 .seg button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+/* The school switch is the page's main choice, so it reads heavier than a filter. */
+.school-switch button { padding: 0.5rem 1.1rem; border: 1.5px solid var(--ink); border-radius: 4px; font-weight: 600; }
+.school-switch button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 
 /* Course catalog */
 .catalog { border-top: 2px solid var(--ink); }

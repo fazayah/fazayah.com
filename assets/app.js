@@ -1,7 +1,16 @@
 (function () {
   "use strict";
   var D = window.FAZAYAH;
-  var state = { lang: "en", billing: "monthly", level: "all", open: {}, notice: null };
+  var state = { lang: "en", school: D.schools[0], billing: "monthly", level: "all", open: {}, notice: null };
+  var catalogs = { mechanical: D.mechanical, mineral: D.courses };
+
+  /* The mechanical catalog keeps each language in its own file; fold them into the courses. */
+  D.mechanical.forEach(function (c) {
+    Object.keys(D.mechanicalText).forEach(function (code) {
+      if (D.mechanicalText[code][c.code]) c.t[code] = D.mechanicalText[code][c.code];
+    });
+  });
+  function courses() { return catalogs[state.school]; }
   var $ = function (id) { return document.getElementById(id); };
 
   function t(key) {
@@ -15,6 +24,20 @@
   }
   function langInfo(code) {
     return D.langs.filter(function (l) { return l.code === code; })[0];
+  }
+
+  function initialSchool() {
+    var asked = null, saved = null;
+    try { asked = new URLSearchParams(location.search).get("school"); } catch (e) {}
+    try { saved = localStorage.getItem("fazayah-school"); } catch (e) {}
+    if (catalogs[asked]) return asked;
+    if (catalogs[saved]) return saved;
+    return D.schools[0];
+  }
+
+  function count(n, key) {
+    var many = D.ui[state.lang][key + "_11"];
+    return many && n > 10 ? many : t(key);
   }
 
   function initialLang() {
@@ -36,6 +59,16 @@
     document.querySelectorAll("[data-i18n]").forEach(function (el) {
       el.textContent = t(el.getAttribute("data-i18n"));
     });
+    document.querySelectorAll("[data-i18n-school]").forEach(function (el) {
+      el.textContent = t(el.getAttribute("data-i18n-school") + "_" + state.school);
+    });
+    document.title = t("hero_eyebrow_" + state.school);
+    document.querySelectorAll(".school-switch").forEach(function (el) {
+      el.innerHTML = '<span class="eyebrow seg-label">' + esc(t("school_label")) + "</span>" +
+        D.schools.map(function (sc) {
+          return '<button type="button" data-school="' + sc + '" aria-pressed="' + (state.school === sc) + '">' + esc(t("school_" + sc)) + "</button>";
+        }).join("");
+    });
     $("lang-select").value = state.lang;
     $("lang-select").setAttribute("aria-label", t("lang_label"));
     document.querySelectorAll("#picker-list button").forEach(function (b) {
@@ -43,11 +76,11 @@
     });
 
     var modules = 0, lessons = 0;
-    D.courses.forEach(function (c) { modules += c.t.en.modules.length; lessons += c.lessons; });
+    courses().forEach(function (c) { modules += c.t.en.modules.length; lessons += c.lessons; });
     $("tally").innerHTML = [
-      [D.courses.length, "n_courses"], [modules, "n_modules"], [lessons, "n_lessons"], [D.langs.length, "n_languages"]
+      [courses().length, "n_courses"], [modules, "n_modules"], [lessons, "n_lessons"], [D.langs.length, "n_languages"]
     ].map(function (p) {
-      return "<div><b>" + p[0] + "</b><span>" + esc(t(p[1])) + "</span></div>";
+      return "<div><b>" + p[0] + "</b><span>" + esc(count(p[0], p[1])) + "</span></div>";
     }).join("");
   }
 
@@ -60,7 +93,7 @@
   }
 
   function renderCourses() {
-    $("catalog").innerHTML = D.courses.filter(function (c) {
+    $("catalog").innerHTML = courses().filter(function (c) {
       return state.level === "all" || c.level === state.level;
     }).map(function (c) {
       var x = c.t[state.lang] || c.t.en;
@@ -126,6 +159,17 @@
     renderAll();
   }
 
+  function setSchool(id) {
+    if (!catalogs[id] || id === state.school) return;
+    state.school = id;
+    state.level = "all";
+    state.open = {};
+    state.open[courses()[0].code] = true;
+    try { localStorage.setItem("fazayah-school", id); } catch (e) {}
+    try { history.replaceState(null, "", (id === D.schools[0] ? location.pathname : "?school=" + id) + location.hash); } catch (e) {}
+    renderAll();
+  }
+
   function start() {
     $("lang-select").innerHTML = D.langs.map(function (l) {
       return '<option value="' + l.code + '">' + esc(l.name) + "</option>";
@@ -139,6 +183,10 @@
     $("picker-list").addEventListener("click", function (e) {
       var b = e.target.closest("button[data-lang]");
       if (b) setLang(b.dataset.lang);
+    });
+    document.addEventListener("click", function (e) {
+      var b = e.target.closest && e.target.closest("button[data-school]");
+      if (b) setSchool(b.dataset.school);
     });
     $("level-filter").addEventListener("click", function (e) {
       var b = e.target.closest("button[data-level]");
@@ -157,8 +205,14 @@
     });
 
     state.lang = initialLang();
-    state.open[D.courses[0].code] = true;
+    state.school = initialSchool();
+    state.open[courses()[0].code] = true;
     renderAll();
+
+    /* Lets the site be installed as an app and opened without a connection. */
+    if ("serviceWorker" in navigator && location.protocol === "https:") {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    }
   }
 
   start();

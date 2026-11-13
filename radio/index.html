@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atheer Radio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Readex+Pro:wght@300;400;500;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a phone-first app. One dark "receiver" panel with an FM dial is the
+   only loud element; everything around it is quiet lists on a pale ground. */
+:root{
+  --bg:#ECF0EC;
+  --surface:#FFFFFF;
+  --ink:#0F2A2E;
+  --muted:#577075;
+  --line:#CCD8D3;
+  --accent:#C8400E;
+  --accent-ink:#FFFFFF;
+  --panel:#0E272B;
+  --panel-ink:#F4ECD8;
+  --panel-muted:#8FAAA8;
+  --panel-line:rgba(244,236,216,.22);
+  --glow:#FFB02E;
+  --f-display:"Big Shoulders Display","Readex Pro","Noto Sans Devanagari",system-ui,sans-serif;
+  --f-body:"Readex Pro","Noto Sans Devanagari","Noto Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0A1B1E; --surface:#11282C; --ink:#EDF1EA; --muted:#8EA6A6; --line:#224045;
+    --accent:#FF7F45; --accent-ink:#1A0D05;
+    --panel:#061315; --panel-ink:#F4ECD8; --panel-muted:#7F9B99; --panel-line:rgba(244,236,216,.2);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0A1B1E; --surface:#11282C; --ink:#EDF1EA; --muted:#8EA6A6; --line:#224045;
+  --accent:#FF7F45; --accent-ink:#1A0D05;
+  --panel:#061315; --panel-ink:#F4ECD8; --panel-muted:#7F9B99; --panel-line:rgba(244,236,216,.2);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;padding-bottom:150px}
+button,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--glow);outline-offset:2px}
+h1,h2,h3,p{margin:0}
+h1,h2{text-wrap:balance}
+.wrap{max-width:880px;margin:0 auto;padding:0 18px}
+
+/* top bar */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:26px;letter-spacing:.02em;line-height:1}
+.brand svg{width:30px;height:30px;color:var(--accent)}
+.lang{display:flex;align-items:center;gap:8px}
+.lang label{font-size:13px;color:var(--muted)}
+.lang select{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 12px;min-height:40px}
+
+/* views */
+.view{display:none;flex-direction:column;gap:22px;padding-block:8px 24px}
+.view.on{display:flex}
+.lede h1{font-family:var(--f-display);font-weight:800;font-size:clamp(34px,9vw,56px);line-height:1.02;text-transform:uppercase}
+:lang(ar) .lede h1,:lang(ur) .lede h1,:lang(hi) .lede h1{text-transform:none;font-family:var(--f-body);font-weight:600;font-size:clamp(28px,7.5vw,44px);line-height:1.3}
+.lede p{color:var(--muted);max-width:52ch;margin-top:8px}
+h2{font-size:20px;font-weight:600}
+.note{color:var(--muted);font-size:14px}
+
+/* receiver */
+.rx{background:var(--panel);color:var(--panel-ink);border-radius:20px;padding:18px 18px 14px;display:flex;flex-direction:column;gap:16px}
+.rx-top{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.rx-id{display:flex;flex-direction:column;gap:4px;min-width:0}
+.rx-label{font-size:12px;color:var(--panel-muted)}
+.rx-freq{font-family:var(--f-display);font-weight:800;font-size:clamp(56px,17vw,92px);line-height:.9;font-variant-numeric:tabular-nums;color:var(--glow);display:flex;align-items:baseline;gap:8px}
+.rx-freq small{font-size:.26em;font-weight:600;color:var(--panel-muted);letter-spacing:.08em}
+.rx-name{font-size:19px;font-weight:600;overflow-wrap:anywhere}
+.rx-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--panel-muted)}
+.onair{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--panel-line);border-radius:999px;padding:2px 10px;color:var(--panel-ink);font-size:12px}
+.onair i{width:8px;height:8px;border-radius:50%;background:#6b7f7e}
+.playing .onair i{background:#FF4B33;box-shadow:0 0 0 0 rgba(255,75,51,.6);animation:pulse 1.6s infinite}
+@keyframes pulse{to{box-shadow:0 0 0 9px rgba(255,75,51,0)}}
+.bigplay{flex:none;width:68px;height:68px;border-radius:50%;border:0;background:var(--glow);color:#1b1205;display:grid;place-items:center}
+.bigplay svg{width:28px;height:28px}
+.dial{position:relative;height:74px;padding:0 14px}
+.dial-track{position:relative;height:100%}
+.dial-ticks{position:absolute;inset:0 0 28px 0;
+  background:
+    repeating-linear-gradient(90deg,var(--panel-ink) 0 2px,transparent 2px 20%),
+    repeating-linear-gradient(90deg,var(--panel-line) 0 1px,transparent 1px 5%);
+  background-size:100% 100%,100% 55%;background-repeat:no-repeat;background-position:0 100%,0 100%;
+  border-bottom:1px solid var(--panel-line);border-inline-end:2px solid var(--panel-ink)}
+.dial-num{position:absolute;bottom:0;transform:translateX(-50%);font-family:var(--f-display);font-weight:600;font-size:14px;color:var(--panel-muted);font-variant-numeric:tabular-nums}
+.mark{position:absolute;top:-6px;width:40px;height:40px;margin-left:-20px;border:0;background:none;padding:0;display:grid;place-items:start center}
+.mark::before{content:"";width:10px;height:10px;border-radius:50%;border:2px solid var(--panel-ink);background:var(--panel);margin-top:4px}
+.mark[aria-pressed="true"]::before{background:var(--glow);border-color:var(--glow)}
+.needle{position:absolute;top:-4px;bottom:26px;width:2px;margin-left:-1px;background:var(--glow);box-shadow:0 0 12px 2px rgba(255,176,46,.55);transition:left .7s cubic-bezier(.2,.9,.25,1.05);pointer-events:none}
+.rx-foot{font-size:12px;color:var(--panel-muted)}
+
+/* lists */
+.list{display:grid;gap:10px;list-style:none;margin:0;padding:0}
+.row{display:flex;align-items:center;gap:14px;width:100%;text-align:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;min-height:64px}
+.row[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+[dir="rtl"] .row[aria-pressed="true"]{box-shadow:inset -3px 0 0 var(--accent)}
+.row-num{flex:none;width:58px;font-family:var(--f-display);font-weight:800;font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
+.row-num.idx{width:30px;color:var(--muted)}
+.row-main{flex:1;min-width:0;display:flex;flex-direction:column}
+.row-main b{font-weight:600;overflow-wrap:anywhere}
+.row-main span{font-size:14px;color:var(--muted)}
+.row-end{flex:none;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:10px}
+.ico{width:22px;height:22px;flex:none}
+.eq{display:none;align-items:flex-end;gap:2px;height:18px}
+.eq i{width:3px;background:var(--accent);height:30%;border-radius:1px}
+.playing .is-cur .eq{display:flex}
+.playing .is-cur .ico-play{display:none}
+.playing .eq i{animation:eq .9s ease-in-out infinite alternate}
+.eq i:nth-child(2){animation-delay:-.3s}.eq i:nth-child(3){animation-delay:-.6s}.eq i:nth-child(4){animation-delay:-.15s}
+@keyframes eq{to{height:100%}}
+
+/* chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 16px;min-height:40px}
+.chip[aria-selected="true"],.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tag{display:inline-block;font-size:11px;border:1px dashed var(--muted);color:var(--muted);border-radius:6px;padding:0 6px;margin-inline-start:8px;vertical-align:2px}
+.story{align-items:flex-start;flex-direction:column;gap:8px}
+.story h3{font-size:17px;font-weight:500;line-height:1.4}
+.story-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;font-size:13px;color:var(--muted)}
+.link{border:0;background:none;color:var(--accent);font-weight:600;padding:8px 0;display:inline-flex;align-items:center;gap:6px}
+.link .ico{width:16px;height:16px}
+
+/* plans */
+.bill{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.save{font-size:13px;color:var(--accent);font-weight:600}
+.plans{display:grid;gap:12px}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.plan.hot{background:var(--panel);color:var(--panel-ink);border-color:var(--panel)}
+.plan-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.plan-name{font-family:var(--f-display);font-weight:800;font-size:26px;text-transform:uppercase;line-height:1}
+:lang(ar) .plan-name,:lang(ur) .plan-name,:lang(hi) .plan-name{font-family:var(--f-body);font-weight:600;font-size:21px;text-transform:none}
+.badge{font-size:12px;background:var(--glow);color:#1b1205;border-radius:999px;padding:2px 10px;font-weight:600}
+.price{font-family:var(--f-display);font-weight:800;font-size:44px;line-height:1;font-variant-numeric:tabular-nums}
+.price small{font-family:var(--f-body);font-size:14px;font-weight:400;opacity:.75}
+.feat{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:15px;flex:1}
+.feat li{display:flex;gap:8px;align-items:flex-start}
+.feat li::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-top:.55em}
+.plan.hot .feat li::before{background:var(--glow)}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:999px;padding:12px 16px;font-weight:600;min-height:48px}
+.plan.hot .btn{background:var(--glow);border-color:var(--glow);color:#1b1205}
+.btn[disabled]{background:none;color:inherit;border-style:dashed;opacity:.8;cursor:default}
+
+/* player + nav */
+.dock{position:fixed;inset-inline:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);z-index:5}
+.player{display:flex;align-items:center;gap:12px;padding-block:10px;border-bottom:1px solid var(--line)}
+.player-txt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.player-txt b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.player-txt span{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pp{flex:none;width:46px;height:46px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.pp svg{width:20px;height:20px}
+.player .eq{display:flex}
+.nav{display:grid;grid-template-columns:repeat(4,1fr)}
+.nav a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px 10px;text-decoration:none;color:var(--muted);font-size:12px}
+.nav a[aria-current="page"]{color:var(--accent);font-weight:600}
+.nav svg{width:22px;height:22px}
+.toast{position:fixed;inset-inline:18px;bottom:160px;margin:auto;max-width:420px;background:var(--ink);color:var(--bg);border-radius:12px;padding:12px 16px;text-align:center;opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none;z-index:6}
+.toast.on{opacity:1;transform:none}
+
+@media (min-width:720px){
+  .list.two{grid-template-columns:1fr 1fr}
+  .plans{grid-template-columns:repeat(3,1fr)}
+  .rx{padding:26px 28px 18px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+
+.rx-name{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,8.5vw,54px);line-height:1.05;color:var(--glow)}
+:lang(ar) .rx-name,:lang(ur) .rx-name,:lang(hi) .rx-name{font-family:var(--f-body);font-weight:600;font-size:clamp(24px,6.5vw,38px);line-height:1.3}
+.needle.off{opacity:0}
+.search{display:flex}
+.search input{flex:1;min-width:0;font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:10px 16px;min-height:46px}
+.state{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:18px;color:var(--muted);display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.state .btn{min-height:42px;padding:8px 16px}
+.credit{font-size:13px;color:var(--muted)}
+.credit a{color:inherit}
+</style>
+</head>
+<body>
+
+<header class="wrap top">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M3 20c3.5 0 3.5-8 7-8s3.5 8 7 8 3.5-8 7-8 3.5 4 5 4"/></svg>
+    <span>ATHEER</span>
+  </div>
+  <div class="lang">
+    <label for="lang" data-t="lang">Language</label>
+    <select id="lang">
+      <option value="en">English</option>
+      <option value="ar">العربية</option>
+      <option value="fr">Français</option>
+      <option value="es">Español</option>
+      <option value="ur">اردو</option>
+      <option value="hi">हिन्दी</option>
+    </select>
+  </div>
+</header>
+
+<noscript><p class="wrap" style="padding-block:16px">This page needs JavaScript. Open your Netlify link in Safari or Chrome, not in a file preview.</p></noscript>
+
+<main class="wrap">
+  <section class="view" id="v-live">
+    <div class="lede">
+      <h1 data-t="hero_h"></h1>
+      <p data-t="hero_p"></p>
+    </div>
+
+    <div class="rx" id="rx">
+      <div class="rx-top">
+        <div class="rx-id">
+          <span class="rx-label" data-t="tuned"></span>
+          <div class="rx-name" id="rxName" dir="auto"></div>
+          <div class="rx-meta"><span id="rxGenre" dir="auto"></span><span class="onair"><i></i><span data-t="on_air"></span></span></div>
+        </div>
+        <button class="bigplay" id="rxPlay" type="button"></button>
+      </div>
+      <div class="dial" dir="ltr">
+        <div class="dial-track" id="dial">
+          <div class="dial-ticks"></div>
+          <div class="needle off" id="needle"></div>
+        </div>
+      </div>
+      <p class="rx-foot" data-t="src_note"></p>
+    </div>
+
+    <form class="search" id="searchForm" role="search">
+      <input id="search" type="search" autocomplete="off" data-tp="search" data-ta="search">
+    </form>
+    <div class="chips" id="liveChips"></div>
+    <ul class="list two" id="liveList"></ul>
+  </section>
+
+  <section class="view" id="v-music">
+    <div><h2 data-t="music_h"></h2><p class="note" data-t="music_note"></p></div>
+    <div class="chips" id="musicChips"></div>
+    <ul class="list two" id="musicList"></ul>
+  </section>
+
+  <section class="view" id="v-news">
+    <h2 data-t="news_h"></h2>
+    <div class="chips" role="tablist" id="newsTabs"></div>
+    <ul class="list" id="stories"></ul>
+  </section>
+
+  <section class="view" id="v-plans">
+    <div><h2 data-t="plans_h"></h2><p class="note" data-t="plans_p"></p></div>
+    <div class="bill">
+      <button class="chip" type="button" id="billM" data-t="monthly"></button>
+      <button class="chip" type="button" id="billY" data-t="yearly"></button>
+      <span class="save" data-t="save"></span>
+    </div>
+    <div class="plans" id="plans"></div>
+  </section>
+
+  <p class="credit">Station data: <a href="https://www.radio-browser.info/" rel="noopener">Radio Browser</a></p>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="dock">
+  <div class="wrap player">
+    <div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="player-txt"><b id="pTitle"></b><span id="pSub"></span></div>
+    <button class="pp" id="pp" type="button"></button>
+  </div>
+  <nav class="wrap nav" id="nav">
+    <a href="#live" data-v="live"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2.5"/><path d="M7 7a7 7 0 0 0 0 10M17 7a7 7 0 0 1 0 10M4 4a11 11 0 0 0 0 16M20 4a11 11 0 0 1 0 16"/></svg><span data-t="nav_live"></span></a>
+    <a href="#music" data-v="music"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg><span data-t="nav_music"></span></a>
+    <a href="#news" data-v="news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h10M7 17h6"/></svg><span data-t="nav_news"></span></a>
+    <a href="#plans" data-v="plans"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg><span data-t="nav_plans"></span></a>
+  </nav>
+</div>
+
+<script>
+const T = {
+en:{lang:"Language",nav_live:"Live",nav_music:"Songs",nav_news:"News",nav_plans:"Plans",
+ hero_h:"Every station, in your language.",hero_p:"Live radio, songs, and news, sports and arts headlines in one place.",
+ tuned:"Tuned to",on_air:"On air",stations_h:"Stations",
+ g_music:"Music",g_news:"News",g_sports:"Sports",g_arts:"Arts & culture",g_classics:"Classics",g_talk:"Talk",t_arts:"Arts",
+ music_h:"Top songs this week",music_note:"Sample catalogue. Licensed songs appear here at launch.",
+ news_h:"Headlines",sample:"Sample",listen:"Listen",
+ plans_h:"Plans",plans_p:"Start free and change plan whenever you like.",monthly:"Monthly",yearly:"Yearly",save:"2 months free",
+ per_month:"/month",per_year:"/year",p_free:"Free",p_plus:"Plus",p_prem:"Premium",
+ f_live:"All live stations",f_heads:"News, sports and arts headlines",f_ads:"With ads",f_noads:"No ads",f_songs:"Unlimited songs on demand",f_offline:"Offline listening",f_all_plus:"Everything in Plus",f_family:"Up to 5 family accounts",f_hq:"Highest sound quality",
+ choose:"Choose plan",current:"Your plan",popular:"Most popular",
+ toast_demo:"Demo only. No payment was taken.",demo_audio:"Demo signal. Real streams connect at launch.",play:"Play",pause:"Pause",
+ news:["City council approves new metro line to the airport","Heavy rain expected along the coast this weekend","Schools to add coding lessons from next term","Home side wins the derby 2–1 with a late goal","Record 12,000 runners sign up for the city marathon","National basketball team names squad for the qualifiers","Film festival opens with 40 premieres from 18 countries","Museum unveils restored manuscripts after a three-year project","Young oud player wins the national music prize"]},
+ar:{lang:"اللغة",nav_live:"مباشر",nav_music:"أغاني",nav_news:"أخبار",nav_plans:"الاشتراكات",
+ hero_h:"كل الإذاعات، بلغتك.",hero_p:"بث مباشر وأغانٍ وعناوين الأخبار والرياضة والفنون في مكان واحد.",
+ tuned:"تستمع الآن إلى",on_air:"على الهواء",stations_h:"الإذاعات",
+ g_music:"موسيقى",g_news:"أخبار",g_sports:"رياضة",g_arts:"فنون وثقافة",g_classics:"كلاسيكيات",g_talk:"حوارات",t_arts:"فنون",
+ music_h:"أفضل أغاني الأسبوع",music_note:"قائمة تجريبية. تظهر الأغاني المرخّصة هنا عند الإطلاق.",
+ news_h:"العناوين",sample:"تجريبي",listen:"استمع",
+ plans_h:"خطط الاشتراك",plans_p:"ابدأ مجانًا وغيّر خطتك متى شئت.",monthly:"شهري",yearly:"سنوي",save:"شهران مجانًا",
+ per_month:"/شهر",per_year:"/سنة",p_free:"مجاني",p_plus:"بلس",p_prem:"بريميوم",
+ f_live:"جميع الإذاعات المباشرة",f_heads:"عناوين الأخبار والرياضة والفنون",f_ads:"مع إعلانات",f_noads:"بدون إعلانات",f_songs:"أغانٍ بلا حدود عند الطلب",f_offline:"الاستماع بدون إنترنت",f_all_plus:"كل مزايا بلس",f_family:"حتى 5 حسابات عائلية",f_hq:"أعلى جودة صوت",
+ choose:"اختر الخطة",current:"خطتك الحالية",popular:"الأكثر اختيارًا",
+ toast_demo:"نسخة تجريبية. لم يُخصم أي مبلغ.",demo_audio:"إشارة تجريبية. يبدأ البث الحقيقي عند الإطلاق.",play:"تشغيل",pause:"إيقاف مؤقت",
+ news:["المجلس البلدي يوافق على خط مترو جديد إلى المطار","أمطار غزيرة متوقعة على الساحل نهاية هذا الأسبوع","المدارس تضيف دروس البرمجة ابتداءً من الفصل المقبل","صاحب الأرض يحسم الديربي 2–1 بهدف في الدقائق الأخيرة","رقم قياسي: 12,000 عدّاء يسجّلون في ماراثون المدينة","منتخب كرة السلة يعلن قائمته للتصفيات","مهرجان السينما يفتتح بـ40 عرضًا أول من 18 دولة","المتحف يكشف عن مخطوطات مرمَّمة بعد مشروع دام ثلاث سنوات","عازف عود شاب يفوز بالجائزة الوطنية للموسيقى"]},
+fr:{lang:"Langue",nav_live:"Direct",nav_music:"Musique",nav_news:"Actus",nav_plans:"Offres",
+ hero_h:"Toutes les radios, dans votre langue.",hero_p:"Radio en direct, chansons, et les titres de l'actualité, du sport et de la culture au même endroit.",
+ tuned:"À l'écoute",on_air:"À l'antenne",stations_h:"Stations",
+ g_music:"Musique",g_news:"Infos",g_sports:"Sport",g_arts:"Arts et culture",g_classics:"Classiques",g_talk:"Débats",t_arts:"Arts",
+ music_h:"Top chansons de la semaine",music_note:"Catalogue d'exemple. Les titres sous licence arrivent au lancement.",
+ news_h:"À la une",sample:"Exemple",listen:"Écouter",
+ plans_h:"Abonnements",plans_p:"Commencez gratuitement, changez d'offre quand vous voulez.",monthly:"Mensuel",yearly:"Annuel",save:"2 mois offerts",
+ per_month:"/mois",per_year:"/an",p_free:"Gratuit",p_plus:"Plus",p_prem:"Premium",
+ f_live:"Toutes les stations en direct",f_heads:"Titres de l'actualité, du sport et de la culture",f_ads:"Avec publicité",f_noads:"Sans publicité",f_songs:"Chansons à la demande en illimité",f_offline:"Écoute hors ligne",f_all_plus:"Tout ce qu'inclut Plus",f_family:"Jusqu'à 5 comptes famille",f_hq:"Qualité audio maximale",
+ choose:"Choisir cette offre",current:"Votre offre",popular:"La plus choisie",
+ toast_demo:"Démo uniquement. Aucun paiement n'a été effectué.",demo_audio:"Signal de démonstration. Les vrais flux arrivent au lancement.",play:"Lecture",pause:"Pause",
+ news:["Le conseil municipal approuve une nouvelle ligne de métro vers l'aéroport","De fortes pluies attendues sur la côte ce week-end","Les écoles ajouteront des cours de programmation dès le prochain trimestre","L'équipe locale remporte le derby 2–1 grâce à un but tardif","Record : 12 000 coureurs inscrits au marathon de la ville","L'équipe nationale de basket dévoile sa liste pour les qualifications","Le festival du film s'ouvre avec 40 premières venues de 18 pays","Le musée dévoile des manuscrits restaurés après trois ans de travaux","Un jeune joueur d'oud remporte le prix national de musique"]},
+es:{lang:"Idioma",nav_live:"En vivo",nav_music:"Música",nav_news:"Noticias",nav_plans:"Planes",
+ hero_h:"Todas las emisoras, en tu idioma.",hero_p:"Radio en vivo, canciones y titulares de noticias, deportes y cultura en un solo lugar.",
+ tuned:"Sintonizando",on_air:"En el aire",stations_h:"Emisoras",
+ g_music:"Música",g_news:"Noticias",g_sports:"Deportes",g_arts:"Arte y cultura",g_classics:"Clásicos",g_talk:"Tertulia",t_arts:"Arte",
+ music_h:"Las canciones de la semana",music_note:"Catálogo de muestra. Las canciones con licencia llegan en el lanzamiento.",
+ news_h:"Titulares",sample:"Muestra",listen:"Escuchar",
+ plans_h:"Planes",plans_p:"Empieza gratis y cambia de plan cuando quieras.",monthly:"Mensual",yearly:"Anual",save:"2 meses gratis",
+ per_month:"/mes",per_year:"/año",p_free:"Gratis",p_plus:"Plus",p_prem:"Premium",
+ f_live:"Todas las emisoras en vivo",f_heads:"Titulares de noticias, deportes y cultura",f_ads:"Con anuncios",f_noads:"Sin anuncios",f_songs:"Canciones a la carta sin límite",f_offline:"Escucha sin conexión",f_all_plus:"Todo lo de Plus",f_family:"Hasta 5 cuentas familiares",f_hq:"Máxima calidad de sonido",
+ choose:"Elegir plan",current:"Tu plan",popular:"El más elegido",
+ toast_demo:"Solo demostración. No se ha cobrado nada.",demo_audio:"Señal de demostración. Las emisiones reales llegan en el lanzamiento.",play:"Reproducir",pause:"Pausar",
+ news:["El ayuntamiento aprueba una nueva línea de metro al aeropuerto","Se esperan lluvias intensas en la costa este fin de semana","Las escuelas añadirán clases de programación desde el próximo trimestre","El equipo local gana el derbi 2–1 con un gol en el tramo final","Récord: 12.000 corredores se inscriben en el maratón de la ciudad","La selección de baloncesto anuncia su lista para las eliminatorias","El festival de cine abre con 40 estrenos de 18 países","El museo presenta manuscritos restaurados tras un proyecto de tres años","Un joven intérprete de laúd árabe gana el premio nacional de música"]},
+ur:{lang:"زبان",nav_live:"براہِ راست",nav_music:"گانے",nav_news:"خبریں",nav_plans:"پلانز",
+ hero_h:"ہر ریڈیو اسٹیشن، آپ کی زبان میں۔",hero_p:"براہِ راست ریڈیو، گانے، اور خبروں، کھیلوں اور فنون کی سرخیاں ایک ہی جگہ۔",
+ tuned:"آپ سن رہے ہیں",on_air:"آن ایئر",stations_h:"اسٹیشنز",
+ g_music:"موسیقی",g_news:"خبریں",g_sports:"کھیل",g_arts:"فن و ثقافت",g_classics:"کلاسیکی",g_talk:"گفتگو",t_arts:"فنون",
+ music_h:"اس ہفتے کے مقبول گانے",music_note:"نمونہ فہرست۔ لائسنس یافتہ گانے لانچ پر یہاں آئیں گے۔",
+ news_h:"سرخیاں",sample:"نمونہ",listen:"سنیں",
+ plans_h:"سبسکرپشن پلانز",plans_p:"مفت شروع کریں، جب چاہیں پلان بدلیں۔",monthly:"ماہانہ",yearly:"سالانہ",save:"2 ماہ مفت",
+ per_month:"/ماہ",per_year:"/سال",p_free:"مفت",p_plus:"پلس",p_prem:"پریمیم",
+ f_live:"تمام براہِ راست اسٹیشنز",f_heads:"خبروں، کھیلوں اور فنون کی سرخیاں",f_ads:"اشتہارات کے ساتھ",f_noads:"اشتہارات کے بغیر",f_songs:"لامحدود گانے، جب چاہیں",f_offline:"آف لائن سننا",f_all_plus:"پلس کی تمام سہولیات",f_family:"5 فیملی اکاؤنٹس تک",f_hq:"بہترین آواز کا معیار",
+ choose:"پلان منتخب کریں",current:"آپ کا پلان",popular:"سب سے مقبول",
+ toast_demo:"صرف ڈیمو۔ کوئی رقم نہیں لی گئی۔",demo_audio:"ڈیمو سگنل۔ اصل نشریات لانچ پر شروع ہوں گی۔",play:"چلائیں",pause:"روکیں",
+ news:["سٹی کونسل نے ہوائی اڈے تک نئی میٹرو لائن کی منظوری دے دی","اس ہفتے کے آخر میں ساحلی علاقوں میں تیز بارش متوقع","اسکولوں میں اگلے سمسٹر سے کوڈنگ کی کلاسیں شروع ہوں گی","میزبان ٹیم نے آخری لمحات کے گول سے ڈربی 2–1 سے جیت لی","ریکارڈ 12,000 رنرز نے سٹی میراتھن کے لیے اندراج کرایا","قومی باسکٹ بال ٹیم نے کوالیفائرز کے لیے اسکواڈ کا اعلان کر دیا","فلم فیسٹیول کا آغاز 18 ممالک کی 40 نئی فلموں کے ساتھ","میوزیم نے تین سالہ منصوبے کے بعد بحال شدہ مخطوطات کی نمائش کی","نوجوان عود نواز نے قومی موسیقی ایوارڈ جیت لیا"]},
+hi:{lang:"भाषा",nav_live:"लाइव",nav_music:"गाने",nav_news:"समाचार",nav_plans:"प्लान",
+ hero_h:"हर रेडियो स्टेशन, आपकी भाषा में।",hero_p:"लाइव रेडियो, गाने, और समाचार, खेल व कला की सुर्खियाँ एक ही जगह।",
+ tuned:"आप सुन रहे हैं",on_air:"ऑन एयर",stations_h:"स्टेशन",
+ g_music:"संगीत",g_news:"समाचार",g_sports:"खेल",g_arts:"कला और संस्कृति",g_classics:"क्लासिक",g_talk:"बातचीत",t_arts:"कला",
+ music_h:"इस हफ़्ते के टॉप गाने",music_note:"नमूना सूची। लाइसेंस वाले गाने लॉन्च पर यहाँ दिखेंगे।",
+ news_h:"सुर्खियाँ",sample:"नमूना",listen:"सुनें",
+ plans_h:"सब्सक्रिप्शन प्लान",plans_p:"मुफ़्त शुरू करें, जब चाहें प्लान बदलें।",monthly:"मासिक",yearly:"वार्षिक",save:"2 महीने मुफ़्त",
+ per_month:"/माह",per_year:"/वर्ष",p_free:"मुफ़्त",p_plus:"प्लस",p_prem:"प्रीमियम",
+ f_live:"सभी लाइव स्टेशन",f_heads:"समाचार, खेल और कला की सुर्खियाँ",f_ads:"विज्ञापनों के साथ",f_noads:"बिना विज्ञापन",f_songs:"असीमित गाने, जब चाहें",f_offline:"ऑफ़लाइन सुनें",f_all_plus:"प्लस की सभी सुविधाएँ",f_family:"5 फ़ैमिली अकाउंट तक",f_hq:"सबसे बेहतर साउंड क्वालिटी",
+ choose:"प्लान चुनें",current:"आपका प्लान",popular:"सबसे लोकप्रिय",
+ toast_demo:"केवल डेमो। कोई भुगतान नहीं लिया गया।",demo_audio:"डेमो सिग्नल। असली प्रसारण लॉन्च पर शुरू होंगे।",play:"चलाएँ",pause:"रोकें",
+ news:["नगर परिषद ने हवाई अड्डे तक नई मेट्रो लाइन को मंज़ूरी दी","इस सप्ताहांत तटीय इलाक़ों में भारी बारिश के आसार","स्कूलों में अगले सत्र से कोडिंग की कक्षाएँ शुरू होंगी","मेज़बान टीम ने आख़िरी पलों के गोल से डर्बी 2–1 से जीती","सिटी मैराथन के लिए रिकॉर्ड 12,000 धावकों ने पंजीकरण कराया","राष्ट्रीय बास्केटबॉल टीम ने क्वालिफ़ायर के लिए दल घोषित किया","फ़िल्म महोत्सव की शुरुआत 18 देशों की 40 नई फ़िल्मों के साथ","संग्रहालय ने तीन साल की परियोजना के बाद पुनर्स्थापित पांडुलिपियाँ प्रदर्शित कीं","युवा ऊद वादक ने राष्ट्रीय संगीत पुरस्कार जीता"]}
+};
+const RTL = ["ar","ur"];
+const X = {
+en:{fb_note:"Station directory unreachable. Showing a starter list.",pick:"Choose a station",src_note:"Live stations from the Radio Browser directory.",search:"Search stations",loading:"Loading stations…",load_err:"Could not load stations. Check your connection and try again.",st_err:"This station is not responding. Try another.",none:"No stations found.",retry:"Try again",music_h:"Music stations",music_note:"Live music radio by genre. On-demand songs come later, once licensed.",m_pop:"Pop",m_arabic:"Arabic",m_jazz:"Jazz",m_classical:"Classical",m_rock:"Rock",m_hiphop:"Hip-hop"},
+ar:{fb_note:"تعذّر الوصول إلى دليل الإذاعات. نعرض قائمة أولية.",pick:"اختر إذاعة",src_note:"إذاعات مباشرة من دليل Radio Browser.",search:"ابحث عن إذاعة",loading:"جارٍ تحميل الإذاعات…",load_err:"تعذّر تحميل الإذاعات. تحقق من الاتصال وحاول مجددًا.",st_err:"هذه الإذاعة لا تستجيب. جرّب إذاعة أخرى.",none:"لا توجد إذاعات.",retry:"حاول مجددًا",music_h:"إذاعات الموسيقى",music_note:"إذاعات موسيقية مباشرة حسب النوع. الأغاني عند الطلب تأتي لاحقًا بعد الترخيص.",m_pop:"بوب",m_arabic:"عربي",m_jazz:"جاز",m_classical:"كلاسيكي",m_rock:"روك",m_hiphop:"هيب هوب"},
+fr:{fb_note:"Annuaire injoignable. Voici une liste de départ.",pick:"Choisissez une station",src_note:"Stations en direct issues de l'annuaire Radio Browser.",search:"Rechercher une station",loading:"Chargement des stations…",load_err:"Impossible de charger les stations. Vérifiez votre connexion et réessayez.",st_err:"Cette station ne répond pas. Essayez-en une autre.",none:"Aucune station trouvée.",retry:"Réessayer",music_h:"Radios musicales",music_note:"Radios musicales en direct, par genre. Les chansons à la demande arriveront plus tard, une fois les licences obtenues.",m_pop:"Pop",m_arabic:"Arabe",m_jazz:"Jazz",m_classical:"Classique",m_rock:"Rock",m_hiphop:"Hip-hop"},
+es:{fb_note:"Directorio no disponible. Mostramos una lista inicial.",pick:"Elige una emisora",src_note:"Emisoras en vivo del directorio Radio Browser.",search:"Buscar emisoras",loading:"Cargando emisoras…",load_err:"No se pudieron cargar las emisoras. Revisa tu conexión e inténtalo de nuevo.",st_err:"Esta emisora no responde. Prueba con otra.",none:"No se encontraron emisoras.",retry:"Reintentar",music_h:"Emisoras de música",music_note:"Radio musical en vivo por género. Las canciones a la carta llegarán más adelante, con licencia.",m_pop:"Pop",m_arabic:"Árabe",m_jazz:"Jazz",m_classical:"Clásica",m_rock:"Rock",m_hiphop:"Hip hop"},
+ur:{fb_note:"ڈائریکٹری دستیاب نہیں۔ ابتدائی فہرست دکھائی جا رہی ہے۔",pick:"کوئی اسٹیشن منتخب کریں",src_note:"براہِ راست اسٹیشنز Radio Browser ڈائریکٹری سے۔",search:"اسٹیشن تلاش کریں",loading:"اسٹیشنز لوڈ ہو رہے ہیں…",load_err:"اسٹیشنز لوڈ نہیں ہو سکے۔ اپنا کنکشن چیک کر کے دوبارہ کوشش کریں۔",st_err:"یہ اسٹیشن جواب نہیں دے رہا۔ کوئی اور آزمائیں۔",none:"کوئی اسٹیشن نہیں ملا۔",retry:"دوبارہ کوشش کریں",music_h:"موسیقی کے اسٹیشنز",music_note:"صنف کے لحاظ سے براہِ راست موسیقی ریڈیو۔ آن ڈیمانڈ گانے لائسنس کے بعد آئیں گے۔",m_pop:"پاپ",m_arabic:"عربی",m_jazz:"جاز",m_classical:"کلاسیکی",m_rock:"راک",m_hiphop:"ہپ ہاپ"},
+hi:{fb_note:"डायरेक्टरी उपलब्ध नहीं। शुरुआती सूची दिखाई जा रही है।",pick:"कोई स्टेशन चुनें",src_note:"लाइव स्टेशन Radio Browser डायरेक्टरी से।",search:"स्टेशन खोजें",loading:"स्टेशन लोड हो रहे हैं…",load_err:"स्टेशन लोड नहीं हो सके। कनेक्शन जाँचकर फिर कोशिश करें।",st_err:"यह स्टेशन जवाब नहीं दे रहा। कोई और आज़माएँ।",none:"कोई स्टेशन नहीं मिला।",retry:"फिर कोशिश करें",music_h:"संगीत स्टेशन",music_note:"शैली के अनुसार लाइव संगीत रेडियो। ऑन-डिमांड गाने लाइसेंस के बाद आएँगे।",m_pop:"पॉप",m_arabic:"अरबी",m_jazz:"जैज़",m_classical:"शास्त्रीय",m_rock:"रॉक",m_hiphop:"हिप-हॉप"}
+};
+for(const l in X) Object.assign(T[l], X[l]);
+
+const LISTS = {
+  live:{cats:[{k:"g_news",tag:"news"},{k:"g_sports",tag:"sports"},{k:"g_arts",tag:"culture"},{k:"g_talk",tag:"talk"}],cat:0,q:"",items:[],status:"idle",req:0},
+  music:{cats:[{k:"m_pop",tag:"pop"},{k:"m_arabic",tag:"arabic"},{k:"m_jazz",tag:"jazz"},{k:"m_classical",tag:"classical"},{k:"m_rock",tag:"rock"},{k:"m_hiphop",tag:"hip"}],cat:0,q:"",items:[],status:"idle",req:0}
+};
+// sample headlines: index 0-2 news, 3-5 sports, 6-8 arts; each tab maps to a Live category
+const CATS = [{k:"g_news",live:0},{k:"g_sports",live:1},{k:"t_arts",live:2}];
+const PLANS = [
+  {id:"free", n:"p_free", m:0,    y:0,     f:["f_live","f_heads","f_ads"]},
+  {id:"plus", n:"p_plus", m:4.99, y:49.90, f:["f_live","f_heads","f_noads","f_songs","f_offline"], hot:true},
+  {id:"prem", n:"p_prem", m:9.99, y:99.90, f:["f_all_plus","f_family","f_hq"]}
+];
+
+const S = {lang:"en", cur:null, playing:false, loading:false, cat:0, bill:"m", plan:"free"};
+try{ const l = localStorage.getItem("atheer-lang"); if(l && T[l]) S.lang = l; }catch(e){}
+
+const $ = id => document.getElementById(id);
+const t = k => T[S.lang][k] || T.en[k] || k;
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ICON_PLAY = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>';
+const ICON_PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1"/><rect x="14" y="4" width="5" height="16" rx="1"/></svg>';
+const EQ = '<span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>';
+
+
+/* Starter list shown at once, and kept if the directory cannot be reached. */
+const F = (name,url,cc,tags,br) => ({stationuuid:"fb-"+name, name, url_resolved:url, countrycode:cc, tags, codec:"MP3", bitrate:br||128});
+const FALLBACK = {
+  news:[F("NPR News","https://npr-ice.streamguys1.com/live.mp3","US","news",64),F("France Info","https://icecast.radiofrance.fr/franceinfo-midfi.mp3","FR","news"),F("Deutschlandfunk","https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3","DE","news"),F("RFI Monde","https://rfimonde64k.ice.infomaniak.ch/rfimonde-64.mp3","FR","news",64),F("BBC World Service","https://stream.live.vc.bbcmedia.co.uk/bbc_world_service","GB","news",96)],
+  sports:[F("talkSPORT","https://radio.talksport.com/stream","GB","sports",64)],
+  culture:[F("France Culture","https://icecast.radiofrance.fr/franceculture-midfi.mp3","FR","culture"),F("Deutschlandfunk Kultur","https://st02.sslstream.dlf.de/dlf/02/128/mp3/stream.mp3","DE","culture"),F("France Inter","https://icecast.radiofrance.fr/franceinter-midfi.mp3","FR","culture")],
+  talk:[F("WNYC 93.9 FM","https://fm939.wnyc.org/wnycfm","US","talk"),F("France Inter","https://icecast.radiofrance.fr/franceinter-midfi.mp3","FR","talk"),F("NPR News","https://npr-ice.streamguys1.com/live.mp3","US","talk",64)],
+  pop:[F("Radio Swiss Pop","https://stream.srg-ssr.ch/m/rsp/mp3_128","CH","pop"),F("FIP Pop","https://icecast.radiofrance.fr/fippop-midfi.mp3","FR","pop"),F("SomaFM PopTron","https://ice1.somafm.com/poptron-128-mp3","US","pop"),F("Radio Paradise","https://stream.radioparadise.com/mp3-128","US","eclectic")],
+  arabic:[F("Monte Carlo Doualiya","https://montecarlodoualiya128k.ice.infomaniak.ch/mc-doualiya.mp3","FR","arabic")],
+  jazz:[F("Radio Swiss Jazz","https://stream.srg-ssr.ch/m/rsj/mp3_128","CH","jazz"),F("FIP Jazz","https://icecast.radiofrance.fr/fipjazz-midfi.mp3","FR","jazz"),F("SomaFM Sonic Universe","https://ice1.somafm.com/sonicuniverse-128-mp3","US","jazz")],
+  classical:[F("Radio Swiss Classic","https://stream.srg-ssr.ch/m/rsc_de/mp3_128","CH","classical"),F("France Musique","https://icecast.radiofrance.fr/francemusique-midfi.mp3","FR","classical"),F("Classic FM","https://media-ice.musicradio.com/ClassicFMMP3","GB","classical")],
+  rock:[F("FIP Rock","https://icecast.radiofrance.fr/fiprock-midfi.mp3","FR","rock"),F("Radio Paradise Rock","https://stream.radioparadise.com/rock-128","US","rock"),F("SomaFM Indie Pop Rocks","https://ice1.somafm.com/indiepop-128-mp3","US","indie rock"),F("KEXP","https://kexp-mp3-128.streamguys1.com/kexp128.mp3","US","indie")],
+  hip:[F("FIP Hip-Hop","https://icecast.radiofrance.fr/fiphiphop-midfi.mp3","FR","hip-hop")]
+};
+
+/* ---------- Radio Browser directory ---------- */
+let BASES = ["https://de1.api.radio-browser.info","https://de2.api.radio-browser.info","https://fi1.api.radio-browser.info"];
+let okBase = null, discovered = null;
+function fetchT(url, ms){
+  const c = new AbortController(); const id = setTimeout(()=>c.abort(), ms);
+  return fetch(url, {signal:c.signal}).finally(()=>clearTimeout(id));
+}
+function discover(){
+  if(!discovered) discovered = fetchT("https://all.api.radio-browser.info/json/servers", 4000)
+    .then(r=>r.json())
+    .then(a=>{ const n=[...new Set(a.map(x=>"https://"+x.name))].sort(()=>Math.random()-.5); if(n.length) BASES=[...n, ...BASES.filter(b=>!n.includes(b))]; })
+    .catch(()=>{});
+  return discovered;
+}
+async function api(path){
+  await discover();
+  let err;
+  for(const b of BASES){
+    try{ const r = await fetchT(b+path, 6000); if(r.ok){ okBase=b; return await r.json(); } }
+    catch(e){ err=e; }
+  }
+  throw err || new Error("directory unavailable");
+}
+async function load(key){
+  const L = LISTS[key], my = ++L.req;
+  const fb = L.q ? [] : (FALLBACK[L.cats[L.cat].tag] || []);
+  L.note=false; L.err="";
+  if(fb.length){ L.items=fb; L.status="ok"; } else { L.items=[]; L.status="loading"; }
+  renderList(key);
+  try{
+    const p = new URLSearchParams({hidebroken:"true", is_https:"true", order:"clickcount", reverse:"true", limit:"40"});
+    if(L.q) p.set("name", L.q); else p.set("tag", L.cats[L.cat].tag);
+    const a = await api("/json/stations/search?"+p);
+    if(my!==L.req) return;
+    const seen = new Set();
+    const items = (Array.isArray(a)?a:[]).filter(s=>{
+      const n=(s.name||"").trim().toLowerCase();
+      if(!n || s.hls || !/^https:/i.test(s.url_resolved||"") || seen.has(n)) return false;
+      seen.add(n); return true;
+    }).slice(0,12);
+    if(items.length || !fb.length) L.items=items;
+    L.status="ok";
+  }catch(e){
+    if(my!==L.req) return;
+    L.err = String(e && e.message || e);
+    if(fb.length){ L.note=true; } else { L.items=[]; L.status="err"; }
+  }
+  renderList(key);
+}
+function sub(s){
+  const tags = String(s.tags||"").split(",").map(x=>x.trim()).filter(Boolean).slice(0,2).join(", ");
+  const q = [s.codec, s.bitrate ? s.bitrate+" kbps" : ""].filter(Boolean).join(" ");
+  return [s.countrycode, tags, q].filter(Boolean).join(" · ");
+}
+
+/* ---------- playback ---------- */
+const audio = new Audio(); audio.preload="none";
+function play(st){
+  S.cur=st; S.loading=true; S.playing=false;
+  audio.src = st.url_resolved;
+  const p = audio.play(); if(p && p.catch) p.catch(()=>{});
+  paint();
+  if(okBase && st.stationuuid && st.stationuuid.indexOf("fb-")!==0) fetch(okBase+"/json/url/"+encodeURIComponent(st.stationuuid)).catch(()=>{});
+}
+function toggle(){
+  if(S.playing || S.loading){ audio.pause(); S.loading=false; S.playing=false; paint(); }
+  else if(S.cur) play(S.cur);
+  else if(LISTS.live.items[0]) play(LISTS.live.items[0]);
+}
+audio.addEventListener("playing", ()=>{ S.playing=true; S.loading=false; paint(); });
+audio.addEventListener("pause", ()=>{ S.playing=false; paint(); });
+audio.addEventListener("error", ()=>{ if(!S.cur) return; const was=S.loading||S.playing; S.playing=false; S.loading=false; paint(); if(was) toast(t("st_err")); });
+
+/* ---------- rendering ---------- */
+function renderStatic(){
+  const h=document.documentElement;
+  h.lang=S.lang; h.dir=RTL.includes(S.lang)?"rtl":"ltr";
+  document.querySelectorAll("[data-t]").forEach(el=>{ el.textContent=t(el.dataset.t); });
+  document.querySelectorAll("[data-tp]").forEach(el=>{ el.placeholder=t(el.dataset.tp); el.setAttribute("aria-label", t(el.dataset.tp)); });
+  $("lang").value=S.lang;
+  $("newsTabs").innerHTML = CATS.map((c,i)=>
+    `<button class="chip" type="button" role="tab" data-cat="${i}" aria-selected="${i===S.cat}">${t(c.k)}</button>`).join("");
+  renderList("live"); renderList("music"); renderStories(); renderPlans(); paint();
+}
+function renderList(key){
+  const L = LISTS[key];
+  $(key+"Chips").innerHTML = L.cats.map((c,i)=>
+    `<button class="chip" type="button" data-chip="${key}:${i}" aria-pressed="${!L.q && i===L.cat}">${t(c.k)}</button>`).join("");
+  const box = $(key+"List");
+  if(L.status==="loading" || L.status==="idle") box.innerHTML = `<li class="state">${t("loading")}</li>`;
+  else if(L.status==="err") box.innerHTML = `<li class="state"><span>${t("load_err")}</span><small dir="ltr">${esc(L.err)}</small><button class="btn" type="button" data-retry="${key}">${t("retry")}</button></li>`;
+  else if(!L.items.length) box.innerHTML = `<li class="state">${t("none")}</li>`;
+  else box.innerHTML = L.items.map((s,i)=>
+    `<li><button class="row" type="button" data-list="${key}" data-i="${i}" data-id="${esc(s.stationuuid)}">
+      <span class="row-num idx">${i+1}</span>
+      <span class="row-main"><b dir="auto">${esc(s.name.trim())}</b><span dir="auto">${esc(sub(s))}</span></span>
+      <span class="row-end">${EQ}<span class="ico ico-play">${ICON_PLAY}</span></span>
+    </button></li>`).join("");
+  if(L.note) box.insertAdjacentHTML("beforeend", `<li class="state"><span>${t("fb_note")}</span><small dir="ltr">${esc(L.err)}</small><button class="btn" type="button" data-retry="${key}">${t("retry")}</button></li>`);
+  if(key==="live") buildDial();
+  paint();
+}
+function buildDial(){
+  const d=$("dial"), items=LISTS.live.items;
+  d.querySelectorAll(".mark").forEach(m=>m.remove());
+  items.forEach((s,i)=>{
+    const b=document.createElement("button"); b.type="button"; b.className="mark";
+    b.dataset.list="live"; b.dataset.i=i; b.dataset.id=s.stationuuid;
+    b.style.left=((i+.5)/items.length*100)+"%"; b.setAttribute("aria-label", s.name.trim());
+    d.appendChild(b);
+  });
+}
+function renderStories(){
+  const c=CATS[S.cat];
+  $("stories").innerHTML = [0,1,2].map(n=>
+    `<li class="row story">
+      <h3>${t("news")[S.cat*3+n]}<span class="tag">${t("sample")}</span></h3>
+      <div class="story-foot"><span>${t(LISTS.live.cats[c.live].k)}</span>
+      <button class="link" type="button" data-go="${c.live}"><span class="ico">${ICON_PLAY}</span>${t("listen")}</button></div>
+    </li>`).join("");
+  document.querySelectorAll("#newsTabs .chip").forEach((b,i)=>b.setAttribute("aria-selected", i===S.cat));
+}
+function renderPlans(){
+  const money = v => { try{ return new Intl.NumberFormat(S.lang,{style:"currency",currency:"USD",minimumFractionDigits:v?2:0}).format(v); }catch(e){ return "$"+v; } };
+  $("billM").setAttribute("aria-pressed", S.bill==="m");
+  $("billY").setAttribute("aria-pressed", S.bill==="y");
+  $("plans").innerHTML = PLANS.map(p=>{
+    const v = S.bill==="m"?p.m:p.y, mine = S.plan===p.id;
+    return `<article class="plan${p.hot?" hot":""}">
+      <div class="plan-head"><span class="plan-name">${t(p.n)}</span>${p.hot?`<span class="badge">${t("popular")}</span>`:""}</div>
+      <div class="price">${money(v)} <small>${v?t(S.bill==="m"?"per_month":"per_year"):""}</small></div>
+      <ul class="feat">${p.f.map(f=>`<li>${t(f)}</li>`).join("")}</ul>
+      <button class="btn" type="button" data-plan="${p.id}" ${mine?"disabled":""}>${t(mine?"current":"choose")}</button>
+    </article>`; }).join("");
+}
+function paint(){
+  const c=S.cur, on=S.playing||S.loading;
+  document.body.classList.toggle("playing", S.playing);
+  $("rxName").textContent = c ? c.name.trim() : t("pick");
+  $("rxGenre").textContent = c ? sub(c) : "";
+  $("rxPlay").innerHTML = on?ICON_PAUSE:ICON_PLAY;
+  $("rxPlay").setAttribute("aria-label", t(on?"pause":"play"));
+  $("pp").innerHTML = on?ICON_PAUSE:ICON_PLAY;
+  $("pp").setAttribute("aria-label", t(on?"pause":"play"));
+  $("pTitle").textContent = c ? c.name.trim() : t("pick");
+  $("pSub").textContent = c ? sub(c) : "";
+  const id = c ? c.stationuuid : null;
+  document.querySelectorAll(".row[data-id]").forEach(b=>{ const m=b.dataset.id===id; b.classList.toggle("is-cur",m); b.setAttribute("aria-pressed",m); });
+  let at=null;
+  document.querySelectorAll(".mark").forEach(b=>{ const m=b.dataset.id===id; b.setAttribute("aria-pressed",m); if(m) at=b.style.left; });
+  const n=$("needle"); n.classList.toggle("off", at===null); if(at!==null) n.style.left=at;
+}
+let toastT;
+function toast(msg){ const el=$("toast"); el.textContent=msg; el.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove("on"),3000); }
+
+/* ---------- routing ---------- */
+const VIEWS=["live","music","news","plans"];
+function route(){
+  const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "live";
+  VIEWS.forEach(n=>$("v-"+n).classList.toggle("on", n===v));
+  document.querySelectorAll("#nav a").forEach(a=>{ if(a.dataset.v===v) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+  if(v==="music" && LISTS.music.status==="idle") load("music");
+  window.scrollTo(0,0);
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click", e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  if(b.dataset.list){
+    const st = LISTS[b.dataset.list].items[+b.dataset.i]; if(!st) return;
+    if(S.cur && S.cur.stationuuid===st.stationuuid && (S.playing||S.loading) && b.classList.contains("row")) toggle();
+    else play(st);
+  }
+  else if(b.dataset.chip){ const [k,i]=b.dataset.chip.split(":"); const L=LISTS[k]; L.cat=+i; L.q=""; if(k==="live") $("search").value=""; load(k); }
+  else if(b.dataset.retry) load(b.dataset.retry);
+  else if(b.dataset.go!==undefined){ const L=LISTS.live; L.cat=+b.dataset.go; L.q=""; $("search").value=""; location.hash="live"; load("live"); }
+  else if(b.dataset.cat!==undefined){ S.cat=+b.dataset.cat; renderStories(); }
+  else if(b.dataset.plan){ S.plan=b.dataset.plan; renderPlans(); if(S.plan!=="free") toast(t("toast_demo")); }
+  else if(b.id==="billM"||b.id==="billY"){ S.bill=b.id==="billM"?"m":"y"; renderPlans(); }
+  else if(b.id==="rxPlay"||b.id==="pp") toggle();
+});
+let searchT;
+function doSearch(){ const L=LISTS.live, q=$("search").value.trim(); if(q===L.q) return; L.q=q; load("live"); }
+$("searchForm").addEventListener("submit", e=>{ e.preventDefault(); clearTimeout(searchT); doSearch(); $("search").blur(); });
+$("search").addEventListener("input", ()=>{ clearTimeout(searchT); searchT=setTimeout(doSearch, 700); });
+$("lang").addEventListener("change", e=>{ S.lang=e.target.value; try{localStorage.setItem("atheer-lang",S.lang)}catch(err){} renderStatic(); });
+window.addEventListener("hashchange", route);
+
+renderStatic(); route(); load("live");
+</script>
+</body>
+</html>

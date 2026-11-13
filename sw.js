@@ -12,6 +12,8 @@ self.addEventListener("activate", function (event) {
 });
 self.addEventListener("fetch", function (event) {
   if (event.request.method !== "GET") return;
+  /* Live radio streams never end, so they must not be copied into the cache. */
+  if (event.request.destination === "audio" || event.request.destination === "video") return;
   event.respondWith(
     fetch(event.request).then(function (response) {
       var copy = response.clone();

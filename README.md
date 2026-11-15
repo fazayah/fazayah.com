@@ -11,3 +11,11 @@ Static site: course catalogs for two schools (mechanical engineering and mineral
 The first school in `schools` in `assets/data-ui.js` is the one visitors see first; `?school=mineral` links straight to the other.
 
 To open enrollment, put each plan's payment link in its `checkout` field in `assets/data-ui.js`.
+
+## Weather app
+
+`weather/index.html` is Anwa Weather, a single-file app at `/weather`: live forecast for any city (data from Open-Meteo), an animated sky drawn from the current conditions, a briefing written from the forecast numbers, and subscription prices, in ten languages.
+
+- Plan prices and payment links are in `PLANS` at the top of the script; while `checkout` is empty the button says subscriptions are not open yet.
+- Interface text is in `TEXT`, one list per language, in the order given by `KEYS`.
+- When the forecast service cannot be reached the page shows a sample forecast with a notice.

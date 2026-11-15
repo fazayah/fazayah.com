@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Anwa Weather</title>
+<meta name="description" content="Live weather for any city in the world, with animated skies, in ten languages.">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@600;800&family=Noto+Sans:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;700&family=Noto+Sans+Devanagari:wght@400;500;700&display=swap">
+<style>
+/* Layout idea: the sky is the interface. One animated sky panel, drawn from the
+   live conditions, carries the place and the temperature; everything below it is
+   quiet instrument readouts on a pale, slightly blue ground. */
+:root{
+  --bg:#EDF2F7;
+  --surface:#FFFFFF;
+  --ink:#10233B;
+  --muted:#52677E;
+  --line:#CDD9E5;
+  --accent:#0B5FBF;
+  --accent-ink:#FFFFFF;
+  --rain:#2F86DD;
+  --sun:#E89A0C;
+  --cool:#4FA3E8;
+  --warm:#F08A24;
+  --sky-ink:#FFFFFF;
+  --f-display:"Red Hat Display","Noto Sans Arabic","Noto Sans Devanagari",system-ui,sans-serif;
+  --f-body:"Noto Sans","Noto Sans Arabic","Noto Sans Devanagari","PingFang SC","Microsoft YaHei",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#08131F; --surface:#0F1F2E; --ink:#E8EFF6; --muted:#8CA1B7; --line:#20364A;
+    --accent:#74B6FF; --accent-ink:#06182B; --rain:#58A6F2; --sun:#F5B544; --cool:#5FAEEE; --warm:#F59A3C;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#08131F; --surface:#0F1F2E; --ink:#E8EFF6; --muted:#8CA1B7; --line:#20364A;
+  --accent:#74B6FF; --accent-ink:#06182B; --rain:#58A6F2; --sun:#F5B544; --cool:#5FAEEE; --warm:#F59A3C;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+:root[dir="rtl"] body{line-height:1.75}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+h1,h2,h3,p,ul{margin:0}
+ul{padding:0;list-style:none}
+h1,h2{text-wrap:balance}
+h2{font-family:var(--f-display);font-weight:800;font-size:22px;line-height:1.25}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:940px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main.wrap{display:flex;flex-direction:column;gap:28px;padding-block:6px 40px}
+section{display:flex;flex-direction:column;gap:12px;min-width:0}
+.note{color:var(--muted);font-size:14px}
+
+/* top bar */
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px 14px;flex-wrap:wrap;padding-block:14px}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--f-display);font-weight:800;font-size:24px;letter-spacing:.01em;line-height:1}
+.brand svg{width:30px;height:30px;color:var(--accent)}
+.tools{display:flex;align-items:center;gap:8px}
+.tools select,.seg{background:var(--surface);border:1px solid var(--line);border-radius:999px;min-height:40px}
+.tools select{padding:6px 12px}
+.seg{display:inline-flex;padding:3px;gap:2px}
+.seg button{border:0;background:none;border-radius:999px;padding:4px 12px;min-width:40px;min-height:32px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+
+/* search and places */
+.find{position:relative;display:flex;gap:8px}
+.find input{flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:10px 18px;min-height:48px}
+.icon-btn{flex:none;width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center}
+.icon-btn svg{width:22px;height:22px}
+.results{position:absolute;inset-inline:0;top:54px;z-index:4;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:0 12px 30px rgba(10,30,55,.18)}
+.results button{display:flex;flex-direction:column;width:100%;text-align:start;border:0;border-bottom:1px solid var(--line);background:none;padding:10px 16px}
+.results li:last-child button{border-bottom:0}
+.results button:hover{background:var(--bg)}
+.results span{font-size:13px;color:var(--muted)}
+.results p{padding:12px 16px;color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 16px;min-height:40px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* the sky */
+.sky{position:relative;border-radius:22px;overflow:hidden;min-height:300px;color:var(--sky-ink);background:#12305a;display:flex}
+.sky canvas{position:absolute;inset:0;width:100%;height:100%}
+.sky-in{position:relative;flex:1;display:flex;flex-direction:column;justify-content:space-between;gap:20px;padding:20px;min-width:0;text-shadow:0 1px 10px rgba(0,10,30,.45)}
+.sky-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.place{min-width:0}
+.place h1{font-family:var(--f-display);font-weight:800;font-size:clamp(24px,6vw,34px);line-height:1.2;overflow-wrap:anywhere}
+.place p{font-size:14px;opacity:.9}
+.pill{flex:none;border:1px solid rgba(255,255,255,.55);background:rgba(5,20,45,.35);color:var(--sky-ink);border-radius:999px;padding:6px 14px;min-height:40px;display:inline-flex;align-items:center;gap:6px;text-shadow:none}
+.pill svg{width:16px;height:16px}
+.pill[aria-pressed="true"] svg{fill:currentColor}
+.temp{font-family:var(--f-display);font-weight:800;font-size:clamp(84px,24vw,136px);line-height:.9;letter-spacing:-.03em;direction:ltr;unicode-bidi:isolate}
+.cond{font-size:20px;font-weight:600;margin-top:6px}
+.banner{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px dashed var(--muted);border-radius:var(--r);padding:10px 14px;font-size:14px}
+.link{border:0;background:none;color:var(--accent);font-weight:600;padding:6px 0;min-height:36px}
+
+/* readouts */
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.stats div{background:var(--surface);padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stats dt{font-size:13px;color:var(--muted)}
+.stats dd{margin:0;font-size:20px;font-weight:600;display:flex;align-items:center;gap:6px}
+.stats dd span{direction:ltr;unicode-bidi:isolate}
+.stats small{font-size:13px;font-weight:400;color:var(--muted)}
+.arrow{width:16px;height:16px;color:var(--accent);flex:none}
+dl{margin:0}
+
+/* briefing */
+.brief{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;display:grid;gap:8px;max-width:65ch}
+.brief li{display:flex;gap:10px}
+.brief li::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:var(--sun);margin-top:.6em}
+
+/* hourly chart */
+.scroll{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.scroll svg{display:block;width:100%;min-width:660px;height:auto}
+.ch-line{fill:none;stroke:var(--warm);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.ch-area{fill:var(--warm);fill-opacity:.13;stroke:none}
+.ch-dot{fill:var(--surface);stroke:var(--warm);stroke-width:2}
+.ch-bar{fill:var(--rain)}
+.ch-base{stroke:var(--line);stroke-width:1;fill:none}
+.ch-t{fill:var(--ink);font:600 14px var(--f-body);text-anchor:middle}
+.ch-h{fill:var(--muted);font:12px var(--f-body);text-anchor:middle}
+.ch-p{fill:var(--rain);font:600 11px var(--f-body);text-anchor:middle}
+
+/* days */
+.days{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.day{display:grid;grid-template-columns:minmax(64px,1.1fr) 26px 44px 36px minmax(60px,2fr) 36px;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.day:last-child{border-bottom:0}
+.day b{font-weight:600;overflow-wrap:anywhere}
+.day svg{width:24px;height:24px}
+.day .p{font-size:13px;color:var(--rain);font-weight:600;direction:ltr;text-align:center}
+.day .lo{color:var(--muted);text-align:end}
+.day .hi{font-weight:600}
+.range{position:relative;height:6px;border-radius:3px;background:var(--line)}
+.range i{position:absolute;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,var(--cool),var(--warm))}
+[dir="rtl"] .range i{background:linear-gradient(270deg,var(--cool),var(--warm))}
+
+/* world */
+.world{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.city{display:flex;align-items:center;gap:10px;text-align:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px;min-height:60px;min-width:0}
+.city svg{width:26px;height:26px;flex:none}
+.city b{flex:1;min-width:0;font-weight:500;overflow-wrap:anywhere}
+.city span{font-family:var(--f-display);font-weight:800;font-size:22px}
+
+/* plans */
+.bill{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.save{font-size:13px;color:var(--accent);font-weight:600}
+.plans{display:grid;gap:12px}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.plan.hot{border:2px solid var(--accent)}
+.plan h3{font-family:var(--f-display);font-weight:800;font-size:22px;line-height:1.2}
+.price{font-family:var(--f-display);font-weight:800;font-size:42px;line-height:1}
+.price small{font-family:var(--f-body);font-size:14px;font-weight:400;color:var(--muted)}
+.feat{display:grid;gap:6px;font-size:15px;flex:1;align-content:start}
+.feat li{display:flex;gap:8px}
+.feat li::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-top:.6em}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:10px 16px;font-weight:600;min-height:48px}
+.btn[disabled]{background:none;color:var(--muted);border:1px dashed var(--muted);cursor:default}
+.credit{font-size:13px;color:var(--muted)}
+.credit a{color:inherit}
+.toast{position:fixed;inset-inline:16px;bottom:calc(20px + env(safe-area-inset-bottom,0px));margin:auto;max-width:420px;background:var(--ink);color:var(--bg);border-radius:12px;padding:12px 16px;text-align:center;opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none;z-index:6}
+.toast.on{opacity:1;transform:none}
+
+@media (min-width:720px){
+  .stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .world{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .plans{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .sky{min-height:340px}
+  .sky-in{padding:28px}
+  .two{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:28px;align-items:start}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<header class="wrap top">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="21" cy="11" r="5"/><path d="M8 26h13a5 5 0 0 0 .8-9.94A7.5 7.5 0 0 0 7.2 18.1 4 4 0 0 0 8 26z" fill="var(--bg)"/></svg>
+    <span>ANWA</span>
+  </div>
+  <div class="tools">
+    <div class="seg" id="units" role="group"></div>
+    <select id="lang"></select>
+  </div>
+</header>
+
+<noscript><p class="wrap">This page needs JavaScript to load the forecast.</p></noscript>
+
+<main class="wrap">
+  <section>
+    <div class="find">
+      <input id="q" type="search" autocomplete="off" enterkeyhint="search">
+      <button class="icon-btn" id="locate" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+      </button>
+      <ul class="results" id="results" hidden></ul>
+    </div>
+    <div class="chips" id="places"></div>
+  </section>
+
+  <section>
+    <div class="sky" id="skybox">
+      <canvas id="sky" aria-hidden="true"></canvas>
+      <div class="sky-in">
+        <div class="sky-head">
+          <div class="place"><h1 id="p-name"></h1><p id="p-sub"></p></div>
+          <button class="pill" id="save" type="button" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9 6.6 19.8l1.1-6.1L3.2 9.4l6.1-.8z"/></svg>
+            <span id="save-t"></span>
+          </button>
+        </div>
+        <div>
+          <div class="temp num" id="temp">–</div>
+          <p class="cond" id="cond" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+    <div class="banner" id="banner" hidden><span id="banner-t"></span><button class="link" id="retry" type="button"></button></div>
+    <dl class="stats" id="stats"></dl>
+  </section>
+
+  <section>
+    <h2 data-t="brief_h"></h2>
+    <ul class="brief" id="brief"></ul>
+  </section>
+
+  <section>
+    <h2 data-t="hourly_h"></h2>
+    <div class="scroll" dir="ltr" id="hourly" tabindex="0"></div>
+  </section>
+
+  <div class="two">
+    <section>
+      <h2 data-t="daily_h"></h2>
+      <div class="days" id="days"></div>
+    </section>
+    <section>
+      <h2 data-t="scenes_h"></h2>
+      <p class="note" data-t="scenes_p"></p>
+      <div class="chips" id="scenes"></div>
+    </section>
+  </div>
+
+  <section>
+    <h2 data-t="world_h"></h2>
+    <div class="world" id="world"></div>
+  </section>
+
+  <section id="pricing">
+    <h2 data-t="plans_h"></h2>
+    <p class="note" data-t="plans_p"></p>
+    <div class="bill"><div class="seg" id="bill" role="group"></div><span class="save" id="save2"></span></div>
+    <div class="plans" id="plans"></div>
+    <p class="note" data-t="usd"></p>
+  </section>
+
+  <p class="credit"><a href="https://open-meteo.com/" data-t="credit"></a></p>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- settings: edit prices and payment links here ---------- */
+/* Prices in US dollars. `checkout` is the payment link for the plan; while it is
+   empty the button tells visitors subscriptions are not open yet. */
+var PLANS=[
+  {id:"free",name:"",monthly:0,yearly:0,checkout:""},
+  {id:"plus",name:"Plus",monthly:3,yearly:30,checkout:"",hot:true},
+  {id:"pro",name:"Pro",monthly:9,yearly:90,checkout:""}
+];
+var FREE_PLACES=3;
+var API="https://api.open-meteo.com/v1/forecast";
+var GEO="https://geocoding-api.open-meteo.com/v1/search";
+
+var LANGS=[["en","English","ltr"],["ar","العربية","rtl"],["ur","اردو","rtl"],["hi","हिन्दी","ltr"],["fr","Français","ltr"],
+  ["es","Español","ltr"],["pt","Português","ltr"],["ru","Русский","ltr"],["zh","中文","ltr"],["id","Bahasa Indonesia","ltr"]];
+
+var CITIES=[["mecca",21.4225,39.8262],["cairo",30.0444,31.2357],["karachi",24.8607,67.0011],["delhi",28.6139,77.209],
+  ["london",51.5072,-0.1276],["newyork",40.7128,-74.006],["tokyo",35.6762,139.6503],["saopaulo",-23.5505,-46.6333]];
+
+/* ---------- interface text. Every language lists the same keys in this order ---------- */
+var KEYS=["lang","search_ph","locate","save","saved","feels","wind","humidity","pressure","uv","pop","sunrise","sunset","hourly_h","daily_h","today","now","brief_h","world_h","scenes_h","scenes_p","live","night","units",
+"c_clear","c_partly","c_cloudy","c_fog","c_drizzle","c_rain","c_snow","c_showers","c_storm",
+"b_rain_at","b_snow_at","b_dry","b_warmer","b_cooler","b_same","b_wind","b_uv","b_hot","b_cold",
+"plans_h","plans_p","monthly","yearly","per_month","per_year","save2","free","cta_free","cta_sub","soon","usd",
+"free_f","plus_f","pro_f",
+"loading","sample","retry","noresult","geo_denied","limit","credit",
+"mecca","cairo","karachi","delhi","london","newyork","tokyo","saopaulo"];
+var TEXT={
+en:["Language","Search a city","Use my location","Save place","Saved","Feels like","Wind","Humidity","Pressure","UV index","Chance of rain","Sunrise","Sunset","Next 24 hours","7 days","Today","Now","Today's briefing","Around the world","Sky scenes","See how the sky is drawn for each kind of weather.","Live sky","Night","Units",
+"Clear sky","Partly cloudy","Cloudy","Fog","Drizzle","Rain","Snow","Showers","Thunderstorm",
+"Rain is likely around {t}.","Snow is likely around {t}.","No rain expected in the next 24 hours.","Tomorrow will be about {n}° warmer.","Tomorrow will be about {n}° cooler.","Tomorrow will feel much like today.","Strong wind today, up to {v}.","UV is high around midday. Cover up or stay in the shade.","A very hot afternoon. Drink water and avoid the midday sun.","Temperatures drop below freezing.",
+"Subscription prices","The forecast is free. Paid plans add longer forecasts, alerts and an assistant.","Monthly","Yearly","/ month","/ year","2 months free","Free","Your current plan","Subscribe","Subscriptions are not open yet.","Prices in US dollars.",
+["7-day forecast, hour by hour for 24 hours","All 10 languages","Animated sky scenes","3 saved places"],["16-day forecast","Unlimited saved places","Severe weather alerts","Air quality and pollen"],["Everything in Plus","AI assistant that answers weather questions in your language","Daily video briefing","Up to 5 family members"],
+"Loading the forecast…","Sample forecast. Live data could not be reached.","Try again","No place found with that name.","Your location is not available. Search for your city instead.","The free plan saves 3 places.","Weather data by Open-Meteo",
+"Mecca","Cairo","Karachi","Delhi","London","New York","Tokyo","São Paulo"],
+ar:["اللغة","ابحث عن مدينة","استخدم موقعي","حفظ المكان","محفوظ","الإحساس","الرياح","الرطوبة","الضغط","مؤشر الأشعة فوق البنفسجية","احتمال المطر","الشروق","الغروب","الساعات الـ24 القادمة","7 أيام","اليوم","الآن","موجز اليوم","حول العالم","مشاهد السماء","شاهد كيف تُرسم السماء لكل نوع من الطقس.","السماء الآن","ليل","الوحدات",
+"سماء صافية","غائم جزئيًا","غائم","ضباب","رذاذ","مطر","ثلج","زخات مطر","عاصفة رعدية",
+"يُتوقع هطول المطر نحو الساعة {t}.","يُتوقع تساقط الثلج نحو الساعة {t}.","لا يُتوقع مطر خلال الـ24 ساعة القادمة.","غدًا أدفأ بنحو {n}°.","غدًا أبرد بنحو {n}°.","غدًا مشابه لطقس اليوم.","رياح قوية اليوم تصل إلى {v}.","الأشعة فوق البنفسجية مرتفعة وقت الظهيرة. غطِّ بشرتك أو ابقَ في الظل.","ظهيرة شديدة الحرارة. اشرب الماء وتجنّب شمس الظهيرة.","تنخفض الحرارة إلى ما دون الصفر.",
+"أسعار الاشتراك","التوقعات مجانية. الخطط المدفوعة تضيف توقعات أطول وتنبيهات ومساعدًا ذكيًا.","شهري","سنوي","/ شهريًا","/ سنويًا","شهران مجانًا","مجاني","خطتك الحالية","اشترك","الاشتراكات غير مفتوحة بعد.","الأسعار بالدولار الأمريكي.",
+["توقعات 7 أيام، وساعة بساعة لمدة 24 ساعة","جميع اللغات العشر","مشاهد سماء متحركة","3 أماكن محفوظة"],["توقعات 16 يومًا","أماكن محفوظة بلا حد","تنبيهات الطقس القاسي","جودة الهواء وحبوب اللقاح"],["كل ما في Plus","مساعد ذكاء اصطناعي يجيب عن أسئلة الطقس بلغتك","موجز يومي بالفيديو","حتى 5 أفراد من العائلة"],
+"جارٍ تحميل التوقعات…","توقعات تجريبية. تعذّر الوصول إلى البيانات الحية.","أعد المحاولة","لم يُعثر على مكان بهذا الاسم.","موقعك غير متاح. ابحث عن مدينتك.","الخطة المجانية تحفظ 3 أماكن.","بيانات الطقس من Open-Meteo",
+"مكة المكرمة","القاهرة","كراتشي","دلهي","لندن","نيويورك","طوكيو","ساو باولو"],
+ur:["زبان","شہر تلاش کریں","میرا مقام استعمال کریں","جگہ محفوظ کریں","محفوظ","محسوس","ہوا","نمی","دباؤ","یو وی انڈیکس","بارش کا امکان","طلوع آفتاب","غروب آفتاب","اگلے 24 گھنٹے","7 دن","آج","ابھی","آج کا خلاصہ","دنیا بھر میں","آسمان کے مناظر","دیکھیں کہ ہر قسم کے موسم میں آسمان کیسا دکھایا جاتا ہے۔","موجودہ آسمان","رات","اکائیاں",
+"صاف آسمان","جزوی ابر آلود","ابر آلود","دھند","پھوار","بارش","برف باری","بوچھاڑیں","گرج چمک کا طوفان",
+"تقریباً {t} بجے بارش کا امکان ہے۔","تقریباً {t} بجے برف باری کا امکان ہے۔","اگلے 24 گھنٹوں میں بارش متوقع نہیں۔","کل تقریباً {n}° زیادہ گرم ہوگا۔","کل تقریباً {n}° زیادہ ٹھنڈا ہوگا۔","کل کا موسم آج جیسا رہے گا۔","آج تیز ہوا، {v} تک۔","دوپہر کے وقت یو وی زیادہ ہے۔ جلد ڈھانپیں یا سائے میں رہیں۔","دوپہر بہت گرم ہوگی۔ پانی پئیں اور دوپہر کی دھوپ سے بچیں۔","درجہ حرارت نقطۂ انجماد سے نیچے جائے گا۔",
+"سبسکرپشن کی قیمتیں","پیش گوئی مفت ہے۔ بامعاوضہ پلان طویل پیش گوئی، الرٹس اور ایک معاون شامل کرتے ہیں۔","ماہانہ","سالانہ","/ ماہ","/ سال","2 ماہ مفت","مفت","آپ کا موجودہ پلان","سبسکرائب کریں","سبسکرپشن ابھی شروع نہیں ہوئی۔","قیمتیں امریکی ڈالر میں ہیں۔",
+["7 دن کی پیش گوئی، 24 گھنٹے کی گھنٹہ وار تفصیل","تمام 10 زبانیں","آسمان کے متحرک مناظر","3 محفوظ جگہیں"],["16 دن کی پیش گوئی","لامحدود محفوظ جگہیں","شدید موسم کے الرٹس","ہوا کا معیار اور پولن"],["Plus کی ہر سہولت","اے آئی معاون جو آپ کی زبان میں موسم کے سوالوں کے جواب دے","روزانہ ویڈیو خلاصہ","خاندان کے 5 افراد تک"],
+"پیش گوئی لوڈ ہو رہی ہے…","نمونہ پیش گوئی۔ براہِ راست ڈیٹا تک رسائی نہیں ہو سکی۔","دوبارہ کوشش کریں","اس نام کی کوئی جگہ نہیں ملی۔","آپ کا مقام دستیاب نہیں۔ اپنا شہر تلاش کریں۔","مفت پلان میں 3 جگہیں محفوظ ہوتی ہیں۔","موسمی ڈیٹا: Open-Meteo",
+"مکہ مکرمہ","قاہرہ","کراچی","دہلی","لندن","نیویارک","ٹوکیو","ساؤ پالو"],
+hi:["भाषा","शहर खोजें","मेरा स्थान इस्तेमाल करें","स्थान सहेजें","सहेजा गया","महसूस","हवा","नमी","दबाव","यूवी सूचकांक","बारिश की संभावना","सूर्योदय","सूर्यास्त","अगले 24 घंटे","7 दिन","आज","अभी","आज का सार","दुनिया भर में","आसमान के दृश्य","देखें कि हर तरह के मौसम में आसमान कैसे दिखाया जाता है।","अभी का आसमान","रात","इकाइयाँ",
+"साफ़ आसमान","आंशिक बादल","बादल","कोहरा","बूंदाबांदी","बारिश","बर्फ़बारी","बौछारें","आंधी-तूफ़ान",
+"लगभग {t} बजे बारिश की संभावना है।","लगभग {t} बजे बर्फ़बारी की संभावना है।","अगले 24 घंटों में बारिश की उम्मीद नहीं है।","कल लगभग {n}° ज़्यादा गर्म रहेगा।","कल लगभग {n}° ज़्यादा ठंडा रहेगा।","कल का मौसम आज जैसा ही रहेगा।","आज तेज़ हवा, {v} तक।","दोपहर में यूवी अधिक है। त्वचा ढकें या छाँव में रहें।","दोपहर बहुत गर्म रहेगी। पानी पिएँ और दोपहर की धूप से बचें।","तापमान शून्य से नीचे जाएगा।",
+"सदस्यता की कीमतें","पूर्वानुमान मुफ़्त है। सशुल्क प्लान में लंबा पूर्वानुमान, अलर्ट और एक सहायक मिलता है।","मासिक","वार्षिक","/ माह","/ वर्ष","2 महीने मुफ़्त","मुफ़्त","आपका मौजूदा प्लान","सदस्यता लें","सदस्यता अभी शुरू नहीं हुई है।","कीमतें अमेरिकी डॉलर में हैं।",
+["7 दिन का पूर्वानुमान, 24 घंटे का घंटेवार ब्योरा","सभी 10 भाषाएँ","आसमान के एनिमेटेड दृश्य","3 सहेजे गए स्थान"],["16 दिन का पूर्वानुमान","असीमित सहेजे गए स्थान","ख़राब मौसम के अलर्ट","वायु गुणवत्ता और पराग"],["Plus की हर सुविधा","एआई सहायक जो आपकी भाषा में मौसम के सवालों के जवाब दे","रोज़ाना वीडियो सार","परिवार के 5 सदस्यों तक"],
+"पूर्वानुमान लोड हो रहा है…","नमूना पूर्वानुमान। लाइव डेटा तक पहुँच नहीं हो सकी।","फिर कोशिश करें","इस नाम का कोई स्थान नहीं मिला।","आपका स्थान उपलब्ध नहीं है। अपना शहर खोजें।","मुफ़्त प्लान में 3 स्थान सहेजे जा सकते हैं।","मौसम डेटा: Open-Meteo",
+"मक्का","काहिरा","कराची","दिल्ली","लंदन","न्यूयॉर्क","टोक्यो","साओ पाउलो"],
+fr:["Langue","Chercher une ville","Utiliser ma position","Enregistrer le lieu","Enregistré","Ressenti","Vent","Humidité","Pression","Indice UV","Risque de pluie","Lever du soleil","Coucher du soleil","Prochaines 24 heures","7 jours","Aujourd'hui","Maintenant","Le point du jour","Dans le monde","Scènes de ciel","Voyez comment le ciel est dessiné pour chaque type de temps.","Ciel en direct","Nuit","Unités",
+"Ciel dégagé","Partiellement nuageux","Nuageux","Brouillard","Bruine","Pluie","Neige","Averses","Orage",
+"Pluie probable vers {t}.","Neige probable vers {t}.","Pas de pluie prévue dans les 24 prochaines heures.","Demain, environ {n}° de plus.","Demain, environ {n}° de moins.","Demain ressemblera à aujourd'hui.","Vent fort aujourd'hui, jusqu'à {v}.","UV élevés vers midi. Couvrez-vous ou restez à l'ombre.","Après-midi très chaud. Buvez de l'eau et évitez le soleil de midi.","Les températures passent sous zéro.",
+"Tarifs d'abonnement","Les prévisions sont gratuites. Les formules payantes ajoutent des prévisions plus longues, des alertes et un assistant.","Mensuel","Annuel","/ mois","/ an","2 mois offerts","Gratuit","Votre formule actuelle","S'abonner","Les abonnements ne sont pas encore ouverts.","Prix en dollars américains.",
+["Prévisions à 7 jours, heure par heure sur 24 heures","Les 10 langues","Scènes de ciel animées","3 lieux enregistrés"],["Prévisions à 16 jours","Lieux enregistrés illimités","Alertes de temps violent","Qualité de l'air et pollens"],["Tout ce qu'offre Plus","Assistant IA qui répond à vos questions météo dans votre langue","Bulletin vidéo quotidien","Jusqu'à 5 membres de la famille"],
+"Chargement des prévisions…","Prévisions d'exemple. Les données en direct sont inaccessibles.","Réessayer","Aucun lieu trouvé avec ce nom.","Votre position n'est pas disponible. Cherchez plutôt votre ville.","La formule gratuite enregistre 3 lieux.","Données météo : Open-Meteo",
+"La Mecque","Le Caire","Karachi","Delhi","Londres","New York","Tokyo","São Paulo"],
+es:["Idioma","Buscar una ciudad","Usar mi ubicación","Guardar lugar","Guardado","Sensación","Viento","Humedad","Presión","Índice UV","Probabilidad de lluvia","Amanecer","Atardecer","Próximas 24 horas","7 días","Hoy","Ahora","Resumen de hoy","En el mundo","Escenas del cielo","Mira cómo se dibuja el cielo para cada tipo de tiempo.","Cielo en vivo","Noche","Unidades",
+"Cielo despejado","Parcialmente nublado","Nublado","Niebla","Llovizna","Lluvia","Nieve","Chubascos","Tormenta",
+"Es probable que llueva hacia las {t}.","Es probable que nieve hacia las {t}.","No se espera lluvia en las próximas 24 horas.","Mañana hará unos {n}° más.","Mañana hará unos {n}° menos.","Mañana será parecido a hoy.","Viento fuerte hoy, de hasta {v}.","UV alto al mediodía. Cúbrete o quédate a la sombra.","Tarde muy calurosa. Bebe agua y evita el sol del mediodía.","Las temperaturas bajan de cero.",
+"Precios de suscripción","El pronóstico es gratis. Los planes de pago añaden pronósticos más largos, alertas y un asistente.","Mensual","Anual","/ mes","/ año","2 meses gratis","Gratis","Tu plan actual","Suscribirse","Las suscripciones aún no están abiertas.","Precios en dólares estadounidenses.",
+["Pronóstico de 7 días, hora a hora durante 24 horas","Los 10 idiomas","Escenas animadas del cielo","3 lugares guardados"],["Pronóstico de 16 días","Lugares guardados ilimitados","Alertas de tiempo severo","Calidad del aire y polen"],["Todo lo de Plus","Asistente de IA que responde preguntas del tiempo en tu idioma","Resumen diario en video","Hasta 5 miembros de la familia"],
+"Cargando el pronóstico…","Pronóstico de muestra. No se pudo acceder a los datos en vivo.","Reintentar","No se encontró ningún lugar con ese nombre.","Tu ubicación no está disponible. Busca tu ciudad.","El plan gratis guarda 3 lugares.","Datos del tiempo: Open-Meteo",
+"La Meca","El Cairo","Karachi","Delhi","Londres","Nueva York","Tokio","São Paulo"],
+pt:["Idioma","Buscar uma cidade","Usar minha localização","Salvar lugar","Salvo","Sensação","Vento","Umidade","Pressão","Índice UV","Chance de chuva","Nascer do sol","Pôr do sol","Próximas 24 horas","7 dias","Hoje","Agora","Resumo de hoje","Pelo mundo","Cenas do céu","Veja como o céu é desenhado para cada tipo de tempo.","Céu ao vivo","Noite","Unidades",
+"Céu limpo","Parcialmente nublado","Nublado","Neblina","Garoa","Chuva","Neve","Pancadas de chuva","Trovoada",
+"Chuva provável por volta das {t}.","Neve provável por volta das {t}.","Sem chuva prevista nas próximas 24 horas.","Amanhã fará cerca de {n}° a mais.","Amanhã fará cerca de {n}° a menos.","Amanhã será parecido com hoje.","Vento forte hoje, de até {v}.","UV alto por volta do meio-dia. Proteja a pele ou fique na sombra.","Tarde muito quente. Beba água e evite o sol do meio-dia.","As temperaturas caem abaixo de zero.",
+"Preços da assinatura","A previsão é gratuita. Os planos pagos trazem previsões mais longas, alertas e um assistente.","Mensal","Anual","/ mês","/ ano","2 meses grátis","Grátis","Seu plano atual","Assinar","As assinaturas ainda não estão abertas.","Preços em dólares americanos.",
+["Previsão de 7 dias, hora a hora por 24 horas","Todos os 10 idiomas","Cenas animadas do céu","3 lugares salvos"],["Previsão de 16 dias","Lugares salvos ilimitados","Alertas de tempo severo","Qualidade do ar e pólen"],["Tudo do Plus","Assistente de IA que responde perguntas sobre o tempo no seu idioma","Resumo diário em vídeo","Até 5 membros da família"],
+"Carregando a previsão…","Previsão de exemplo. Não foi possível acessar os dados ao vivo.","Tentar de novo","Nenhum lugar encontrado com esse nome.","Sua localização não está disponível. Busque sua cidade.","O plano grátis salva 3 lugares.","Dados do tempo: Open-Meteo",
+"Meca","Cairo","Carachi","Délhi","Londres","Nova York","Tóquio","São Paulo"],
+ru:["Язык","Найти город","Моё местоположение","Сохранить место","Сохранено","Ощущается","Ветер","Влажность","Давление","УФ-индекс","Вероятность дождя","Восход","Закат","Ближайшие 24 часа","7 дней","Сегодня","Сейчас","Сводка на сегодня","По всему миру","Виды неба","Посмотрите, как рисуется небо для каждой погоды.","Небо сейчас","Ночь","Единицы",
+"Ясно","Переменная облачность","Облачно","Туман","Морось","Дождь","Снег","Ливни","Гроза",
+"Дождь вероятен около {t}.","Снег вероятен около {t}.","В ближайшие 24 часа дождя не ожидается.","Завтра примерно на {n}° теплее.","Завтра примерно на {n}° холоднее.","Завтра будет примерно как сегодня.","Сегодня сильный ветер, до {v}.","Около полудня высокий УФ. Закройте кожу или держитесь в тени.","Очень жаркий день. Пейте воду и избегайте полуденного солнца.","Температура опустится ниже нуля.",
+"Цены подписки","Прогноз бесплатный. Платные планы добавляют более длинный прогноз, оповещения и помощника.","Месяц","Год","/ месяц","/ год","2 месяца бесплатно","Бесплатно","Ваш текущий план","Подписаться","Подписка пока не открыта.","Цены в долларах США.",
+["Прогноз на 7 дней и по часам на 24 часа","Все 10 языков","Анимированные виды неба","3 сохранённых места"],["Прогноз на 16 дней","Сохранённые места без ограничений","Оповещения об опасной погоде","Качество воздуха и пыльца"],["Всё из Plus","ИИ-помощник, отвечающий на вопросы о погоде на вашем языке","Ежедневная видеосводка","До 5 членов семьи"],
+"Загрузка прогноза…","Пример прогноза. Не удалось получить актуальные данные.","Повторить","Место с таким названием не найдено.","Местоположение недоступно. Найдите свой город.","В бесплатном плане можно сохранить 3 места.","Данные о погоде: Open-Meteo",
+"Мекка","Каир","Карачи","Дели","Лондон","Нью-Йорк","Токио","Сан-Паулу"],
+zh:["语言","搜索城市","使用我的位置","保存地点","已保存","体感","风","湿度","气压","紫外线指数","降雨概率","日出","日落","未来24小时","7天","今天","现在","今日简报","世界各地","天空场景","看看每种天气下天空的画法。","实时天空","夜晚","单位",
+"晴","局部多云","多云","雾","毛毛雨","雨","雪","阵雨","雷暴",
+"{t}左右可能下雨。","{t}左右可能下雪。","未来24小时预计无雨。","明天气温约升高{n}°。","明天气温约降低{n}°。","明天与今天相近。","今天风力较强，最高{v}。","正午前后紫外线强，请遮挡皮肤或待在阴凉处。","午后非常炎热，请多喝水并避开正午阳光。","气温将降至零度以下。",
+"订阅价格","预报免费。付费方案提供更长的预报、预警和助手。","按月","按年","/ 月","/ 年","免费2个月","免费","您当前的方案","订阅","订阅尚未开放。","价格以美元计。",
+["7天预报，24小时逐小时预报","全部10种语言","动态天空场景","保存3个地点"],["16天预报","保存地点不限数量","恶劣天气预警","空气质量与花粉"],["包含 Plus 的全部功能","用您的语言回答天气问题的 AI 助手","每日视频简报","最多5位家庭成员"],
+"正在加载预报…","示例预报。无法获取实时数据。","重试","未找到该名称的地点。","无法获取您的位置，请搜索您的城市。","免费方案可保存3个地点。","天气数据：Open-Meteo",
+"麦加","开罗","卡拉奇","德里","伦敦","纽约","东京","圣保罗"],
+id:["Bahasa","Cari kota","Gunakan lokasi saya","Simpan tempat","Tersimpan","Terasa","Angin","Kelembapan","Tekanan","Indeks UV","Peluang hujan","Matahari terbit","Matahari terbenam","24 jam ke depan","7 hari","Hari ini","Sekarang","Ringkasan hari ini","Di seluruh dunia","Pemandangan langit","Lihat bagaimana langit digambar untuk tiap jenis cuaca.","Langit saat ini","Malam","Satuan",
+"Cerah","Cerah berawan","Berawan","Kabut","Gerimis","Hujan","Salju","Hujan lokal","Badai petir",
+"Hujan kemungkinan turun sekitar pukul {t}.","Salju kemungkinan turun sekitar pukul {t}.","Tidak ada hujan dalam 24 jam ke depan.","Besok sekitar {n}° lebih hangat.","Besok sekitar {n}° lebih dingin.","Besok mirip dengan hari ini.","Angin kencang hari ini, hingga {v}.","UV tinggi menjelang tengah hari. Tutupi kulit atau berteduh.","Siang sangat panas. Minum air dan hindari matahari tengah hari.","Suhu turun di bawah titik beku.",
+"Harga langganan","Prakiraan gratis. Paket berbayar menambah prakiraan lebih panjang, peringatan, dan asisten.","Bulanan","Tahunan","/ bulan","/ tahun","Gratis 2 bulan","Gratis","Paket Anda saat ini","Berlangganan","Langganan belum dibuka.","Harga dalam dolar AS.",
+["Prakiraan 7 hari, per jam untuk 24 jam","Semua 10 bahasa","Pemandangan langit beranimasi","3 tempat tersimpan"],["Prakiraan 16 hari","Tempat tersimpan tanpa batas","Peringatan cuaca ekstrem","Kualitas udara dan serbuk sari"],["Semua fitur Plus","Asisten AI yang menjawab pertanyaan cuaca dalam bahasa Anda","Ringkasan video harian","Hingga 5 anggota keluarga"],
+"Memuat prakiraan…","Prakiraan contoh. Data langsung tidak dapat dijangkau.","Coba lagi","Tidak ada tempat dengan nama itu.","Lokasi Anda tidak tersedia. Cari kota Anda.","Paket gratis menyimpan 3 tempat.","Data cuaca: Open-Meteo",
+"Makkah","Kairo","Karachi","Delhi","London","New York","Tokyo","São Paulo"]
+};
+window.ANWA_TEXT={keys:KEYS,text:TEXT};
+
+/* ---------- state ---------- */
+var S={lang:"en",units:"c",bill:"monthly",place:null,places:[],wx:null,sample:false,world:null,preview:null,night:false,results:null};
+var $=function(id){return document.getElementById(id)};
+function get(k){try{return JSON.parse(localStorage.getItem("anwa-"+k))}catch(e){return null}}
+function put(k,v){try{localStorage.setItem("anwa-"+k,JSON.stringify(v))}catch(e){}}
+function t(key){var i=KEYS.indexOf(key),v=TEXT[S.lang][i];return v===undefined?TEXT.en[i]:v}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function placeName(p){return p.key?t(p.key):p.name}
+function sameSpot(a,b){return a&&b&&Math.abs(a.lat-b.lat)<.01&&Math.abs(a.lon-b.lon)<.01}
+function toast(msg){var el=$("toast");el.textContent=msg;el.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(function(){el.classList.remove("on")},2600)}
+
+/* ---------- weather codes (WMO) ---------- */
+function group(code){
+  if(code===0||code===1)return"clear";
+  if(code===2)return"partly";
+  if(code===3)return"cloudy";
+  if(code===45||code===48)return"fog";
+  if(code>=51&&code<=57)return"drizzle";
+  if((code>=71&&code<=77)||code===85||code===86)return"snow";
+  if(code>=80&&code<=82)return"showers";
+  if(code>=95)return"storm";
+  return"rain";
+}
+var CLOUD='<path d="M7 15h10a3.5 3.5 0 0 0 .5-6.97A5.5 5.5 0 0 0 6.2 9.2 3 3 0 0 0 7 15z"/>';
+function icon(g,day){
+  var b;
+  if(g==="clear")b=day?'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>':'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>';
+  else if(g==="partly")b=(day?'<circle cx="17" cy="7" r="3"/><path d="M17 1.5v1M22.5 7h-1M21 3l-.7.7"/>':'<path d="M21 6.5a4 4 0 0 1-4.5-4.5 4 4 0 1 0 4.5 4.5z"/>')+'<path d="M6 19h9a3.5 3.5 0 0 0 .5-6.97A5.5 5.5 0 0 0 5.2 13.2 3 3 0 0 0 6 19z"/>';
+  else if(g==="cloudy")b='<path d="M7 18h10a3.5 3.5 0 0 0 .5-6.97A5.5 5.5 0 0 0 6.2 12.2 3 3 0 0 0 7 18z"/>';
+  else if(g==="fog")b='<path d="M4 9h16M3 13h18M5 17h14"/>';
+  else if(g==="snow")b=CLOUD+'<path d="M8 19h.01M12 19h.01M16 19h.01M10 22h.01M14 22h.01" stroke-width="2.6"/>';
+  else if(g==="storm")b=CLOUD+'<path d="M12.5 15.5l-2 3.5h3l-1.5 3"/>';
+  else b=CLOUD+(g==="drizzle"?'<path d="M9 18.5v1M15 18.5v1M12 20.5v1"/>':'<path d="M8.5 18l-1 3M12.5 18l-1 3M16.5 18l-1 3"/>');
+  return'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+b+"</svg>";
+}
+
+/* ---------- units ---------- */
+function deg(c){return Math.round(S.units==="f"?c*9/5+32:c)}
+function fmtT(c){return deg(c)+"°"}
+function fmtWind(k){return S.units==="f"?Math.round(k*.621)+" mph":Math.round(k)+" km/h"}
+
+/* ---------- the animated sky ---------- */
+var Sky=(function(){
+  var cv=$("sky"),cx=cv.getContext("2d"),W=0,H=0,sc={kind:"clear",day:true,wind:10},P={},raf=0,last=0,flash=0,bolt=[];
+  var still=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var GR={clear:[["#0C56B4","#56A4EA"],["#040A1C","#16294F"]],partly:[["#1560B8","#6AA9E2"],["#050C1F","#1A2C50"]],
+    cloudy:[["#42586E","#8194A6"],["#0B121B","#27323F"]],fog:[["#5F707E","#9AA6AF"],["#12181E","#3A444D"]],
+    drizzle:[["#374C62","#6C8096"],["#090F18","#222D3B"]],rain:[["#2A3C50","#55697D"],["#070C14","#1D2836"]],
+    showers:[["#2C4866","#6C8CA8"],["#080E18","#20304A"]],snow:[["#557089","#A3B6C7"],["#101A28","#34455A"]],
+    storm:[["#161B2A","#3A3F55"],["#05070D","#1A1D2C"]]};
+  var BLOBS=[[-.9,.12,.55],[-.38,-.25,.78],[.3,-.14,.66],[.88,.14,.5],[0,.22,.82]];
+  function r(a,b){return a+Math.random()*(b-a)}
+  function many(n,f){var a=[];for(var i=0;i<n;i++)a.push(f(i));return a}
+  function build(){
+    var k=sc.kind;
+    P.clouds=many({clear:0,partly:3,cloudy:7,fog:3,drizzle:6,rain:7,showers:5,snow:6,storm:8}[k],function(){return{x:r(-.1,1.1),y:r(.04,.5),s:r(.55,1.25),v:r(.004,.012)}});
+    P.drops=many({drizzle:60,rain:160,showers:110,storm:220}[k]||0,function(){return{x:r(-.2,1.2),y:r(0,1),l:r(.025,.055),v:r(.9,1.5)}});
+    P.flakes=many(k==="snow"?120:0,function(){return{x:r(0,1),y:r(0,1),r:r(1,3.2),v:r(.05,.13),p:r(0,6.28)}});
+    P.stars=many(!sc.day&&(k==="clear"||k==="partly")?80:0,function(){return{x:r(0,1),y:r(0,.75),r:r(.5,1.6),p:r(0,6.28)}});
+    P.fog=many(k==="fog"?6:0,function(){return{x:r(-.3,.8),y:r(.25,.95),h:r(.1,.22),w:r(.6,1.1),v:r(.008,.025)}});
+    flash=0;
+  }
+  function size(){
+    var b=cv.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);
+    W=Math.max(1,b.width);H=Math.max(1,b.height);cv.width=Math.round(W*d);cv.height=Math.round(H*d);cx.setTransform(d,0,0,d,0,0);
+    if(still||!raf)draw(1,0);
+  }
+  function disc(x,y,rad,c0,c1){var g=cx.createRadialGradient(x,y,0,x,y,rad);g.addColorStop(0,c0);g.addColorStop(1,c1);cx.fillStyle=g;cx.beginPath();cx.arc(x,y,rad,0,6.2832);cx.fill()}
+  function draw(tm,dt){
+    var k=sc.kind,day=sc.day,g=GR[k][day?0:1],wet=k!=="clear"&&k!=="partly",i,o;
+    var lg=cx.createLinearGradient(0,0,0,H);lg.addColorStop(0,g[0]);lg.addColorStop(1,g[1]);cx.fillStyle=lg;cx.fillRect(0,0,W,H);
+    var wind=Math.min(1,sc.wind/50);
+    for(i=0;i<P.stars.length;i++){o=P.stars[i];cx.fillStyle="rgba(255,255,255,"+(.45+.4*Math.sin(tm*1.3+o.p))+")";cx.beginPath();cx.arc(o.x*W,o.y*H,o.r,0,6.2832);cx.fill()}
+    if(!wet){
+      var sx=document.documentElement.dir==="rtl"?W*.2:W*.8,sy=H*.3;
+      if(day){disc(sx,sy,H*(.85+.04*Math.sin(tm*.8)),"rgba(255,220,130,.6)","rgba(255,220,130,0)");disc(sx,sy,H*.12,"#FFF3C4","#FFD45E")}
+      else{disc(sx,sy,H*.4,"rgba(200,215,255,.28)","rgba(200,215,255,0)");disc(sx,sy,H*.085,"#F4F7FF","#D5DEF2")}
+    }
+    var tone=wet?(day?(k==="snow"||k==="fog"?"225,232,240":"170,182,196"):"70,82,98"):(day?"255,255,255":"120,135,165");
+    for(i=0;i<P.clouds.length;i++){
+      o=P.clouds[i];o.x+=o.v*(.4+wind*2.2)*dt;if(o.x>1.35)o.x=-.35;
+      var R=H*.17*o.s;
+      for(var j=0;j<5;j++){var b=BLOBS[j];disc(o.x*W+b[0]*R,o.y*H+b[1]*R,b[2]*R*1.25,"rgba("+tone+",.5)","rgba("+tone+",0)")}
+    }
+    for(i=0;i<P.fog.length;i++){
+      o=P.fog[i];o.x+=o.v*dt;if(o.x>1.1)o.x=-o.w;
+      var fg=cx.createLinearGradient(0,o.y*H-o.h*H/2,0,o.y*H+o.h*H/2),fc=day?"235,240,244":"150,162,174";
+      fg.addColorStop(0,"rgba("+fc+",0)");fg.addColorStop(.5,"rgba("+fc+",.34)");fg.addColorStop(1,"rgba("+fc+",0)");
+      cx.fillStyle=fg;cx.fillRect(o.x*W-W*.2,o.y*H-o.h*H/2,o.w*W+W*.4,o.h*H);
+    }
+    if(P.drops.length){
+      var slant=.08+wind*.4;cx.strokeStyle="rgba(205,226,250,"+(k==="drizzle"?.4:.55)+")";cx.lineWidth=k==="drizzle"?1:1.4;cx.beginPath();
+      for(i=0;i<P.drops.length;i++){
+        o=P.drops[i];o.y+=o.v*dt*(k==="drizzle"?.9:1.7);o.x+=o.v*dt*slant;if(o.y>1.05){o.y=-.06;o.x=r(-.2,1.2)}
+        cx.moveTo(o.x*W,o.y*H);cx.lineTo(o.x*W-o.l*H*slant,o.y*H-o.l*H);
+      }
+      cx.stroke();
+    }
+    if(P.flakes.length){
+      cx.fillStyle="rgba(255,255,255,.88)";cx.beginPath();
+      for(i=0;i<P.flakes.length;i++){
+        o=P.flakes[i];o.y+=o.v*dt;o.x+=(Math.sin(tm+o.p)*.012+wind*.05)*dt;if(o.y>1.03){o.y=-.03;o.x=r(0,1)}if(o.x>1.02)o.x=-.02;
+        cx.moveTo(o.x*W+o.r,o.y*H);cx.arc(o.x*W,o.y*H,o.r,0,6.2832);
+      }
+      cx.fill();
+    }
+    if(k==="storm"){
+      if(flash<=0&&dt>0&&Math.random()<dt*.28){flash=1;var bx=r(.2,.8)*W,by=0;bolt=[[bx,by]];while(by<H*.75){bx+=r(-26,26);by+=r(18,40);bolt.push([bx,by])}}
+      if(flash>0){
+        cx.fillStyle="rgba(235,240,255,"+flash*.3+")";cx.fillRect(0,0,W,H);
+        cx.strokeStyle="rgba(255,250,220,"+flash+")";cx.lineWidth=2.2;cx.beginPath();
+        for(i=0;i<bolt.length;i++)cx[i?"lineTo":"moveTo"](bolt[i][0],bolt[i][1]);cx.stroke();flash-=dt*2.8;
+      }
+    }
+    /* keeps the white text readable where the sky is pale */
+    var sh=cx.createLinearGradient(0,H*.45,0,H);sh.addColorStop(0,"rgba(4,14,30,0)");sh.addColorStop(1,"rgba(4,14,30,.38)");cx.fillStyle=sh;cx.fillRect(0,0,W,H);
+  }
+  function tick(ts){var tm=ts/1000,dt=Math.min(.05,last?tm-last:.016);last=tm;draw(tm,dt);raf=requestAnimationFrame(tick)}
+  function run(){if(still||raf||document.hidden)return;last=0;raf=requestAnimationFrame(tick)}
+  function stop(){cancelAnimationFrame(raf);raf=0}
+  document.addEventListener("visibilitychange",function(){document.hidden?stop():run()});
+  if(window.ResizeObserver)new ResizeObserver(size).observe(cv);else window.addEventListener("resize",size);
+  return{set:function(kind,day,wind){
+    if(sc.kind===kind&&sc.day===day&&P.clouds){sc.wind=wind;return}
+    sc={kind:kind,day:day,wind:wind};build();size();run();
+  }};
+})();
+
+/* ---------- data ---------- */
+function getJSON(url){
+  var ctl=window.AbortController?new AbortController():null,h=setTimeout(function(){if(ctl)ctl.abort()},9000);
+  return fetch(url,ctl?{signal:ctl.signal}:{}).then(function(r){clearTimeout(h);if(!r.ok)throw new Error(r.status);return r.json()});
+}
+function normalize(j){
+  var c=j.current,h=j.hourly,d=j.daily;
+  return{
+    cur:{temp:c.temperature_2m,feels:c.apparent_temperature,hum:c.relative_humidity_2m,code:c.weather_code,day:!!c.is_day,wind:c.wind_speed_10m,dir:c.wind_direction_10m,press:c.surface_pressure},
+    hours:h.time.slice(0,24).map(function(tm,i){return{h:tm.slice(11,16),temp:h.temperature_2m[i],pop:h.precipitation_probability[i]||0,code:h.weather_code[i]}}),
+    days:d.time.map(function(tm,i){return{date:tm,code:d.weather_code[i],max:d.temperature_2m_max[i],min:d.temperature_2m_min[i],pop:d.precipitation_probability_max[i]||0,
+      rise:(d.sunrise[i]||"").slice(11,16),set:(d.sunset[i]||"").slice(11,16),uv:d.uv_index_max[i]||0,wind:d.wind_speed_10m_max[i]||0}})
+  };
+}
+/* A made-up but plausible forecast, used only when the live service cannot be reached. */
+function sample(p){
+  var now=new Date(),hr=now.getHours(),base=30-Math.abs(p.lat)*.42,codes=[1,2,61,3,0,80,2];
+  function at(h){return base-4+7*Math.sin((h-9)/24*6.2832)}
+  var hours=[],days=[],i;
+  for(i=0;i<24;i++){var hh=(hr+i)%24;hours.push({h:(hh<10?"0":"")+hh+":00",temp:at(hh)+(i>12?-.6:0),pop:i>13&&i<19?[35,55,70,60,40][i-14]:5,code:i>14&&i<18?61:2})}
+  for(i=0;i<7;i++){var dt=new Date(now.getTime()+i*864e5),sw=[0,1.5,-2,-1,1,-.5,2][i];
+    days.push({date:dt.getFullYear()+"-"+("0"+(dt.getMonth()+1)).slice(-2)+"-"+("0"+dt.getDate()).slice(-2),code:codes[i],max:base+3+sw,min:base-7+sw*.6,pop:[20,10,75,30,5,60,15][i],rise:"06:12",set:"17:48",uv:Math.max(1,9-Math.abs(p.lat)/9),wind:[18,22,34,15,12,28,20][i]})}
+  return{cur:{temp:at(hr),feels:at(hr)+1,hum:52,code:2,day:hr>=6&&hr<18,wind:14,dir:310,press:1013},hours:hours,days:days};
+}
+function load(){
+  var p=S.place;S.preview=null;
+  $("cond").textContent=t("loading");
+  var url=API+"?latitude="+p.lat+"&longitude="+p.lon+"&current=temperature_2m,apparent_temperature,relative_humidity_2m,is_day,weather_code,wind_speed_10m,wind_direction_10m,surface_pressure"+
+    "&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max,wind_speed_10m_max&timezone=auto&forecast_days=7&forecast_hours=24";
+  return getJSON(url).then(function(j){if(S.place!==p)return;S.wx=normalize(j);S.sample=false;render()},
+    function(){if(S.place!==p)return;S.wx=sample(p);S.sample=true;render()});
+}
+function loadWorld(){
+  var url=API+"?latitude="+CITIES.map(function(c){return c[1]}).join(",")+"&longitude="+CITIES.map(function(c){return c[2]}).join(",")+"&current=temperature_2m,weather_code,is_day";
+  return getJSON(url).then(function(a){S.world=a.map(function(j){return{temp:j.current.temperature_2m,code:j.current.weather_code,day:!!j.current.is_day,live:true}})},
+    function(){S.world=CITIES.map(function(c){var w=sample({lat:c[1]}).cur;return{temp:w.temp,code:w.code,day:w.day}})}).then(renderWorld);
+}
+
+/* ---------- rendering ---------- */
+function renderStatic(){
+  var info=LANGS.filter(function(l){return l[0]===S.lang})[0];
+  document.documentElement.lang=info[0];document.documentElement.dir=info[2];
+  document.querySelectorAll("[data-t]").forEach(function(el){el.textContent=t(el.getAttribute("data-t"))});
+  $("q").placeholder=t("search_ph");$("q").setAttribute("aria-label",t("search_ph"));
+  $("locate").setAttribute("aria-label",t("locate"));$("locate").title=t("locate");
+  $("lang").setAttribute("aria-label",t("lang"));$("units").setAttribute("aria-label",t("units"));
+  $("units").innerHTML=[["c","°C"],["f","°F"]].map(function(u){return'<button type="button" data-u="'+u[0]+'" aria-pressed="'+(S.units===u[0])+'">'+u[1]+"</button>"}).join("");
+  $("retry").textContent=t("retry");
+}
+function renderPlaces(){
+  $("places").innerHTML=S.places.map(function(p,i){return'<button type="button" class="chip" data-i="'+i+'" aria-pressed="'+sameSpot(p,S.place)+'">'+esc(placeName(p))+"</button>"}).join("");
+  var on=S.places.some(function(p){return sameSpot(p,S.place)});
+  $("save").setAttribute("aria-pressed",String(on));$("save-t").textContent=t(on?"saved":"save");
+}
+function setSky(){
+  var w=S.wx;if(!w)return;
+  if(S.preview)Sky.set(S.preview,!S.night,S.preview==="storm"?35:12);else Sky.set(group(w.cur.code),w.cur.day,w.cur.wind);
+}
+function renderNow(){
+  var w=S.wx,p=S.place;
+  $("p-name").textContent=placeName(p);$("p-sub").textContent=p.key?"":(p.sub||"");
+  renderPlaces();
+  if(!w)return;
+  var c=w.cur,d=w.days[0];
+  $("temp").textContent=fmtT(c.temp);$("cond").textContent=t("c_"+group(c.code));
+  $("banner").hidden=!S.sample;$("banner-t").textContent=t("sample");
+  var arrow='<svg class="arrow" viewBox="0 0 16 16" style="transform:rotate('+(c.dir+180)+'deg)" aria-hidden="true"><path d="M8 1l4.5 13L8 11l-4.5 3z" fill="currentColor"/></svg>';
+  $("stats").innerHTML=[["feels",fmtT(c.feels)],["wind",fmtWind(c.wind),arrow],["humidity",Math.round(c.hum)+"%"],["pressure",Math.round(c.press)+" <small>hPa</small>"],
+    ["uv",Math.round(d.uv)],["pop",Math.round(d.pop)+"%"],["sunrise",d.rise],["sunset",d.set]].map(function(s){
+    return"<div><dt>"+esc(t(s[0]))+'</dt><dd class="num">'+(s[2]||"")+"<span>"+s[1]+"</span></dd></div>"}).join("");
+  setSky();
+}
+function briefing(w){
+  var out=[],i,g,hit=null;
+  for(i=0;i<w.hours.length&&!hit;i++){g=group(w.hours[i].code);if(g==="snow")hit=["b_snow_at",w.hours[i].h];else if(w.hours[i].pop>=50||g==="rain"||g==="showers"||g==="storm"||g==="drizzle")hit=["b_rain_at",w.hours[i].h]}
+  out.push(hit?t(hit[0]).replace("{t}",hit[1]):t("b_dry"));
+  if(w.days[1]){var diff=(w.days[1].max-w.days[0].max)*(S.units==="f"?1.8:1),n=Math.round(Math.abs(diff));
+    out.push(n<2?t("b_same"):t(diff>0?"b_warmer":"b_cooler").replace("{n}°","\u2066"+n+"°\u2069"))}
+  if(w.days[0].wind>=40)out.push(t("b_wind").replace("{v}",fmtWind(w.days[0].wind)));
+  if(w.days[0].uv>=6)out.push(t("b_uv"));
+  if(w.days[0].max>=38)out.push(t("b_hot"));
+  if(w.days[0].min<=0)out.push(t("b_cold"));
+  return out;
+}
+function renderHourly(){
+  var hs=S.wx.hours,n=hs.length,lo=Infinity,hi=-Infinity,i;
+  hs.forEach(function(h){lo=Math.min(lo,h.temp);hi=Math.max(hi,h.temp)});if(hi-lo<1)hi=lo+1;
+  function X(i){return 26+i*(668/(n-1))}function Y(v){return 118-(v-lo)/(hi-lo)*66}
+  var pts=hs.map(function(h,i){return X(i).toFixed(1)+","+Y(h.temp).toFixed(1)}),s="";
+  s+='<path class="ch-area" d="M'+pts.join("L")+"L"+X(n-1)+",150L"+X(0)+',150Z"/><path class="ch-base" d="M10 150H710"/>';
+  for(i=0;i<n;i++)s+='<rect class="ch-bar" x="'+(X(i)-7).toFixed(1)+'" y="'+(150-hs[i].pop*.24).toFixed(1)+'" width="14" height="'+(hs[i].pop*.24).toFixed(1)+'" rx="2"/>';
+  s+='<path class="ch-line" d="M'+pts.join("L")+'"/>';
+  for(i=0;i<n;i+=3){
+    s+='<circle class="ch-dot" cx="'+X(i).toFixed(1)+'" cy="'+Y(hs[i].temp).toFixed(1)+'" r="4"/><text class="ch-t" x="'+X(i).toFixed(1)+'" y="'+(Y(hs[i].temp)-12).toFixed(1)+'">'+fmtT(hs[i].temp)+"</text>"+
+      '<text class="ch-h" x="'+X(i).toFixed(1)+'" y="170">'+(i?hs[i].h:esc(t("now")))+"</text>"+
+      (hs[i].pop>=20?'<text class="ch-p" x="'+X(i).toFixed(1)+'" y="187">'+Math.round(hs[i].pop)+"%</text>":"");
+  }
+  $("hourly").innerHTML='<svg viewBox="0 0 720 196" role="img" aria-label="'+esc(t("hourly_h"))+'">'+s+"</svg>";
+}
+function renderDays(){
+  var ds=S.wx.days,lo=Infinity,hi=-Infinity,fmt;
+  try{fmt=new Intl.DateTimeFormat(S.lang,{weekday:"long",timeZone:"UTC"})}catch(e){}
+  ds.forEach(function(d){lo=Math.min(lo,d.min);hi=Math.max(hi,d.max)});
+  $("days").innerHTML=ds.map(function(d,i){
+    var a=d.date.split("-"),name=i===0?t("today"):(fmt?fmt.format(new Date(Date.UTC(+a[0],a[1]-1,+a[2]))):d.date);
+    var from=(d.min-lo)/(hi-lo||1)*100,wid=Math.max(6,(d.max-d.min)/(hi-lo||1)*100);
+    return'<div class="day"><b>'+esc(name)+"</b>"+icon(group(d.code),true)+'<span class="p num">'+(d.pop>=20?Math.round(d.pop)+"%":"")+'</span><span class="lo num" dir="ltr">'+fmtT(d.min)+
+      '</span><span class="range"><i style="inset-inline-start:'+from.toFixed(1)+"%;width:"+Math.min(wid,100-from).toFixed(1)+'%"></i></span><span class="hi num" dir="ltr">'+fmtT(d.max)+"</span></div>"}).join("");
+}
+function renderScenes(){
+  var live=!S.preview;
+  $("scenes").innerHTML='<button type="button" class="chip" data-scene="" aria-pressed="'+live+'">'+esc(t("live"))+"</button>"+
+    ["clear","cloudy","rain","snow","storm","fog"].map(function(k){return'<button type="button" class="chip" data-scene="'+k+'" aria-pressed="'+(S.preview===k)+'">'+esc(t("c_"+k))+"</button>"}).join("")+
+    '<button type="button" class="chip" data-night="1" aria-pressed="'+S.night+'">'+esc(t("night"))+"</button>";
+}
+function renderWorld(){
+  $("world").innerHTML=CITIES.map(function(c,i){var w=S.world&&S.world[i];
+    return'<button type="button" class="city" data-city="'+i+'">'+(w?icon(group(w.code),w.day):"")+"<b>"+esc(t(c[0]))+'</b><span class="num" dir="ltr">'+(w?fmtT(w.temp):"–")+"</span></button>"}).join("");
+}
+function renderPlans(){
+  var y=S.bill==="yearly";
+  $("bill").innerHTML=["monthly","yearly"].map(function(b){return'<button type="button" data-bill="'+b+'" aria-pressed="'+(S.bill===b)+'">'+esc(t(b))+"</button>"}).join("");
+  $("save2").textContent=y?t("save2"):"";
+  $("plans").innerHTML=PLANS.map(function(p){
+    var cta=p.id==="free"?'<button class="btn" type="button" disabled>'+esc(t("cta_free"))+"</button>":
+      p.checkout?'<a class="btn" style="text-align:center;text-decoration:none" href="'+esc(p.checkout)+'">'+esc(t("cta_sub"))+"</a>":'<button class="btn" type="button" data-plan="'+p.id+'">'+esc(t("cta_sub"))+"</button>";
+    return'<article class="plan'+(p.hot?" hot":"")+'"><h3>'+esc(p.name||t("free"))+'</h3><p class="price num"><span dir="ltr">$'+(y?p.yearly:p.monthly)+"</span> <small>"+esc(t(y?"per_year":"per_month"))+
+      '</small></p><ul class="feat">'+t(p.id+"_f").map(function(f){return"<li><span>"+esc(f)+"</span></li>"}).join("")+"</ul>"+cta+"</article>"}).join("");
+}
+function render(){
+  renderStatic();renderNow();renderScenes();renderWorld();renderPlans();
+  if(S.wx){$("brief").innerHTML=briefing(S.wx).map(function(s){return"<li><span>"+esc(s)+"</span></li>"}).join("");renderHourly();renderDays()}
+}
+
+/* ---------- actions ---------- */
+function go(p){S.place=p;put("place",p);S.wx=null;closeResults();$("q").value="";renderNow();load()}
+function closeResults(){$("results").hidden=true;S.results=null}
+function search(q){
+  var mine=search.n=(search.n||0)+1;
+  function show(list){
+    if(mine!==search.n)return;S.results=list;
+    $("results").innerHTML=list.length?list.map(function(p,i){return'<li><button type="button" data-r="'+i+'"><b>'+esc(placeName(p))+"</b><span>"+esc(p.sub||"")+"</span></button></li>"}).join(""):"<li><p>"+esc(t("noresult"))+"</p></li>";
+    $("results").hidden=false;
+  }
+  function local(){var low=q.toLowerCase();return CITIES.filter(function(c){var i=KEYS.indexOf(c[0]);return LANGS.some(function(l){return TEXT[l[0]][i].toLowerCase().indexOf(low)>=0})}).map(function(c){return{key:c[0],lat:c[1],lon:c[2]}})}
+  getJSON(GEO+"?name="+encodeURIComponent(q)+"&count=6&format=json&language="+S.lang).then(function(j){
+    show((j.results||[]).map(function(x){return{name:x.name,sub:[x.admin1,x.country].filter(Boolean).join(", "),lat:x.latitude,lon:x.longitude}}));
+  },function(){show(local())});
+}
+var deb;
+$("q").addEventListener("input",function(e){var q=e.target.value.trim();clearTimeout(deb);if(q.length<2){closeResults();return}deb=setTimeout(function(){search(q)},320)});
+$("q").addEventListener("keydown",function(e){if(e.key==="Escape")closeResults();if(e.key==="Enter"&&S.results&&S.results[0])go(S.results[0])});
+$("results").addEventListener("click",function(e){var b=e.target.closest("button[data-r]");if(b)go(S.results[+b.dataset.r])});
+document.addEventListener("click",function(e){if(!e.target.closest(".find"))closeResults()});
+$("locate").addEventListener("click",function(){
+  if(!navigator.geolocation){toast(t("geo_denied"));return}
+  navigator.geolocation.getCurrentPosition(function(pos){go({name:t("locate"),sub:pos.coords.latitude.toFixed(2)+", "+pos.coords.longitude.toFixed(2),lat:pos.coords.latitude,lon:pos.coords.longitude})},
+    function(){toast(t("geo_denied"))},{timeout:8000});
+});
+$("places").addEventListener("click",function(e){var b=e.target.closest("button[data-i]");if(b)go(S.places[+b.dataset.i])});
+$("save").addEventListener("click",function(){
+  var at=-1;S.places.forEach(function(p,i){if(sameSpot(p,S.place))at=i});
+  if(at>=0)S.places.splice(at,1);else if(S.places.length>=FREE_PLACES){toast(t("limit"));return}else S.places.push(S.place);
+  put("places",S.places);renderPlaces();
+});
+$("retry").addEventListener("click",function(){load();loadWorld()});
+$("units").addEventListener("click",function(e){var b=e.target.closest("button[data-u]");if(b){S.units=b.dataset.u;put("units",S.units);render()}});
+$("lang").addEventListener("change",function(e){S.lang=e.target.value;put("lang",S.lang);render()});
+$("scenes").addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.night){S.night=!S.night;if(!S.preview)S.preview="clear"}else S.preview=b.dataset.scene||null;
+  if(!S.preview)S.night=false;
+  renderScenes();setSky();
+  if(S.preview)$("skybox").scrollIntoView({block:"nearest",behavior:"smooth"});
+});
+$("world").addEventListener("click",function(e){var b=e.target.closest("button[data-city]");if(b){var c=CITIES[+b.dataset.city];go({key:c[0],lat:c[1],lon:c[2]});window.scrollTo({top:0,behavior:"smooth"})}});
+$("bill").addEventListener("click",function(e){var b=e.target.closest("button[data-bill]");if(b){S.bill=b.dataset.bill;renderPlans()}});
+$("plans").addEventListener("click",function(e){if(e.target.closest("button[data-plan]"))toast(t("soon"))});
+
+/* ---------- start ---------- */
+(function(){
+  var saved=get("lang"),prefs=navigator.languages||[navigator.language||"en"],i;
+  function known(c){return LANGS.some(function(l){return l[0]===c})}
+  if(known(saved))S.lang=saved;else for(i=0;i<prefs.length;i++){var c=String(prefs[i]).slice(0,2).toLowerCase();if(known(c)){S.lang=c;break}}
+  if(get("units")==="f")S.units="f";
+  var pl=get("places");if(Array.isArray(pl))S.places=pl.filter(function(p){return p&&typeof p.lat==="number"}).slice(0,FREE_PLACES);
+  var p=get("place");S.place=p&&typeof p.lat==="number"?p:{key:CITIES[0][0],lat:CITIES[0][1],lon:CITIES[0][2]};
+  $("lang").innerHTML=LANGS.map(function(l){return'<option value="'+l[0]+'">'+l[1]+"</option>"}).join("");$("lang").value=S.lang;
+  Sky.set("clear",true,10);
+  render();load();loadWorld();
+  if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("../sw.js").catch(function(){});
+})();
+})();
+</script>
+</body>
+</html>

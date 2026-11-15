@@ -405,27 +405,45 @@ const FALLBACK = {
 };
 
 /* ---------- Radio Browser directory ---------- */
-let BASES = ["https://de1.api.radio-browser.info","https://de2.api.radio-browser.info","https://fi1.api.radio-browser.info"];
+let BASES = ["https://de2.api.radio-browser.info","https://fi1.api.radio-browser.info","https://de1.api.radio-browser.info"];
 let okBase = null, discovered = null;
+try{ const b = localStorage.getItem("atheer-base"); if(/^https:\/\/[a-z0-9.-]+\.api\.radio-browser\.info$/.test(b||"")) okBase = b; }catch(e){}
 function fetchT(url, ms){
   const c = new AbortController(); const id = setTimeout(()=>c.abort(), ms);
-  return fetch(url, {signal:c.signal}).finally(()=>clearTimeout(id));
+  return fetch(url, {signal:c.signal}).catch(e=>{ throw new Error(e && e.name==="AbortError" ? "no answer from "+new URL(url).host : "cannot reach "+new URL(url).host); }).finally(()=>clearTimeout(id));
 }
+/* The directory's own server list, asked of every known server at once; the first answer wins. */
 function discover(){
-  if(!discovered) discovered = fetchT("https://all.api.radio-browser.info/json/servers", 4000)
-    .then(r=>r.json())
-    .then(a=>{ const n=[...new Set(a.map(x=>"https://"+x.name))].sort(()=>Math.random()-.5); if(n.length) BASES=[...n, ...BASES.filter(b=>!n.includes(b))]; })
-    .catch(()=>{});
+  if(!discovered) discovered = firstOk(["https://all.api.radio-browser.info", ...BASES], "/json/servers", 4000)
+    .then(a=>{ const n=[...new Set(a.map(x=>"https://"+x.name))].filter(b=>/\.api\.radio-browser\.info$/.test(b)); BASES=[...new Set([...BASES, ...n])]; })
+    .catch(()=>{ discovered=null; });
   return discovered;
 }
+/* Ask several servers at once and keep the first good answer, so one dead server costs no time. */
+function firstOk(bases, path, ms){
+  return new Promise((resolve, reject)=>{
+    let left = bases.length, err;
+    if(!left) return reject(new Error("directory unavailable"));
+    bases.forEach(b=>{
+      fetchT(b+path, ms).then(r=>{ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+        .then(j=>{ if(!Array.isArray(j)) throw new Error("bad answer"); if(/\d\.api\./.test(b)){ okBase=b; try{localStorage.setItem("atheer-base",b)}catch(e){} } resolve(j); })
+        .catch(e=>{ err=e; if(--left===0) reject(err); });
+    });
+  });
+}
 async function api(path){
-  await discover();
-  let err;
-  for(const b of BASES){
-    try{ const r = await fetchT(b+path, 6000); if(r.ok){ okBase=b; return await r.json(); } }
-    catch(e){ err=e; }
-  }
-  throw err || new Error("directory unavailable");
+  /* The server that answered last time goes first, alone and briefly. */
+  if(okBase){ try{ return await firstOk([okBase], path, 5000); }catch(e){ okBase=null; } }
+  try{ return await firstOk(BASES, path, 8000); }
+  catch(e){ await discover(); return await firstOk(BASES, path, 6000); }
+}
+/* Search of the built-in stations, used when the directory cannot be reached. */
+function localSearch(q){
+  const seen = new Set(), out = []; q = q.toLowerCase();
+  Object.values(FALLBACK).forEach(l=>l.forEach(s=>{
+    if(!seen.has(s.name) && (s.name+" "+s.tags+" "+s.countrycode).toLowerCase().includes(q)){ seen.add(s.name); out.push(s); }
+  }));
+  return out;
 }
 async function load(key){
   const L = LISTS[key], my = ++L.req;
@@ -449,7 +467,8 @@ async function load(key){
   }catch(e){
     if(my!==L.req) return;
     L.err = String(e && e.message || e);
-    if(fb.length){ L.note=true; } else { L.items=[]; L.status="err"; }
+    const hits = L.q ? localSearch(L.q) : fb;
+    if(hits.length){ L.items=hits; L.status="ok"; L.note=true; } else { L.items=[]; L.status="err"; }
   }
   renderList(key);
 }

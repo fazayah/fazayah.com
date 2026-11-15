@@ -19,3 +19,7 @@ To open enrollment, put each plan's payment link in its `checkout` field in `ass
 - Plan prices and payment links are in `PLANS` at the top of the script; while `checkout` is empty the button says subscriptions are not open yet.
 - Interface text is in `TEXT`, one list per language, in the order given by `KEYS`.
 - When the forecast service cannot be reached the page shows a sample forecast with a notice.
+
+## Nuclear engineering guide
+
+`nuclear-engineering-guide.html` is a standalone page: a free advanced nuclear engineering reference guide, marked as a draft for study only. It does not use the course data files.

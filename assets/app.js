@@ -129,8 +129,9 @@
     $("plans").innerHTML = D.plans.map(function (p) {
       var amount = yearly ? p.yearly : p.monthly;
       var label = esc(t("cta_" + p.id));
-      var cta = p.checkout
-        ? '<a class="btn' + (p.featured ? " btn-solid" : "") + '" href="' + esc(p.checkout) + '">' + label + "</a>"
+      var link = p.checkout && p.checkout[state.billing];
+      var cta = link
+        ? '<a class="btn' + (p.featured ? " btn-solid" : "") + '" href="' + esc(link) + '">' + label + "</a>"
         : '<button type="button" class="btn' + (p.featured ? " btn-solid" : "") + '" data-plan="' + p.id + '">' + label + "</button>";
       return '<article class="plan' + (p.featured ? " featured" : "") + '">' +
         "<h3>" + esc(t(p.id + "_name")) + "</h3>" +

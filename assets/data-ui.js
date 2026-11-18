@@ -8,15 +8,16 @@ window.FAZAYAH = {
     { code: "es", name: "Español", dir: "ltr" }
   ],
 
-  /* Prices in US dollars. `checkout` is the payment link for the plan;
-     while it is empty the button tells visitors enrollment is not open yet. */
   /* Schools, in the order they are offered. The first one is shown by default. */
   schools: ["mechanical", "mineral"],
 
+  /* Prices in US dollars. `checkout` holds the plan's payment links, one for
+     monthly billing and one for yearly. While a link is empty the button tells
+     visitors enrollment is not open yet. */
   plans: [
-    { id: "free", monthly: 0, yearly: 0, checkout: "" },
-    { id: "pro", monthly: 19, yearly: 190, checkout: "", featured: true },
-    { id: "team", monthly: 49, yearly: 490, checkout: "" }
+    { id: "free", monthly: 0, yearly: 0, checkout: { monthly: "", yearly: "" } },
+    { id: "pro", monthly: 19, yearly: 190, checkout: { monthly: "", yearly: "" }, featured: true },
+    { id: "team", monthly: 49, yearly: 490, checkout: { monthly: "", yearly: "" } }
   ],
 
   ui: {

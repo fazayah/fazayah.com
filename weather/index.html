@@ -276,12 +276,13 @@ dl{margin:0}
 "use strict";
 
 /* ---------- settings: edit prices and payment links here ---------- */
-/* Prices in US dollars. `checkout` is the payment link for the plan; while it is
-   empty the button tells visitors subscriptions are not open yet. */
+/* Prices in US dollars. `checkout` holds the plan's payment links, one for monthly
+   billing and one for yearly; while a link is empty the button tells visitors
+   subscriptions are not open yet. */
 var PLANS=[
-  {id:"free",name:"",monthly:0,yearly:0,checkout:""},
-  {id:"plus",name:"Plus",monthly:3,yearly:30,checkout:"",hot:true},
-  {id:"pro",name:"Pro",monthly:9,yearly:90,checkout:""}
+  {id:"free",name:"",monthly:0,yearly:0,checkout:{monthly:"",yearly:""}},
+  {id:"plus",name:"Plus",monthly:3,yearly:30,checkout:{monthly:"",yearly:""},hot:true},
+  {id:"pro",name:"Pro",monthly:9,yearly:90,checkout:{monthly:"",yearly:""}}
 ];
 var FREE_PLACES=3;
 var API="https://api.open-meteo.com/v1/forecast";
@@ -628,7 +629,7 @@ function renderPlans(){
   $("save2").textContent=y?t("save2"):"";
   $("plans").innerHTML=PLANS.map(function(p){
     var cta=p.id==="free"?'<button class="btn" type="button" disabled>'+esc(t("cta_free"))+"</button>":
-      p.checkout?'<a class="btn" style="text-align:center;text-decoration:none" href="'+esc(p.checkout)+'">'+esc(t("cta_sub"))+"</a>":'<button class="btn" type="button" data-plan="'+p.id+'">'+esc(t("cta_sub"))+"</button>";
+      p.checkout[S.bill]?'<a class="btn" style="text-align:center;text-decoration:none" href="'+esc(p.checkout[S.bill])+'">'+esc(t("cta_sub"))+"</a>":'<button class="btn" type="button" data-plan="'+p.id+'">'+esc(t("cta_sub"))+"</button>";
     return'<article class="plan'+(p.hot?" hot":"")+'"><h3>'+esc(p.name||t("free"))+'</h3><p class="price num"><span dir="ltr">$'+(y?p.yearly:p.monthly)+"</span> <small>"+esc(t(y?"per_year":"per_month"))+
       '</small></p><ul class="feat">'+t(p.id+"_f").map(function(f){return"<li><span>"+esc(f)+"</span></li>"}).join("")+"</ul>"+cta+"</article>"}).join("");
 }

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suhail Space Academy</title>
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one night-sky world; a living star on top, then learn / explore / subscribe in single-column bands that widen to grids. */
+:root{
+  color-scheme:dark;
+  --bg:#070b1a; --surface:#0f1630; --raised:#161f42; --line:#28325e;
+  --text:#eceefa; --muted:#a1a9cc; --gold:#ffc65c; --plasma:#ff7a59; --cool:#8fb4ff; --ok:#6fd6a8;
+  --display:"Bricolage Grotesque","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --body:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.6}
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 18px}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,7vw,3.6rem);font-weight:700;letter-spacing:-.02em}
+h2{font-size:clamp(1.5rem,4.5vw,2.2rem);font-weight:700}
+h3{font-size:1.1rem;font-weight:700}
+p{margin:0}
+a{color:var(--cool)}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.lead{color:var(--muted);max-width:60ch}
+header.top{position:sticky;top:0;z-index:5;background:rgba(7,11,26,.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0}
+.brand{font-family:var(--display);font-weight:700;font-size:1.25rem;display:flex;align-items:center;gap:8px;margin-inline-end:auto}
+.brand i{width:14px;height:14px;border-radius:50%;background:radial-gradient(circle,#fff 0 25%,var(--gold) 60%,transparent 75%);box-shadow:0 0 14px var(--gold)}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{background:none;border:0;padding:6px 10px;border-radius:8px;color:var(--muted);cursor:pointer}
+nav button:hover{color:var(--text);background:var(--surface)}
+select#lang{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+section{padding:44px 0}
+.hero{display:grid;gap:20px;padding-top:32px;align-items:center}
+.hero .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{background:var(--gold);color:#201400;border:0;border-radius:10px;padding:11px 18px;font-weight:600;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.btn:hover{filter:brightness(1.08)}
+.lab{display:grid;gap:18px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+#star{width:100%;aspect-ratio:1/1;max-width:420px;margin:0 auto;display:block}
+.slider label{display:flex;justify-content:space-between;font-weight:600}
+input[type=range]{width:100%;accent-color:var(--gold);margin-top:8px}
+.facts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0 0;padding:0}
+.facts div{background:var(--raised);border-radius:12px;padding:10px 12px}
+.facts dt{font-size:.78rem;color:var(--muted)}
+.facts dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}
+.facts .wide{grid-column:1/-1}
+.note{font-size:.82rem;color:var(--muted);margin-top:10px}
+.eq{font-family:ui-monospace,Menlo,monospace;direction:ltr;unicode-bidi:isolate;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:6px;overflow-x:auto;font-size:.88rem;font-weight:400}
+.sky3{display:grid;gap:12px;margin-top:18px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.tile small{color:var(--muted);display:block}
+.tile b{font-family:var(--display);font-size:1.25rem}
+.grid{display:grid;gap:12px;margin-top:20px}
+.course{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.course>button{width:100%;text-align:start;background:none;border:0;padding:14px 16px;cursor:pointer;display:grid;gap:4px}
+.course .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
+.pill{border-radius:99px;padding:1px 9px;font-size:.74rem;font-weight:600;border:1px solid currentColor}
+.pill.b{color:var(--ok)} .pill.i{color:var(--cool)} .pill.a{color:var(--plasma)}
+.course p{color:var(--muted);font-size:.92rem}
+.prog{height:4px;background:var(--raised)} .prog i{display:block;height:100%;background:var(--gold);width:0}
+.lessons{border-top:1px solid var(--line);padding:6px 16px 14px;display:none}
+.course.open .lessons{display:block}
+.lesson{padding:10px 0;border-bottom:1px solid var(--line)}
+.lesson:last-child{border-bottom:0}
+.lesson h4{margin:0;font-size:.98rem;display:flex;gap:8px;align-items:baseline;justify-content:space-between}
+.lesson h4 span{font-size:.72rem;color:var(--muted);font-weight:500;white-space:nowrap}
+.lesson p{margin-top:4px;color:var(--text)}
+.lesson.lock p{color:var(--muted);font-style:italic}
+.lesson button{margin-top:8px;background:var(--raised);border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:.82rem;cursor:pointer}
+.lesson button.on{border-color:var(--ok);color:var(--ok)}
+.news{display:grid;gap:12px;margin-top:20px}
+.news article{background:var(--surface);border:1px solid var(--line);border-inline-start:3px solid var(--gold);border-radius:12px;padding:14px 16px}
+.news time{font-size:.78rem;color:var(--muted)}
+.news p{color:var(--muted);margin:4px 0 6px;font-size:.94rem}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.links a{background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:5px 12px;text-decoration:none;font-size:.88rem}
+.quiz{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:20px}
+.quiz .opts{display:grid;gap:8px;margin-top:12px}
+.quiz .opts button{text-align:start;background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.quiz .opts button.right{border-color:var(--ok);color:var(--ok)}
+.quiz .opts button.wrong{border-color:var(--plasma);color:var(--plasma)}
+.toggle{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:3px;margin-top:16px}
+.toggle button{border:0;background:none;border-radius:99px;padding:6px 16px;cursor:pointer;color:var(--muted)}
+.toggle button.on{background:var(--gold);color:#201400;font-weight:600}
+.plans{display:grid;gap:12px;margin-top:18px}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.plan.best{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.price{font-family:var(--display);font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums}
+.price small{font-family:var(--body);font-size:.85rem;color:var(--muted);font-weight:400}
+.plan ul{margin:0;padding-inline-start:18px;color:var(--muted);font-size:.92rem;flex:1}
+dialog{background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:16px;max-width:420px;width:calc(100% - 36px);padding:20px}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog p{color:var(--muted);margin:8px 0 16px}
+dialog .btns{display:flex;gap:8px;flex-wrap:wrap}
+footer{border-top:1px solid var(--line);padding:22px 0 40px;color:var(--muted);font-size:.85rem}
+@media(min-width:720px){
+  .hero{grid-template-columns:1.1fr .9fr}
+  .lab{grid-template-columns:1fr 1fr;padding:26px;align-items:center}
+  .sky3{grid-template-columns:repeat(3,1fr)}
+  .grid{grid-template-columns:repeat(2,1fr);align-items:start}
+  .news{grid-template-columns:repeat(3,1fr)}
+  .plans{grid-template-columns:repeat(4,1fr)}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<header class="top"><div class="wrap bar">
+  <div class="brand"><i></i><span>Suhail</span></div>
+  <nav>
+    <button data-go="lab" data-t="nav_lab"></button>
+    <button data-go="courses" data-t="nav_courses"></button>
+    <button data-go="news" data-t="nav_news"></button>
+    <button data-go="plans" data-t="nav_plans"></button>
+  </nav>
+  <select id="lang" aria-label="Language">
+    <option value="en">English</option><option value="ar">العربية</option><option value="fr">Français</option><option value="es">Español</option><option value="tr">Türkçe</option>
+  </select>
+</div></header>
+
+<main class="wrap">
+<section class="hero">
+  <div>
+    <h1 data-t="hero_h"></h1>
+    <p class="lead" style="margin-top:14px" data-t="hero_p"></p>
+    <div class="btns"><button class="btn" data-go="courses" data-t="cta_start"></button><button class="btn ghost" data-go="lab" data-t="cta_lab"></button></div>
+  </div>
+  <div class="sky3" style="margin-top:0;grid-template-columns:1fr">
+    <div class="tile"><small data-t="moon"></small><b id="moonName"></b> <span id="moonPct" style="color:var(--muted)"></span></div>
+    <div class="tile"><small data-t="sky_jwst"></small><b id="jwstDays"></b></div>
+    <div class="tile"><small data-t="sky_voy"></small><b dir="ltr">≈ 25.9 × 10⁹ km</b></div>
+  </div>
+</section>
+
+<section id="lab">
+  <h2 data-t="lab_h"></h2>
+  <p class="lead" style="margin:8px 0 18px" data-t="lab_p"></p>
+  <div class="lab">
+    <canvas id="star" width="640" height="640" role="img" aria-label="Animated star"></canvas>
+    <div>
+      <div class="slider">
+        <label for="mass"><span data-t="mass"></span><span id="massV" dir="ltr"></span></label>
+        <input id="mass" type="range" min="0" max="100" step="0.1" value="38.4">
+      </div>
+      <dl class="facts">
+        <div><dt data-t="cls"></dt><dd id="fCls"></dd></div>
+        <div><dt data-t="temp"></dt><dd id="fTemp" dir="ltr"></dd></div>
+        <div><dt data-t="lum"></dt><dd id="fLum" dir="ltr"></dd></div>
+        <div><dt data-t="rad"></dt><dd id="fRad" dir="ltr"></dd></div>
+        <div class="wide"><dt data-t="life"></dt><dd id="fLife"></dd></div>
+        <div class="wide"><dt data-t="fus"></dt><dd id="fFus"></dd><div class="eq" id="fEq"></div></div>
+        <div class="wide"><dt data-t="fate"></dt><dd id="fFate"></dd></div>
+      </dl>
+      <p class="note" data-t="model_note"></p>
+    </div>
+  </div>
+</section>
+
+<section id="courses">
+  <h2 data-t="courses_h"></h2>
+  <p class="lead" style="margin-top:8px" data-t="courses_p"></p>
+  <p class="note" id="lessonNote" hidden data-t="lesson_note"></p>
+  <div class="grid" id="courseGrid"></div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section id="news">
+  <h2 data-t="news_h"></h2>
+  <p class="lead" style="margin-top:8px" data-t="news_p"></p>
+  <div class="news" id="newsGrid"></div>
+  <h3 style="margin-top:22px" data-t="links_h"></h3>
+  <div class="links">
+    <a href="https://www.nasa.gov/news/">NASA News</a>
+    <a href="https://www.esa.int/">ESA</a>
+    <a href="https://apod.nasa.gov/apod/">APOD</a>
+    <a href="https://science.nasa.gov/mission/webb/">Webb</a>
+    <a href="https://science.nasa.gov/exoplanets/">Exoplanets</a>
+    <a href="https://www.nasa.gov/humans-in-space/artemis/">Artemis</a>
+    <a href="https://arxiv.org/list/astro-ph/new">arXiv astro-ph</a>
+  </div>
+</section>
+
+<section id="plans">
+  <h2 data-t="plans_h"></h2>
+  <p class="lead" style="margin-top:8px" data-t="plans_p"></p>
+  <div class="toggle"><button id="bM" class="on" data-t="monthly"></button><button id="bY" data-t="yearly"></button></div>
+  <div class="plans" id="planGrid"></div>
+</section>
+</main>
+
+<footer><div class="wrap" data-t="foot"></div></footer>
+
+<dialog id="pay">
+  <h3 data-t="pay_h"></h3>
+  <p data-t="pay_p"></p>
+  <div class="btns"><button class="btn" id="demoOn" data-t="pay_demo"></button><button class="btn ghost" id="payClose" data-t="close"></button></div>
+</dialog>
+
+<script>
+const I={
+en:{nav_lab:"Star Lab",nav_courses:"Courses",nav_news:"Updates",nav_plans:"Plans",
+hero_h:"Learn the stars, from your first night sky to the physics of fusion",
+hero_p:"Suhail is a space academy for everyone: nine courses, a live star you can reshape, current mission news and study material in five languages.",
+cta_start:"Start learning",cta_lab:"Open the Star Lab",
+moon:"Moon right now",illum:"lit",sky_jwst:"Days Webb has been in space",sky_voy:"Voyager 1, about one light-day from Earth",
+ph:["New Moon","Waxing Crescent","First Quarter","Waxing Gibbous","Full Moon","Waning Gibbous","Last Quarter","Waning Crescent"],
+lab_h:"Star Lab: build a star",lab_p:"Drag the mass. Mass decides almost everything about a star: its colour, how it fuses hydrogen, how long it lives and how it dies.",
+mass:"Mass",cls:"Spectral class",temp:"Surface temperature",lum:"Luminosity",rad:"Radius",life:"Time on the main sequence",fus:"Main fusion process",fate:"How it ends",
+byr:"billion years",myr:"million years",
+fus_pp:"Proton–proton chain: hydrogen nuclei tunnel through their repulsion and build helium step by step.",
+fus_cno:"CNO cycle: carbon, nitrogen and oxygen act as catalysts that turn hydrogen into helium far faster.",
+fate1:"Burns so slowly it outlives the present universe, then fades into a helium white dwarf.",
+fate2:"Swells into a red giant, sheds a planetary nebula and leaves a carbon–oxygen white dwarf.",
+fate3:"Builds an iron core that collapses: a supernova, leaving a neutron star.",
+fate4:"Core collapse too heavy for any pressure to hold: a black hole.",
+model_note:"Simplified main-sequence model for teaching. Real stars also depend on composition, rotation and age.",
+courses_h:"Courses",courses_p:"Nine courses from beginner to advanced. The first lesson of every course is free.",
+lessons:"lessons",free:"Free",locked:"Subscribers",lvl_b:"Beginner",lvl_i:"Intermediate",lvl_a:"Advanced",mark:"Mark as done",done:"Done",
+lock_text:"This lesson opens with a Student plan or higher.",lesson_note:"",
+news_h:"What is new in space",news_p:"Checked in November 2026. Each card links to its source.",source:"Source",links_h:"Always-current sources",
+quiz_h:"Quick check",quiz_score:"Your score",quiz_again:"Try again",
+plans_h:"Plans",plans_p:"Start free. Upgrade when you want every lesson.",monthly:"Monthly",yearly:"Yearly",per_mo:"/ month",per_yr:"/ year",
+pn:["Explorer","Student","Pro","School"],
+pf:[["First lesson of every course","Star Lab","Space updates"],["All 36 lessons","Quizzes and progress","All five languages"],["Everything in Student","Advanced fusion and cosmology notes","Certificates"],["Up to 30 learners","Teacher dashboard","Classroom quizzes"]],
+choose:"Choose",current:"Current plan",
+pay_h:"Payments are not connected yet",pay_p:"This is the working preview. To charge real subscriptions the site needs a payment provider such as Stripe or Paddle. You can preview the subscriber view now.",pay_demo:"Preview as subscriber",close:"Close",
+foot:"Suhail is named after the Arabic name of Canopus, the second-brightest star in the night sky. Physics figures are standard textbook values."},
+ar:{nav_lab:"مختبر النجوم",nav_courses:"الدورات",nav_news:"المستجدات",nav_plans:"الباقات",
+hero_h:"تعلّم النجوم، من أول نظرة إلى السماء حتى فيزياء الاندماج",
+hero_p:"سهيل أكاديمية فضاء للجميع: تسع دورات، نجم حيّ تعيد تشكيله بنفسك، أخبار البعثات الحالية ومواد دراسية بخمس لغات.",
+cta_start:"ابدأ التعلّم",cta_lab:"افتح مختبر النجوم",
+moon:"القمر الآن",illum:"مضاء",sky_jwst:"عدد أيام تلسكوب ويب في الفضاء",sky_voy:"فوياجر 1 على بعد نحو يوم ضوئي من الأرض",
+ph:["محاق","هلال متزايد","تربيع أول","أحدب متزايد","بدر","أحدب متناقص","تربيع أخير","هلال متناقص"],
+lab_h:"مختبر النجوم: اصنع نجماً",lab_p:"حرّك الكتلة. الكتلة تحدد كل شيء تقريباً في النجم: لونه، وطريقة اندماج الهيدروجين فيه، وعمره، ونهايته.",
+mass:"الكتلة",cls:"الصنف الطيفي",temp:"حرارة السطح",lum:"اللمعان",rad:"نصف القطر",life:"المدة على التسلسل الرئيسي",fus:"عملية الاندماج الرئيسية",fate:"كيف ينتهي",
+byr:"مليار سنة",myr:"مليون سنة",
+fus_pp:"سلسلة بروتون–بروتون: تخترق أنوية الهيدروجين حاجز التنافر بالنفق الكمومي وتبني الهيليوم خطوة خطوة.",
+fus_cno:"دورة CNO: يعمل الكربون والنيتروجين والأكسجين محفّزات تحوّل الهيدروجين إلى هيليوم بسرعة أكبر بكثير.",
+fate1:"يحترق ببطء شديد فيعيش أطول من عمر الكون الحالي، ثم يخبو إلى قزم أبيض من الهيليوم.",
+fate2:"ينتفخ إلى عملاق أحمر، يطرح سديماً كوكبياً ويترك قزماً أبيض من الكربون والأكسجين.",
+fate3:"يبني قلباً من الحديد ينهار: مستعر أعظم يترك نجماً نيوترونياً.",
+fate4:"انهيار قلب أثقل من أن يوقفه أي ضغط: ثقب أسود.",
+model_note:"نموذج مبسّط للتسلسل الرئيسي لأغراض التعليم. النجوم الحقيقية تتأثر أيضاً بالتركيب والدوران والعمر.",
+courses_h:"الدورات",courses_p:"تسع دورات من المبتدئ إلى المتقدم. الدرس الأول من كل دورة مجاني.",
+lessons:"دروس",free:"مجاني",locked:"للمشتركين",lvl_b:"مبتدئ",lvl_i:"متوسط",lvl_a:"متقدم",mark:"تم الإنجاز؟",done:"منجز",
+lock_text:"يُفتح هذا الدرس مع باقة الطالب أو أعلى.",lesson_note:"",
+news_h:"جديد الفضاء",news_p:"تمت المراجعة في نوفمبر 2026. كل بطاقة ترتبط بمصدرها.",source:"المصدر",links_h:"مصادر محدّثة دائماً",
+quiz_h:"اختبار سريع",quiz_score:"نتيجتك",quiz_again:"أعد المحاولة",
+plans_h:"الباقات",plans_p:"ابدأ مجاناً، وقم بالترقية عندما تريد كل الدروس.",monthly:"شهري",yearly:"سنوي",per_mo:"/ شهر",per_yr:"/ سنة",
+pn:["المستكشف","الطالب","المحترف","المدرسة"],
+pf:[["الدرس الأول من كل دورة","مختبر النجوم","مستجدات الفضاء"],["جميع الدروس الـ36","الاختبارات ومتابعة التقدم","اللغات الخمس كلها"],["كل ما في باقة الطالب","ملاحظات متقدمة في الاندماج وعلم الكون","شهادات"],["حتى 30 متعلماً","لوحة المعلّم","اختبارات صفّية"]],
+choose:"اختر",current:"باقتك الحالية",
+pay_h:"الدفع غير مفعّل بعد",pay_p:"هذه نسخة المعاينة العاملة. لتحصيل اشتراكات حقيقية يحتاج الموقع مزوّد دفع مثل Stripe أو Paddle. يمكنك الآن معاينة واجهة المشترك.",pay_demo:"عاين كمشترك",close:"إغلاق",
+foot:"سُمّي سهيل على الاسم العربي لنجم كانوبس، ثاني ألمع نجوم السماء ليلاً. الأرقام الفيزيائية قيم مرجعية معتمدة."},
+fr:{nav_lab:"Labo stellaire",nav_courses:"Cours",nav_news:"Actualités",nav_plans:"Formules",
+hero_h:"Apprenez les étoiles, du premier ciel nocturne à la physique de la fusion",
+hero_p:"Suhail est une académie de l'espace pour tous : neuf cours, une étoile vivante à remodeler, l'actualité des missions et des supports en cinq langues.",
+cta_start:"Commencer",cta_lab:"Ouvrir le labo",
+moon:"La Lune en ce moment",illum:"éclairée",sky_jwst:"Jours passés par Webb dans l'espace",sky_voy:"Voyager 1, à environ un jour-lumière de la Terre",
+ph:["Nouvelle lune","Premier croissant","Premier quartier","Gibbeuse croissante","Pleine lune","Gibbeuse décroissante","Dernier quartier","Dernier croissant"],
+lab_h:"Labo stellaire : créez une étoile",lab_p:"Faites glisser la masse. Elle décide de presque tout : la couleur, le mode de fusion de l'hydrogène, la durée de vie et la fin.",
+mass:"Masse",cls:"Type spectral",temp:"Température de surface",lum:"Luminosité",rad:"Rayon",life:"Durée sur la séquence principale",fus:"Fusion dominante",fate:"Sa fin",
+byr:"milliards d'années",myr:"millions d'années",
+fus_pp:"Chaîne proton–proton : les noyaux d'hydrogène franchissent leur répulsion par effet tunnel et forment l'hélium étape par étape.",
+fus_cno:"Cycle CNO : carbone, azote et oxygène servent de catalyseurs et transforment l'hydrogène en hélium bien plus vite.",
+fate1:"Brûle si lentement qu'elle survivra à l'univers actuel, puis s'éteint en naine blanche d'hélium.",
+fate2:"Gonfle en géante rouge, éjecte une nébuleuse planétaire et laisse une naine blanche de carbone et d'oxygène.",
+fate3:"Forme un cœur de fer qui s'effondre : une supernova, puis une étoile à neutrons.",
+fate4:"Un effondrement qu'aucune pression n'arrête : un trou noir.",
+model_note:"Modèle simplifié de la séquence principale, à but pédagogique.",
+courses_h:"Cours",courses_p:"Neuf cours, du débutant à l'avancé. La première leçon de chaque cours est gratuite.",
+lessons:"leçons",free:"Gratuit",locked:"Abonnés",lvl_b:"Débutant",lvl_i:"Intermédiaire",lvl_a:"Avancé",mark:"Marquer comme terminé",done:"Terminé",
+lock_text:"Cette leçon s'ouvre avec la formule Étudiant ou supérieure.",lesson_note:"Le texte des leçons et les actualités sont en anglais pour l'instant ; l'arabe est aussi disponible.",
+news_h:"Quoi de neuf dans l'espace",news_p:"Vérifié en novembre 2026. Chaque carte renvoie à sa source.",source:"Source",links_h:"Sources toujours à jour",
+quiz_h:"Contrôle rapide",quiz_score:"Votre score",quiz_again:"Recommencer",
+plans_h:"Formules",plans_p:"Commencez gratuitement. Passez à la suite quand vous voulez toutes les leçons.",monthly:"Mensuel",yearly:"Annuel",per_mo:"/ mois",per_yr:"/ an",
+pn:["Explorateur","Étudiant","Pro","École"],
+pf:[["Première leçon de chaque cours","Labo stellaire","Actualités spatiales"],["Les 36 leçons","Quiz et progression","Les cinq langues"],["Tout le contenu Étudiant","Notes avancées : fusion et cosmologie","Certificats"],["Jusqu'à 30 élèves","Tableau de bord enseignant","Quiz en classe"]],
+choose:"Choisir",current:"Formule actuelle",
+pay_h:"Le paiement n'est pas encore connecté",pay_p:"Ceci est l'aperçu fonctionnel. Pour de vrais abonnements, le site a besoin d'un prestataire comme Stripe ou Paddle. Vous pouvez prévisualiser la vue abonné.",pay_demo:"Aperçu abonné",close:"Fermer",
+foot:"Suhail est le nom arabe de Canopus, deuxième étoile la plus brillante du ciel nocturne."},
+es:{nav_lab:"Laboratorio estelar",nav_courses:"Cursos",nav_news:"Novedades",nav_plans:"Planes",
+hero_h:"Aprende las estrellas, desde tu primer cielo nocturno hasta la física de la fusión",
+hero_p:"Suhail es una academia espacial para todos: nueve cursos, una estrella viva que puedes remodelar, noticias de misiones y material de estudio en cinco idiomas.",
+cta_start:"Empezar",cta_lab:"Abrir el laboratorio",
+moon:"La Luna ahora",illum:"iluminada",sky_jwst:"Días que Webb lleva en el espacio",sky_voy:"Voyager 1, a cerca de un día luz de la Tierra",
+ph:["Luna nueva","Creciente","Cuarto creciente","Gibosa creciente","Luna llena","Gibosa menguante","Cuarto menguante","Menguante"],
+lab_h:"Laboratorio estelar: crea una estrella",lab_p:"Mueve la masa. La masa decide casi todo: el color, cómo fusiona hidrógeno, cuánto vive y cómo muere.",
+mass:"Masa",cls:"Tipo espectral",temp:"Temperatura superficial",lum:"Luminosidad",rad:"Radio",life:"Tiempo en la secuencia principal",fus:"Fusión principal",fate:"Su final",
+byr:"mil millones de años",myr:"millones de años",
+fus_pp:"Cadena protón–protón: los núcleos de hidrógeno atraviesan su repulsión por efecto túnel y forman helio paso a paso.",
+fus_cno:"Ciclo CNO: carbono, nitrógeno y oxígeno actúan como catalizadores y convierten hidrógeno en helio mucho más rápido.",
+fate1:"Arde tan despacio que sobrevivirá al universo actual y luego se apaga como enana blanca de helio.",
+fate2:"Se hincha en gigante roja, expulsa una nebulosa planetaria y deja una enana blanca de carbono y oxígeno.",
+fate3:"Forma un núcleo de hierro que colapsa: una supernova que deja una estrella de neutrones.",
+fate4:"Un colapso que ninguna presión detiene: un agujero negro.",
+model_note:"Modelo simplificado de la secuencia principal, con fines didácticos.",
+courses_h:"Cursos",courses_p:"Nueve cursos, de principiante a avanzado. La primera lección de cada curso es gratis.",
+lessons:"lecciones",free:"Gratis",locked:"Suscriptores",lvl_b:"Principiante",lvl_i:"Intermedio",lvl_a:"Avanzado",mark:"Marcar como hecha",done:"Hecha",
+lock_text:"Esta lección se abre con el plan Estudiante o superior.",lesson_note:"El texto de las lecciones y las noticias está en inglés por ahora; también hay versión en árabe.",
+news_h:"Novedades del espacio",news_p:"Revisado en noviembre de 2026. Cada tarjeta enlaza a su fuente.",source:"Fuente",links_h:"Fuentes siempre al día",
+quiz_h:"Repaso rápido",quiz_score:"Tu puntuación",quiz_again:"Repetir",
+plans_h:"Planes",plans_p:"Empieza gratis. Mejora cuando quieras todas las lecciones.",monthly:"Mensual",yearly:"Anual",per_mo:"/ mes",per_yr:"/ año",
+pn:["Explorador","Estudiante","Pro","Escuela"],
+pf:[["Primera lección de cada curso","Laboratorio estelar","Novedades espaciales"],["Las 36 lecciones","Cuestionarios y progreso","Los cinco idiomas"],["Todo lo de Estudiante","Notas avanzadas de fusión y cosmología","Certificados"],["Hasta 30 alumnos","Panel del profesor","Cuestionarios de clase"]],
+choose:"Elegir",current:"Plan actual",
+pay_h:"Los pagos aún no están conectados",pay_p:"Esta es la vista previa funcional. Para cobrar suscripciones reales hace falta un proveedor como Stripe o Paddle. Puedes ver ya la vista de suscriptor.",pay_demo:"Ver como suscriptor",close:"Cerrar",
+foot:"Suhail es el nombre árabe de Canopus, la segunda estrella más brillante del cielo nocturno."},
+tr:{nav_lab:"Yıldız Laboratuvarı",nav_courses:"Dersler",nav_news:"Güncel",nav_plans:"Planlar",
+hero_h:"Yıldızları öğrenin: ilk gece gökyüzünden füzyon fiziğine",
+hero_p:"Suhail herkes için bir uzay akademisi: dokuz ders, yeniden şekillendirebileceğiniz canlı bir yıldız, güncel görev haberleri ve beş dilde çalışma içeriği.",
+cta_start:"Öğrenmeye başla",cta_lab:"Laboratuvarı aç",
+moon:"Şu an Ay",illum:"aydınlık",sky_jwst:"Webb'in uzayda geçirdiği gün",sky_voy:"Voyager 1, Dünya'dan yaklaşık bir ışık günü uzakta",
+ph:["Yeni Ay","Büyüyen hilal","İlk dördün","Büyüyen şişkin Ay","Dolunay","Küçülen şişkin Ay","Son dördün","Küçülen hilal"],
+lab_h:"Yıldız Laboratuvarı: bir yıldız kurun",lab_p:"Kütleyi kaydırın. Kütle neredeyse her şeyi belirler: renk, hidrojen füzyonunun türü, ömür ve son.",
+mass:"Kütle",cls:"Tayf sınıfı",temp:"Yüzey sıcaklığı",lum:"Işıtma gücü",rad:"Yarıçap",life:"Ana koldaki süre",fus:"Baskın füzyon süreci",fate:"Sonu",
+byr:"milyar yıl",myr:"milyon yıl",
+fus_pp:"Proton–proton zinciri: hidrojen çekirdekleri itmeyi kuantum tünelleme ile aşar ve adım adım helyum oluşturur.",
+fus_cno:"CNO döngüsü: karbon, azot ve oksijen katalizör görevi görür ve hidrojeni çok daha hızlı helyuma çevirir.",
+fate1:"O kadar yavaş yanar ki bugünkü evrenden uzun yaşar, sonra helyum beyaz cücesine dönüşür.",
+fate2:"Kırmızı deve dönüşür, gezegenimsi bulutsu atar ve karbon–oksijen beyaz cücesi bırakır.",
+fate3:"Demir çekirdeği çöker: süpernova ve ardından nötron yıldızı.",
+fate4:"Hiçbir basıncın durduramadığı çöküş: kara delik.",
+model_note:"Öğretim amaçlı basitleştirilmiş ana kol modeli.",
+courses_h:"Dersler",courses_p:"Başlangıçtan ileri düzeye dokuz ders. Her dersin ilk konusu ücretsiz.",
+lessons:"konu",free:"Ücretsiz",locked:"Aboneler",lvl_b:"Başlangıç",lvl_i:"Orta",lvl_a:"İleri",mark:"Tamamlandı olarak işaretle",done:"Tamamlandı",
+lock_text:"Bu konu Öğrenci planı veya üstüyle açılır.",lesson_note:"Konu metinleri ve haberler şimdilik İngilizce; Arapça sürümü de var.",
+news_h:"Uzayda yeni neler var",news_p:"Kasım 2026'da kontrol edildi. Her kart kaynağına bağlanır.",source:"Kaynak",links_h:"Her zaman güncel kaynaklar",
+quiz_h:"Hızlı test",quiz_score:"Puanınız",quiz_again:"Tekrar dene",
+plans_h:"Planlar",plans_p:"Ücretsiz başlayın. Tüm konuları istediğinizde yükseltin.",monthly:"Aylık",yearly:"Yıllık",per_mo:"/ ay",per_yr:"/ yıl",
+pn:["Kaşif","Öğrenci","Pro","Okul"],
+pf:[["Her dersin ilk konusu","Yıldız Laboratuvarı","Uzay haberleri"],["36 konunun tamamı","Testler ve ilerleme","Beş dilin tümü"],["Öğrenci planındaki her şey","İleri füzyon ve kozmoloji notları","Sertifikalar"],["30 öğrenciye kadar","Öğretmen paneli","Sınıf testleri"]],
+choose:"Seç",current:"Mevcut plan",
+pay_h:"Ödeme henüz bağlı değil",pay_p:"Bu çalışan önizlemedir. Gerçek abonelik için Stripe veya Paddle gibi bir ödeme sağlayıcısı gerekir. Abone görünümünü şimdi önizleyebilirsiniz.",pay_demo:"Abone olarak önizle",close:"Kapat",
+foot:"Suhail, gece gökyüzünün ikinci en parlak yıldızı Canopus'un Arapça adıdır."}
+};
+
+// Courses: titles/descriptions in 5 languages, lesson text in English and Arabic.
+const C=[
+{lv:"b",t:{en:"Night Sky Basics",ar:"أساسيات السماء ليلاً",fr:"Les bases du ciel nocturne",es:"El cielo nocturno",tr:"Gece Gökyüzünün Temelleri"},
+ d:{en:"Find your way around the sky with your own eyes.",ar:"تعرّف على السماء بعينيك المجرّدتين.",fr:"Repérez-vous dans le ciel à l'œil nu.",es:"Oriéntate en el cielo a simple vista.",tr:"Gökyüzünde çıplak gözle yolunuzu bulun."},
+ l:[["The celestial sphere","The sky appears to turn once a day around the celestial poles. Polaris sits less than one degree from the north pole, so it barely moves.","الكرة السماوية","تبدو السماء كأنها تدور مرة كل يوم حول القطبين السماويين. يقع النجم القطبي على أقل من درجة واحدة من القطب الشمالي فلا يكاد يتحرك."],
+ ["Brightness and magnitude","Smaller magnitude means brighter. Five magnitudes equal a factor of 100 in brightness; Sirius, the brightest night star, is −1.46.","السطوع والقدر","كلما صغر القدر زاد السطوع. خمسة أقدار تساوي فرق 100 مرة في السطوع، والشعرى اليمانية ألمع نجوم الليل بقدر −1.46."],
+ ["Constellations","Astronomers divide the whole sky into 88 official constellations. Many bright star names, such as Aldebaran and Altair, come from Arabic.","الكوكبات","يقسّم الفلكيون السماء كلها إلى 88 كوكبة رسمية. كثير من أسماء النجوم اللامعة مثل الدبران والنسر الطائر أصلها عربي."],
+ ["Moon phases and eclipses","The Moon cycles through its phases every 29.5 days. Eclipses happen only when a new or full Moon crosses Earth's orbital plane.","أطوار القمر والكسوف","يمر القمر بأطواره كل 29.5 يوماً. يحدث الكسوف والخسوف فقط حين يعبر المحاق أو البدر مستوى مدار الأرض."]]},
+{lv:"b",t:{en:"The Solar System",ar:"النظام الشمسي",fr:"Le Système solaire",es:"El sistema solar",tr:"Güneş Sistemi"},
+ d:{en:"The Sun, eight planets and the small worlds between them.",ar:"الشمس وثمانية كواكب والعوالم الصغيرة بينها.",fr:"Le Soleil, huit planètes et les petits mondes.",es:"El Sol, ocho planetas y los mundos pequeños.",tr:"Güneş, sekiz gezegen ve aralarındaki küçük dünyalar."},
+ l:[["Scale of the system","One astronomical unit is 149.6 million km. The Sun holds 99.86% of all the mass in the Solar System.","مقياس النظام","الوحدة الفلكية تساوي 149.6 مليون كم. تحتوي الشمس على 99.86% من كتلة النظام الشمسي كله."],
+ ["Rocky planets","Mercury, Venus, Earth and Mars formed inside the frost line where only rock and metal could condense.","الكواكب الصخرية","تكوّنت عطارد والزهرة والأرض والمريخ داخل خط الصقيع حيث لا يتكثف إلا الصخر والمعدن."],
+ ["Giant planets","Jupiter has 318 times Earth's mass. Jupiter and Saturn are mostly hydrogen and helium; Uranus and Neptune are ice giants.","الكواكب العملاقة","كتلة المشتري 318 ضعف كتلة الأرض. المشتري وزحل معظمهما هيدروجين وهيليوم، وأورانوس ونبتون عملاقان جليديان."],
+ ["Small bodies","Asteroids, comets and the Kuiper belt (30–50 AU) are leftovers from planet formation and record the system's early history.","الأجرام الصغيرة","الكويكبات والمذنبات وحزام كايبر (30–50 وحدة فلكية) بقايا من تكوّن الكواكب وتحفظ تاريخ النظام المبكر."]]},
+{lv:"i",t:{en:"The Life of Stars",ar:"حياة النجوم",fr:"La vie des étoiles",es:"La vida de las estrellas",tr:"Yıldızların Yaşamı"},
+ d:{en:"Birth in gas clouds, long middle age, dramatic endings.",ar:"ولادة في سحب الغاز، عمر طويل، ونهايات مثيرة.",fr:"Naissance, longue maturité, fins spectaculaires.",es:"Nacimiento, larga madurez, finales dramáticos.",tr:"Gaz bulutlarında doğum, uzun ömür, çarpıcı sonlar."},
+ l:[["Star birth","Cold molecular clouds collapse under gravity. A protostar becomes a star when its core reaches about 10 million K and hydrogen fusion begins.","ولادة النجوم","تنهار السحب الجزيئية الباردة بفعل الجاذبية. يصبح النجم الأولي نجماً عندما تبلغ حرارة قلبه نحو 10 ملايين كلفن ويبدأ اندماج الهيدروجين."],
+ ["The H–R diagram","Plot luminosity against temperature and most stars fall on one band, the main sequence, where they spend about 90% of their lives.","مخطط هرتزشبرونغ–راسل","عند رسم اللمعان مقابل الحرارة تقع معظم النجوم على شريط واحد هو التسلسل الرئيسي، حيث تقضي نحو 90% من عمرها."],
+ ["Our Sun's timeline","The Sun is 4.6 billion years old and about halfway through hydrogen burning. It will become a red giant, then a white dwarf.","الخط الزمني للشمس","عمر الشمس 4.6 مليار سنة وهي في منتصف مرحلة حرق الهيدروجين تقريباً. ستصبح عملاقاً أحمر ثم قزماً أبيض."],
+ ["Supernovae","Stars above about 8 solar masses end in core collapse. For weeks one supernova can outshine its entire galaxy.","المستعرات العظمى","النجوم التي تزيد كتلتها على نحو 8 كتل شمسية تنتهي بانهيار القلب. قد يسطع المستعر الأعظم لأسابيع أكثر من مجرته كلها."]]},
+{lv:"a",t:{en:"Stellar Fusion and the Elements",ar:"الاندماج النجمي ونشأة العناصر",fr:"Fusion stellaire et éléments",es:"Fusión estelar y elementos",tr:"Yıldız Füzyonu ve Elementler"},
+ d:{en:"The nuclear physics that powers stars and builds the periodic table.",ar:"الفيزياء النووية التي تغذّي النجوم وتبني الجدول الدوري.",fr:"La physique nucléaire qui alimente les étoiles.",es:"La física nuclear que alimenta las estrellas.",tr:"Yıldızları besleyen ve elementleri üreten nükleer fizik."},
+ l:[["Why fusion happens","Core protons lack the energy to cross the Coulomb barrier classically. Quantum tunnelling lets a tiny fraction fuse, at the Gamow peak energy.","لماذا يحدث الاندماج","لا تملك بروتونات القلب طاقة كافية لعبور حاجز كولوم كلاسيكياً. النفق الكمومي يسمح لنسبة ضئيلة بالاندماج عند طاقة قمة غامو."],
+ ["pp chain and CNO cycle","Both turn four protons into one helium-4 nucleus and release 26.73 MeV. The CNO cycle takes over above about 1.3 solar masses.","سلسلة pp ودورة CNO","كلتاهما تحوّل أربعة بروتونات إلى نواة هيليوم-4 وتطلق 26.73 ميغا إلكترون فولت. تسود دورة CNO فوق نحو 1.3 كتلة شمسية."],
+ ["Helium burning and beyond","At about 100 million K the triple-alpha process makes carbon. Massive stars go on to burn carbon, neon, oxygen and silicon up to the iron peak.","حرق الهيليوم وما بعده","عند نحو 100 مليون كلفن تصنع عملية ألفا الثلاثية الكربون. النجوم الضخمة تواصل حرق الكربون والنيون والأكسجين والسيليكون حتى قمة الحديد."],
+ ["Heavier than iron","Fusion past iron costs energy, so heavier elements come from neutron capture: the slow s-process in giant stars and the rapid r-process in neutron-star mergers.","أثقل من الحديد","الاندماج بعد الحديد يستهلك طاقة، فتتكوّن العناصر الأثقل بأسر النيوترونات: العملية البطيئة s في النجوم العملاقة والسريعة r في اندماج النجوم النيوترونية."]]},
+{lv:"a",t:{en:"Black Holes and Neutron Stars",ar:"الثقوب السوداء والنجوم النيوترونية",fr:"Trous noirs et étoiles à neutrons",es:"Agujeros negros y estrellas de neutrones",tr:"Kara Delikler ve Nötron Yıldızları"},
+ d:{en:"What remains when gravity wins.",ar:"ما يبقى عندما تنتصر الجاذبية.",fr:"Ce qui reste quand la gravité l'emporte.",es:"Lo que queda cuando gana la gravedad.",tr:"Kütleçekimi kazandığında geriye kalanlar."},
+ l:[["White dwarfs","Electron degeneracy pressure supports a white dwarf up to the Chandrasekhar limit of about 1.44 solar masses.","الأقزام البيضاء","ضغط انحلال الإلكترونات يسند القزم الأبيض حتى حد تشاندراسيخار، نحو 1.44 كتلة شمسية."],
+ ["Neutron stars and pulsars","More than a solar mass packed into a ball about 20 km across. Spinning, magnetised ones sweep radio beams past us as pulsars.","النجوم النيوترونية والنوابض","أكثر من كتلة شمسية مضغوطة في كرة قطرها نحو 20 كم. الدوّارة الممغنطة منها تمسحنا بحزم راديوية فنراها نوابض."],
+ ["Event horizons","The Schwarzschild radius is r = 2GM/c², about 3 km per solar mass. Nothing inside it can return, not even light.","آفاق الحدث","نصف قطر شفارتزشيلد r = 2GM/c²، أي نحو 3 كم لكل كتلة شمسية. لا شيء داخله يستطيع العودة، ولا حتى الضوء."],
+ ["Gravitational waves","LIGO first detected merging black holes in 2015. Mergers now give a second way to observe the universe besides light.","الأمواج الثقالية","رصد مرصد لايغو اندماج ثقبين أسودين لأول مرة عام 2015. صارت الاندماجات وسيلة ثانية لرصد الكون غير الضوء."]]},
+{lv:"i",t:{en:"Galaxies and Cosmology",ar:"المجرات وعلم الكون",fr:"Galaxies et cosmologie",es:"Galaxias y cosmología",tr:"Gökadalar ve Kozmoloji"},
+ d:{en:"From the Milky Way to the beginning of time.",ar:"من درب التبانة إلى بداية الزمن.",fr:"De la Voie lactée à l'origine du temps.",es:"De la Vía Láctea al inicio del tiempo.",tr:"Samanyolu'ndan zamanın başlangıcına."},
+ l:[["The Milky Way","Our galaxy is a barred spiral about 100,000 light-years across with a few hundred billion stars. The Sun orbits about 26,000 light-years from the centre.","درب التبانة","مجرتنا حلزونية ضلعية قطرها نحو 100,000 سنة ضوئية وفيها مئات المليارات من النجوم. تدور الشمس على بعد نحو 26,000 سنة ضوئية من المركز."],
+ ["The expanding universe","Distant galaxies recede at speeds proportional to their distance. Running the expansion backward gives an age of 13.8 billion years.","الكون المتمدد","تبتعد المجرات البعيدة بسرعات تتناسب مع بعدها. إرجاع التمدد إلى الوراء يعطي عمراً قدره 13.8 مليار سنة."],
+ ["The cosmic microwave background","Light released about 380,000 years after the Big Bang still fills space, now cooled to 2.725 K.","الخلفية الكونية الميكروية","الضوء الذي تحرر بعد نحو 380,000 سنة من الانفجار العظيم ما زال يملأ الفضاء، وقد برد الآن إلى 2.725 كلفن."],
+ ["Dark matter and dark energy","Ordinary matter is about 5% of the cosmic budget. Roughly 27% is dark matter and 68% is dark energy, both still unexplained.","المادة المظلمة والطاقة المظلمة","المادة العادية نحو 5% من محتوى الكون. نحو 27% مادة مظلمة و68% طاقة مظلمة، وكلتاهما بلا تفسير حتى الآن."]]},
+{lv:"i",t:{en:"Exoplanets and Life",ar:"الكواكب الخارجية والحياة",fr:"Exoplanètes et vie",es:"Exoplanetas y vida",tr:"Ötegezegenler ve Yaşam"},
+ d:{en:"Thousands of worlds around other stars, and how we study them.",ar:"آلاف العوالم حول نجوم أخرى وكيف ندرسها.",fr:"Des milliers de mondes autour d'autres étoiles.",es:"Miles de mundos alrededor de otras estrellas.",tr:"Başka yıldızların çevresinde binlerce dünya."},
+ l:[["Finding planets","51 Pegasi b, found in 1995, was the first planet confirmed around a Sun-like star. More than 6,000 exoplanets are confirmed today.","اكتشاف الكواكب","كان 51 بيغاسي b عام 1995 أول كوكب مؤكد حول نجم شبيه بالشمس. اليوم هناك أكثر من 6,000 كوكب خارجي مؤكد."],
+ ["Transits and wobbles","A transit dims the star slightly and gives the planet's size. The star's Doppler wobble gives its mass. Together they give density.","العبور والتمايل","العبور يخفت ضوء النجم قليلاً فيعطي حجم الكوكب، وتمايل دوبلر للنجم يعطي كتلته. ومعاً يعطيان الكثافة."],
+ ["Habitable zones","The habitable zone is the range of orbits where liquid water could exist on a surface. It lies closer in for cool red dwarfs.","المناطق الصالحة للحياة","المنطقة الصالحة للحياة هي نطاق المدارات التي قد يوجد فيها ماء سائل على السطح، وتكون أقرب حول الأقزام الحمراء الباردة."],
+ ["Reading atmospheres","During a transit, starlight filters through the planet's air. Webb reads the missing colours to identify gases such as water and carbon dioxide.","قراءة الأغلفة الجوية","أثناء العبور يمر ضوء النجم عبر هواء الكوكب. يقرأ تلسكوب ويب الألوان الناقصة ليحدد غازات مثل الماء وثاني أكسيد الكربون."]]},
+{lv:"i",t:{en:"Rockets and Spaceflight",ar:"الصواريخ ورحلات الفضاء",fr:"Fusées et vol spatial",es:"Cohetes y vuelo espacial",tr:"Roketler ve Uzay Uçuşu"},
+ d:{en:"How we leave Earth and travel between worlds.",ar:"كيف نغادر الأرض ونسافر بين العوالم.",fr:"Comment quitter la Terre et voyager.",es:"Cómo salimos de la Tierra y viajamos.",tr:"Dünya'dan nasıl ayrılır, nasıl yol alırız."},
+ l:[["The rocket equation","Δv = vₑ ln(m₀/m₁). Because of the logarithm, most of a rocket's launch mass must be propellant.","معادلة الصاروخ","Δv = vₑ ln(m₀/m₁). بسبب اللوغاريتم يجب أن يكون معظم كتلة الصاروخ عند الإقلاع وقوداً."],
+ ["Orbits","Low Earth orbit needs about 7.8 km/s sideways speed. Escaping Earth entirely takes 11.2 km/s.","المدارات","المدار الأرضي المنخفض يحتاج سرعة أفقية نحو 7.8 كم/ث. الإفلات التام من الأرض يتطلب 11.2 كم/ث."],
+ ["Getting to other worlds","A Hohmann transfer is the low-energy path between two circular orbits. To Mars it takes roughly nine months.","الوصول إلى عوالم أخرى","انتقال هوهمان هو المسار منخفض الطاقة بين مدارين دائريين، ويستغرق إلى المريخ نحو تسعة أشهر."],
+ ["Reusable rockets and Artemis","Landing and reflying boosters has cut launch costs sharply. Artemis II flew four astronauts around the Moon in April 2026.","الصواريخ القابلة لإعادة الاستخدام وأرتميس","هبوط المعززات وإعادة إطلاقها خفّض تكاليف الإطلاق بشدة. حملت أرتميس 2 أربعة رواد حول القمر في أبريل 2026."]]},
+{lv:"b",t:{en:"Telescopes and Observing",ar:"التلسكوبات والرصد",fr:"Télescopes et observation",es:"Telescopios y observación",tr:"Teleskoplar ve Gözlem"},
+ d:{en:"Choose equipment and start observing for yourself.",ar:"اختر معداتك وابدأ الرصد بنفسك.",fr:"Choisir son matériel et observer.",es:"Elige equipo y empieza a observar.",tr:"Ekipman seçin ve gözleme başlayın."},
+ l:[["Aperture comes first","A telescope's light grasp grows with the square of its aperture. Aperture matters far more than magnification.","الفتحة أولاً","قدرة التلسكوب على جمع الضوء تزداد مع مربع فتحته. الفتحة أهم بكثير من التكبير."],
+ ["Refractors and reflectors","Refractors use lenses and give sharp, low-maintenance views. Reflectors use mirrors and give more aperture for the money.","الكاسرة والعاكسة","التلسكوبات الكاسرة تستخدم عدسات وتعطي صوراً حادة بصيانة قليلة. العاكسة تستخدم مرايا وتعطي فتحة أكبر بالسعر نفسه."],
+ ["Dark skies","The Bortle scale rates sky darkness from 1 (pristine) to 9 (inner city). Deserts far from cities offer some of the best skies on Earth.","السماء المظلمة","مقياس بورتل يصنّف ظلمة السماء من 1 (صافية تماماً) إلى 9 (وسط المدينة). الصحارى البعيدة عن المدن من أفضل سماوات الأرض."],
+ ["Telescopes in space","Webb's 6.5 m mirror observes infrared light from the L2 point, 1.5 million km from Earth, far from our planet's heat.","تلسكوبات الفضاء","مرآة ويب بقطر 6.5 م ترصد الأشعة تحت الحمراء من نقطة L2 على بعد 1.5 مليون كم من الأرض، بعيداً عن حرارة كوكبنا."]]}
+];
+
+const N=[
+{d:"2026-11",u:"https://spacenexus.us/briefing/2026-11-11",
+ en:["ESCAPADE twins head for Mars","NASA's two small ESCAPADE orbiters have finished their Earth flybys and are on course for Mars, where they will study how the solar wind strips the planet's atmosphere."],
+ ar:["توأما إسكابيد في الطريق إلى المريخ","أنهى مسبارا ناسا الصغيران إسكابيد تحليقهما قرب الأرض وهما في طريقهما إلى المريخ لدراسة كيف تجرّد الرياح الشمسية غلافه الجوي."]},
+{d:"2026-04",u:"https://www.sciencedaily.com/releases/2026/05/260504023837.htm",
+ en:["Artemis II flew people around the Moon","Four astronauts launched on 1 April 2026, reached a record 406,771 km from Earth and splashed down on 10 April. Artemis III, a docking test in Earth orbit, is planned for 2027, with landings from 2028."],
+ ar:["أرتميس 2 حملت البشر حول القمر","انطلق أربعة رواد في 1 أبريل 2026 وبلغوا مسافة قياسية 406,771 كم من الأرض وهبطوا في 10 أبريل. أرتميس 3، اختبار التحام في مدار الأرض، مقررة في 2027، والهبوط على القمر من 2028."]},
+{d:"2026-01",u:"https://esawebb.org/news/weic2603/",
+ en:["Webb confirms the most distant galaxy yet","Galaxy MoM-z14 is seen as it was about 280 million years after the Big Bang. It is brighter than models predicted for so early a time."],
+ ar:["ويب يؤكد أبعد مجرة حتى الآن","تُرى المجرة MoM-z14 كما كانت بعد نحو 280 مليون سنة من الانفجار العظيم، وهي ألمع مما توقعته النماذج لذلك الزمن المبكر."]}
+];
+
+const Q=[
+{en:["What mainly decides how a star lives and dies?",["Its distance from us","Its mass","Its constellation"]],ar:["ما الذي يحدد أساساً حياة النجم ونهايته؟",["بعده عنا","كتلته","كوكبته"]],a:1},
+{en:["How much energy does fusing four protons into helium-4 release?",["26.73 MeV","2.7 eV","511 keV"]],ar:["كم تطلق عملية اندماج أربعة بروتونات إلى هيليوم-4 من الطاقة؟",["26.73 MeV","2.7 eV","511 keV"]],a:0},
+{en:["What is the Chandrasekhar limit?",["About 1.44 solar masses","About 8 solar masses","About 100 solar masses"]],ar:["ما هو حد تشاندراسيخار؟",["نحو 1.44 كتلة شمسية","نحو 8 كتل شمسية","نحو 100 كتلة شمسية"]],a:0},
+{en:["How old is the universe?",["4.6 billion years","13.8 billion years","100 billion years"]],ar:["كم عمر الكون؟",["4.6 مليار سنة","13.8 مليار سنة","100 مليار سنة"]],a:1},
+{en:["What speed is needed to stay in low Earth orbit?",["About 1 km/s","About 7.8 km/s","About 30 km/s"]],ar:["ما السرعة اللازمة للبقاء في مدار أرضي منخفض؟",["نحو 1 كم/ث","نحو 7.8 كم/ث","نحو 30 كم/ث"]],a:1}
+];
+
+const store={get(k,d){try{const v=localStorage.getItem("suhail_"+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem("suhail_"+k,JSON.stringify(v))}catch(e){}}};
+let lang=store.get("lang","en"); if(!I[lang])lang="en";
+let sub=store.get("sub",false), done=store.get("done",{}), yearly=false, openC=0, qi=0, qs=0, qAns=-1;
+const $=id=>document.getElementById(id), t=k=>I[lang][k]??I.en[k], cl=()=>lang==="ar"?"ar":"en";
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// ---------- star physics (simplified main sequence) ----------
+function starOf(M){
+  const L=M<0.43?0.23*Math.pow(M,2.3):M<2?Math.pow(M,4):1.4*Math.pow(M,3.5);
+  const R=M<1?Math.pow(M,0.8):Math.pow(M,0.7);
+  const T=5772*Math.pow(L/(R*R),0.25);
+  const bands=[[3700,"M","#ff8a5c"],[5200,"K","#ffb36b"],[6000,"G","#ffe08a"],[7500,"F","#fff4d6"],[10000,"A","#f2f4ff"],[30000,"B","#bcd0ff"],[1e9,"O","#9bb4ff"]];
+  const b=bands.find(x=>T<x[0]);
+  return {M,L,R,T,cls:b[1],col:b[2],life:10*M/L};
+}
+const sig=x=>x>=100?Math.round(x).toLocaleString("en"):x>=10?x.toFixed(0):x>=1?x.toFixed(1):x.toPrecision(2);
+let S=starOf(1);
+function renderStar(){
+  const M=0.1*Math.pow(400,$("mass").value/100); S=starOf(M);
+  $("massV").textContent=sig(M)+" M☉";
+  $("fCls").textContent=S.cls;
+  $("fTemp").textContent=Math.round(S.T/10)*10+" K";
+  $("fLum").textContent=sig(S.L)+" L☉";
+  $("fRad").textContent=sig(S.R)+" R☉";
+  $("fLife").textContent="≈ "+(S.life>=1?sig(S.life)+" "+t("byr"):sig(S.life*1000)+" "+t("myr"));
+  const cno=M>=1.3;
+  $("fFus").textContent=t(cno?"fus_cno":"fus_pp");
+  $("fEq").textContent=cno?"¹²C → ¹³N → ¹³C → ¹⁴N → ¹⁵O → ¹⁵N → ¹²C + ⁴He   (26.73 MeV)":"4 ¹H → ⁴He + 2e⁺ + 2νₑ + 26.73 MeV";
+  $("fFate").textContent=t(M<0.5?"fate1":M<8?"fate2":M<20?"fate3":"fate4");
+}
+
+// ---------- star canvas ----------
+const cv=$("star"),cx=cv.getContext("2d"),still=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const cells=Array.from({length:46},()=>({a:Math.random()*6.28,r:Math.sqrt(Math.random()),s:.2+Math.random()*.5,p:Math.random()*6.28}));
+const rays=Array.from({length:70},()=>({a:Math.random()*6.28,d:Math.random(),v:.15+Math.random()*.35}));
+function drawStar(ts){
+  const w=cv.width,c=w/2,tt=ts/1000;
+  const size=(Math.log10(S.R)+0.85)/2.0; // ~0..1
+  const r=w*(0.13+0.2*Math.max(0,Math.min(1,size)))*(1+0.012*Math.sin(tt*1.7));
+  cx.clearRect(0,0,w,w);
+  let g=cx.createRadialGradient(c,c,r*.6,c,c,w*.5);
+  g.addColorStop(0,S.col+"aa");g.addColorStop(.35,S.col+"33");g.addColorStop(1,S.col+"00");
+  cx.fillStyle=g;cx.fillRect(0,0,w,w);
+  cx.fillStyle=S.col;
+  for(const p of rays){p.d+=p.v*(still?0:.006);if(p.d>1){p.d=0;p.a=Math.random()*6.28}
+    const d=r+p.d*(w*.5-r);cx.globalAlpha=(1-p.d)*.7;cx.beginPath();cx.arc(c+Math.cos(p.a)*d,c+Math.sin(p.a)*d,1.6+2*(1-p.d),0,6.28);cx.fill()}
+  cx.globalAlpha=1;
+  g=cx.createRadialGradient(c-r*.15,c-r*.15,r*.05,c,c,r);
+  g.addColorStop(0,"#ffffff");g.addColorStop(.55,S.col);g.addColorStop(1,S.col+"cc");
+  cx.save();cx.beginPath();cx.arc(c,c,r,0,6.28);cx.clip();cx.fillStyle=g;cx.fillRect(0,0,w,w);
+  for(const k of cells){const a=k.a+tt*.05*k.s,rr=k.r*r*.92,al=.10+.08*Math.sin(tt*k.s*2+k.p);
+    cx.globalAlpha=Math.max(0,al);cx.fillStyle=k.p>3?"#ffffff":"#000000";cx.beginPath();cx.arc(c+Math.cos(a)*rr,c+Math.sin(a)*rr,r*(.06+.1*k.s),0,6.28);cx.fill()}
+  cx.restore();cx.globalAlpha=1;
+  if(!still)requestAnimationFrame(drawStar);
+}
+
+// ---------- background sky ----------
+function drawSky(){
+  const s=$("sky"),d=Math.min(devicePixelRatio||1,2),w=innerWidth,h=innerHeight;
+  s.width=w*d;s.height=h*d;const x=s.getContext("2d");x.scale(d,d);
+  const g=x.createRadialGradient(w*.8,0,0,w*.8,0,Math.max(w,h));g.addColorStop(0,"#16204a");g.addColorStop(.6,"#070b1a");
+  x.fillStyle=g;x.fillRect(0,0,w,h);
+  let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  const n=Math.round(w*h/3800);
+  for(let i=0;i<n;i++){const m=rnd();x.globalAlpha=.25+m*.6;x.fillStyle=["#ffffff","#bcd0ff","#ffe08a","#ffb36b"][Math.floor(rnd()*4)];
+    x.beginPath();x.arc(rnd()*w,rnd()*h,m>.97?1.5:m*.9,0,6.28);x.fill()}
+}
+
+// ---------- live sky numbers ----------
+function sky(){
+  const syn=29.530588853,now=Date.now();
+  let age=((now-Date.UTC(2000,0,6,18,14))/864e5)%syn;
+  const f=age/syn;
+  $("moonName").textContent=t("ph")[Math.floor(f*8+.5)%8];
+  $("moonPct").textContent=Math.round((1-Math.cos(2*Math.PI*f))/2*100)+"% "+t("illum");
+  $("jwstDays").textContent=Math.floor((now-Date.UTC(2021,11,25,12,20))/864e5).toLocaleString("en");
+}
+
+// ---------- courses ----------
+function renderCourses(){
+  $("lessonNote").hidden=!t("lesson_note");
+  $("courseGrid").innerHTML=C.map((c,i)=>{
+    const dn=c.l.filter((_,j)=>done[i+"-"+j]).length;
+    return `<div class="course${i===openC?" open":""}"><button data-c="${i}" aria-expanded="${i===openC}">
+      <div class="meta"><span class="pill ${c.lv}">${t("lvl_"+c.lv)}</span><span>${c.l.length} ${t("lessons")}</span><span>${dn}/${c.l.length}</span></div>
+      <h3>${esc(c.t[lang])}</h3><p>${esc(c.d[lang])}</p></button>
+      <div class="prog"><i style="width:${dn/c.l.length*100}%"></i></div>
+      <div class="lessons">${c.l.map((l,j)=>{
+        const o=cl()==="ar"?2:0,lock=j>0&&!sub,k=i+"-"+j;
+        return `<div class="lesson${lock?" lock":""}"><h4>${j+1}. ${esc(l[o])}<span>${j===0?t("free"):t("locked")}</span></h4>
+        <p${lang!=="ar"&&!lock?' dir="ltr"':""}>${lock?t("lock_text"):esc(l[o+1])}</p>
+        ${lock?"":`<button data-d="${k}" class="${done[k]?"on":""}">${done[k]?"✓ "+t("done"):t("mark")}</button>`}</div>`}).join("")}</div></div>`}).join("");
+}
+$("courseGrid").addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.c!==undefined){const i=+b.dataset.c;openC=openC===i?-1:i;renderCourses()}
+  else if(b.dataset.d){done[b.dataset.d]=!done[b.dataset.d];store.set("done",done);renderCourses()}
+});
+
+// ---------- news ----------
+function renderNews(){
+  $("newsGrid").innerHTML=N.map(n=>{const x=n[cl()];return `<article${lang!=="ar"?' dir="ltr"':""}><time>${n.d}</time><h3>${esc(x[0])}</h3><p>${esc(x[1])}</p><a href="${n.u}">${t("source")} ↗</a></article>`}).join("");
+}
+
+// ---------- quiz ----------
+function renderQuiz(){
+  const el=$("quiz");
+  if(qi>=Q.length){el.innerHTML=`<h3>${t("quiz_h")}</h3><p style="margin:10px 0" class="price">${qs} / ${Q.length}</p><p class="note">${t("quiz_score")}</p><button class="btn" id="qAgain" style="margin-top:12px">${t("quiz_again")}</button>`;
+    $("qAgain").onclick=()=>{qi=0;qs=0;qAns=-1;renderQuiz()};return}
+  const q=Q[qi],x=q[cl()];
+  el.innerHTML=`<h3>${t("quiz_h")} · ${qi+1}/${Q.length}</h3><p style="margin-top:8px"${lang!=="ar"?' dir="ltr"':""}>${esc(x[0])}</p><div class="opts">${x[1].map((o,i)=>`<button data-o="${i}" class="${qAns<0?"":i===q.a?"right":i===qAns?"wrong":""}"${qAns>=0?" disabled":""}>${esc(o)}</button>`).join("")}</div>${qAns>=0?`<button class="btn" id="qNext" style="margin-top:12px">→</button>`:""}`;
+  if(qAns>=0)$("qNext").onclick=()=>{qi++;qAns=-1;renderQuiz()};
+}
+$("quiz").addEventListener("click",e=>{const b=e.target.closest("[data-o]");if(!b||qAns>=0)return;qAns=+b.dataset.o;if(qAns===Q[qi].a)qs++;renderQuiz()});
+
+// ---------- plans ----------
+const P=[[0,0],[4.99,49],[9.99,99],[29,290]];
+function renderPlans(){
+  $("bM").className=yearly?"":"on";$("bY").className=yearly?"on":"";
+  $("planGrid").innerHTML=P.map((p,i)=>{
+    const cur=(i===0&&!sub)||(i===1&&sub);
+    return `<div class="plan${i===2?" best":""}"><h3>${t("pn")[i]}</h3>
+    <div class="price"><span dir="ltr">$${yearly?p[1]:p[0]}</span> <small>${i?t(yearly?"per_yr":"per_mo"):""}</small></div>
+    <ul>${t("pf")[i].map(f=>`<li>${f}</li>`).join("")}</ul>
+    <button class="btn${i===2?"":" ghost"}" data-p="${i}"${cur?" disabled":""}>${cur?t("current"):t("choose")}</button></div>`}).join("");
+}
+$("planGrid").addEventListener("click",e=>{const b=e.target.closest("[data-p]");if(!b)return;
+  if(b.dataset.p==="0"){sub=false;store.set("sub",false);renderPlans();renderCourses()}else $("pay").showModal()});
+$("demoOn").onclick=()=>{sub=true;store.set("sub",true);$("pay").close();renderPlans();renderCourses();go("courses")};
+$("payClose").onclick=()=>$("pay").close();
+$("bM").onclick=()=>{yearly=false;renderPlans()};$("bY").onclick=()=>{yearly=true;renderPlans()};
+
+// ---------- wiring ----------
+function go(id){$(id).scrollIntoView({behavior:still?"auto":"smooth",block:"start"})}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-go]");if(b)go(b.dataset.go)});
+function applyLang(){
+  document.documentElement.lang=lang;document.documentElement.dir=lang==="ar"?"rtl":"ltr";
+  document.querySelectorAll("[data-t]").forEach(el=>el.textContent=t(el.dataset.t));
+  $("lang").value=lang;renderStar();sky();renderCourses();renderNews();renderQuiz();renderPlans();
+}
+$("lang").onchange=e=>{lang=e.target.value;store.set("lang",lang);applyLang()};
+$("mass").oninput=()=>{renderStar();if(still)drawStar(0)};
+addEventListener("resize",drawSky);
+drawSky();applyLang();requestAnimationFrame(drawStar);
+</script>
+</body>
+</html>

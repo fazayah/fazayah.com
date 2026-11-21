@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jabr Math Academy</title>
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Naskh+Arabic:wght@400;600&family=Noto+Sans+Devanagari:wght@400;500;600&family=STIX+Two+Text:ital,wght@0,500;0,600;1,500&display=swap">
+<style>
+/* Layout idea: a student's graph-paper notebook. Ink on cool paper, one yellow highlighter, formulas set in the STIX math face. */
+:root{
+  --paper:#F2F4F9; --surface:#FFFFFF; --ink:#131B33; --muted:#566080; --line:#D3D9E8;
+  --mark:#FFD84A; --mark-ink:#131B33; --pen:#2742C4; --good:#17794B; --bad:#B8322F;
+  --display:"STIX Two Text","IBM Plex Sans Arabic","Noto Naskh Arabic","Noto Sans Devanagari",Georgia,serif;
+  --body:"IBM Plex Sans","IBM Plex Sans Arabic","Noto Naskh Arabic","Noto Sans Devanagari",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1322; --surface:#171F38; --ink:#E8EBF5; --muted:#9BA5C4; --line:#2A3457;
+    --mark:#E9BC25; --pen:#93A7FF; --good:#56C492; --bad:#F08A85; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1322; --surface:#171F38; --ink:#E8EBF5; --muted:#9BA5C4; --line:#2A3457;
+  --mark:#E9BC25; --pen:#93A7FF; --good:#56C492; --bad:#F08A85; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:400 16px/1.55 var(--body);padding-bottom:76px;-webkit-text-size-adjust:100%}
+h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,3rem)}
+h2{font-size:1.5rem}
+h3{font-size:1.15rem}
+p{margin:0}
+a{color:inherit}
+button,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--pen);outline-offset:2px}
+.top{display:flex;align-items:center;gap:12px;padding:12px 16px;max-width:1040px;margin:0 auto}
+.brand{font:italic 500 1.6rem/1 var(--display);text-decoration:none;padding:2px 6px;background:linear-gradient(transparent 58%,var(--mark) 58%)}
+[data-theme="dark"] .brand,.brand{color:var(--ink)}
+.top .sp{flex:1}
+select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:40px}
+.badge{font-size:.75rem;font-weight:600;padding:3px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.badge.pro{background:var(--mark);color:var(--mark-ink);border-color:var(--mark)}
+#nav{position:fixed;inset-inline:0;bottom:0;z-index:5;display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface);border-top:1px solid var(--line)}
+#nav a{text-decoration:none;text-align:center;padding:10px 2px 12px;font-size:.72rem;font-weight:500;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px}
+#nav a i{font:normal 500 1.25rem/1 var(--display)}
+#nav a[aria-current]{color:var(--ink)}
+#nav a[aria-current] i{background:linear-gradient(transparent 55%,var(--mark) 55%)}
+main{max-width:1040px;margin:0 auto;padding:8px 16px 32px;display:flex;flex-direction:column;gap:28px}
+.muted{color:var(--muted)}
+.small{font-size:.875rem}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 18px;border-radius:10px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);font-weight:600;text-decoration:none;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn[disabled]{opacity:.5;cursor:default}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.hero{display:grid;gap:22px;align-items:center}
+.hero .txt{display:flex;flex-direction:column;gap:14px}
+.hero p{max-width:56ch;color:var(--muted);font-size:1.05rem}
+.plot{margin:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;direction:ltr;
+  background-color:var(--surface);
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:20px 20px}
+.plot svg{display:block;width:100%;height:auto}
+.plot text{font:italic 500 15px var(--display);fill:var(--ink)}
+.plot .curve{fill:none;stroke:var(--pen);stroke-width:3;stroke-linecap:round;stroke-dasharray:620;animation:draw 1.6s ease-out}
+@keyframes draw{from{stroke-dashoffset:620}}
+@media (prefers-reduced-motion:reduce){.plot .curve{animation:none}}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.course{display:flex;flex-direction:column;gap:8px;text-decoration:none}
+.course:hover{border-color:var(--ink)}
+.tag{font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--pen)}
+.bar{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:auto}
+.bar b{display:block;height:100%;background:var(--pen)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.chip{flex:none;min-height:40px;padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.list a{display:flex;align-items:center;gap:12px;text-decoration:none;padding:14px}
+.list .n{font:500 1.3rem/1 var(--display);width:1.6em;flex:none;color:var(--muted);font-variant-numeric:tabular-nums}
+.list .ti{flex:1;font-weight:500}
+.ok{color:var(--good);font-weight:600}
+.lesson{display:flex;flex-direction:column;gap:18px;max-width:70ch}
+.lesson .body{font-size:1.05rem}
+.steps{margin:0;padding:14px 16px;list-style:none;border-inline-start:4px solid var(--mark);background:var(--surface);border-radius:0 10px 10px 0;display:flex;flex-direction:column;gap:6px;font:500 1.1rem/1.5 var(--display);overflow-x:auto}
+.opts{display:grid;gap:8px}
+.opt{text-align:start;min-height:48px;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font:500 1.05rem var(--display)}
+.opt.good{border-color:var(--good);box-shadow:inset 0 0 0 1px var(--good)}
+.opt.bad{border-color:var(--bad);color:var(--bad)}
+.msg.good{color:var(--good);font-weight:600}
+.msg.bad{color:var(--bad);font-weight:600}
+.tabs{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.tabs button{border:0;background:transparent;padding:9px 16px;min-height:40px;cursor:pointer;font-weight:500}
+.tabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.chat{display:flex;flex-direction:column;gap:10px}
+.bub{max-width:88%;padding:10px 14px;border-radius:14px;white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid var(--line);background:var(--surface)}
+.bub.u{align-self:flex-end;background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.bub.a{align-self:flex-start}
+.ask{display:flex;gap:8px;align-items:flex-end}
+.ask textarea{flex:1;min-height:48px;max-height:160px;resize:vertical;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface)}
+.plans{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.plan{display:flex;flex-direction:column;gap:12px}
+.plan.hi{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.price{font:600 2.4rem/1 var(--display);font-variant-numeric:tabular-nums}
+.price small{font:400 .9rem var(--body);color:var(--muted)}
+.feat{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.feat li::before{content:"✓";color:var(--good);font-weight:700;margin-inline-end:8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center}
+.stats b{display:block;font:600 2rem/1.1 var(--display);font-variant-numeric:tabular-nums}
+.cert{border:2px solid var(--ink);text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.cert h2{background:linear-gradient(transparent 58%,var(--mark) 58%);padding:0 6px}
+.fx{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line)}
+.fx:last-child{border-bottom:0}
+.fx span:last-child{font:500 1.1rem var(--display);direction:ltr}
+.news{display:flex;flex-direction:column;gap:6px}
+.note{border:1px dashed var(--line);border-radius:10px;padding:10px 12px;color:var(--muted);font-size:.9rem}
+#modal{position:fixed;inset:0;z-index:10;background:rgba(10,14,30,.55);display:none;align-items:flex-end;justify-content:center;padding:16px}
+#modal.on{display:flex}
+#modal .card{width:100%;max-width:420px;display:flex;flex-direction:column;gap:14px}
+.pill{position:fixed;top:10px;inset-inline-end:50%;transform:translateX(50%);z-index:9;background:var(--ink);color:var(--paper);padding:5px 12px;border-radius:99px;font-size:.8rem}
+[dir="rtl"] .pill{transform:translateX(-50%)}
+@media (min-width:760px){
+  body{padding-bottom:0}
+  #nav{position:static;display:flex;gap:4px;border:0;background:transparent}
+  #nav a{flex-direction:row;gap:6px;padding:8px 12px;font-size:.95rem;border-radius:8px}
+  #nav a i{font-size:1.05rem}
+  .hero{grid-template-columns:1.1fr .9fr}
+  #modal{align-items:center}
+  .opts{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#home">Jabr</a>
+  <nav id="nav" aria-label="Main"></nav>
+  <span class="sp"></span>
+  <select id="lang" aria-label="Language"></select>
+</header>
+<main id="app"></main>
+<div id="modal" role="dialog" aria-modal="true"></div>
+<script>
+const LANGS=[['en','English'],['ar','العربية'],['fr','Français'],['es','Español'],['ur','اردو'],['hi','हिन्दी']];
+const LNAME={en:'English',ar:'Arabic',fr:'French',es:'Spanish',ur:'Urdu',hi:'Hindi'};
+const S={
+home:['Home','الرئيسية','Accueil','Inicio','ہوم','होम'],
+courses:['Courses','الدورات','Cours','Cursos','کورسز','कोर्स'],
+tutor:['AI tutor','المعلّم الذكي','Tuteur IA','Tutor IA','اے آئی ٹیوٹر','AI ट्यूटर'],
+plans:['Plans','الاشتراكات','Offres','Planes','پلانز','प्लान'],
+heroTitle:['Mathematics, from counting to Fourier series','الرياضيات، من العدّ إلى متسلسلات فورييه','Les mathématiques, du calcul aux séries de Fourier','Matemáticas, desde contar hasta las series de Fourier','ریاضی، گنتی سے فوریئر سیریز تک','गणित, गिनती से फ़ूरिये श्रेणी तक'],
+heroSub:['Full courses for school, university and applied mathematics, with an AI tutor that explains every step in your language.','دورات كاملة في رياضيات المدرسة والجامعة والرياضيات التطبيقية، مع معلّم ذكي يشرح كل خطوة بلغتك.','Des cours complets de mathématiques scolaires, universitaires et appliquées, avec un tuteur IA qui explique chaque étape dans votre langue.','Cursos completos de matemáticas escolares, universitarias y aplicadas, con un tutor de IA que explica cada paso en tu idioma.','اسکول، یونیورسٹی اور اطلاقی ریاضی کے مکمل کورسز، ایک اے آئی ٹیوٹر کے ساتھ جو ہر قدم آپ کی زبان میں سمجھاتا ہے۔','स्कूल, विश्वविद्यालय और अनुप्रयुक्त गणित के पूरे कोर्स, एक AI ट्यूटर के साथ जो हर चरण आपकी भाषा में समझाता है।'],
+start:['Start learning','ابدأ التعلّم','Commencer','Empezar','سیکھنا شروع کریں','सीखना शुरू करें'],
+ask:['Ask the tutor','اسأل المعلّم','Demander au tuteur','Preguntar al tutor','ٹیوٹر سے پوچھیں','ट्यूटर से पूछें'],
+cont:['Continue learning','تابع التعلّم','Reprendre','Continuar','سیکھنا جاری رکھیں','सीखना जारी रखें'],
+all:['All levels','كل المستويات','Tous les niveaux','Todos los niveles','تمام سطحیں','सभी स्तर'],
+k12:['School','المدرسة','École','Escuela','اسکول','स्कूल'],
+uni:['University','الجامعة','Université','Universidad','یونیورسٹی','विश्वविद्यालय'],
+adv:['Advanced and applied','متقدّم وتطبيقي','Avancé et appliqué','Avanzado y aplicado','اعلیٰ اور اطلاقی','उन्नत और अनुप्रयुक्त'],
+lessons:['lessons','دروس','leçons','lecciones','اسباق','पाठ'],
+lesson:['Lesson','الدرس','Leçon','Lección','سبق','पाठ'],
+free:['Free','مجاني','Gratuit','Gratis','مفت','मुफ़्त'],
+locked:['This lesson is part of Pro.','هذا الدرس ضمن اشتراك Pro.','Cette leçon fait partie de Pro.','Esta lección es parte de Pro.','یہ سبق Pro میں شامل ہے۔','यह पाठ Pro में शामिल है।'],
+upgrade:['Upgrade to Pro','الترقية إلى Pro','Passer à Pro','Pasar a Pro','Pro پر اپ گریڈ کریں','Pro में अपग्रेड करें'],
+ex:['Worked example','مثال محلول','Exemple résolu','Ejemplo resuelto','حل شدہ مثال','हल किया हुआ उदाहरण'],
+quiz:['Check yourself','اختبر نفسك','Vérifiez-vous','Compruébalo','خود کو جانچیں','खुद को जाँचें'],
+right:['Correct. Lesson completed.','صحيح. اكتمل الدرس.','Correct. Leçon terminée.','Correcto. Lección completada.','درست۔ سبق مکمل ہوا۔','सही। पाठ पूरा हुआ।'],
+wrong:['Not yet. Try another answer or ask the tutor.','ليس بعد. جرّب إجابة أخرى أو اسأل المعلّم.','Pas encore. Essayez une autre réponse ou demandez au tuteur.','Aún no. Prueba otra respuesta o pregunta al tutor.','ابھی نہیں۔ دوسرا جواب آزمائیں یا ٹیوٹر سے پوچھیں۔','अभी नहीं। दूसरा उत्तर आज़माएँ या ट्यूटर से पूछें।'],
+next:['Next lesson','الدرس التالي','Leçon suivante','Siguiente lección','اگلا سبق','अगला पाठ'],
+back:['Back','رجوع','Retour','Volver','واپس','वापस'],
+askLesson:['Ask the tutor about this lesson','اسأل المعلّم عن هذا الدرس','Interroger le tuteur sur cette leçon','Preguntar al tutor sobre esta lección','اس سبق کے بارے میں ٹیوٹر سے پوچھیں','इस पाठ के बारे में ट्यूटर से पूछें'],
+tutorHint:['Ask any mathematics question. The tutor answers step by step.','اطرح أي سؤال في الرياضيات. يجيب المعلّم خطوة بخطوة.','Posez n\'importe quelle question de mathématiques. Le tuteur répond étape par étape.','Haz cualquier pregunta de matemáticas. El tutor responde paso a paso.','ریاضی کا کوئی بھی سوال پوچھیں۔ ٹیوٹر قدم بہ قدم جواب دیتا ہے۔','गणित का कोई भी सवाल पूछें। ट्यूटर चरण-दर-चरण उत्तर देता है।'],
+ph:['Type your question','اكتب سؤالك','Écrivez votre question','Escribe tu pregunta','اپنا سوال لکھیں','अपना सवाल लिखें'],
+send:['Send','إرسال','Envoyer','Enviar','بھیجیں','भेजें'],
+left:['free questions left today','أسئلة مجانية متبقية اليوم','questions gratuites restantes aujourd\'hui','preguntas gratis restantes hoy','آج کے باقی مفت سوالات','आज के बचे मुफ़्त सवाल'],
+limit:['You have used today\'s free questions. Pro gives unlimited tutoring.','استخدمت أسئلة اليوم المجانية. اشتراك Pro يمنحك أسئلة بلا حدود.','Vous avez utilisé les questions gratuites du jour. Pro offre un tutorat illimité.','Has usado las preguntas gratis de hoy. Pro ofrece tutoría ilimitada.','آپ آج کے مفت سوالات استعمال کر چکے ہیں۔ Pro میں لامحدود ٹیوشن ہے۔','आपने आज के मुफ़्त सवाल इस्तेमाल कर लिए हैं। Pro में असीमित ट्यूशन है।'],
+chat:['Chat','محادثة','Discussion','Chat','چیٹ','चैट'],
+practice:['Practice','تمارين','Exercices','Práctica','مشق','अभ्यास'],
+gen:['Generate 3 problems','أنشئ 3 مسائل','Générer 3 problèmes','Generar 3 problemas','3 سوالات بنائیں','3 सवाल बनाएँ'],
+proOnly:['AI practice sets are part of Pro.','تمارين الذكاء الاصطناعي ضمن اشتراك Pro.','Les séries d\'exercices IA font partie de Pro.','Las prácticas con IA son parte de Pro.','اے آئی مشقیں Pro میں شامل ہیں۔','AI अभ्यास सेट Pro में शामिल हैं।'],
+plansTitle:['Choose your plan','اختر اشتراكك','Choisissez votre offre','Elige tu plan','اپنا پلان چنیں','अपना प्लान चुनें'],
+monthly:['Monthly','شهري','Mensuel','Mensual','ماہانہ','मासिक'],
+yearly:['Yearly','سنوي','Annuel','Anual','سالانہ','वार्षिक'],
+perM:['per month','شهريًا','par mois','al mes','فی مہینہ','प्रति माह'],
+perY:['per year','سنويًا','par an','al año','فی سال','प्रति वर्ष'],
+current:['Current plan','اشتراكك الحالي','Offre actuelle','Plan actual','موجودہ پلان','मौजूदा प्लान'],
+toFree:['Switch to Free','التحويل إلى المجاني','Passer à Gratuit','Cambiar a Gratis','مفت پلان پر جائیں','मुफ़्त प्लान पर जाएँ'],
+f1:['First lesson of every course','الدرس الأول من كل دورة','Première leçon de chaque cours','Primera lección de cada curso','ہر کورس کا پہلا سبق','हर कोर्स का पहला पाठ'],
+f2:['5 tutor questions a day','5 أسئلة للمعلّم يوميًا','5 questions au tuteur par jour','5 preguntas al tutor por día','روزانہ ٹیوٹر سے 5 سوالات','रोज़ ट्यूटर से 5 सवाल'],
+f3:['6 languages','6 لغات','6 langues','6 idiomas','6 زبانیں','6 भाषाएँ'],
+p1:['All 96 lessons in 16 courses','جميع الدروس الـ96 في 16 دورة','Les 96 leçons des 16 cours','Las 96 lecciones de los 16 cursos','16 کورسز کے تمام 96 اسباق','16 कोर्स के सभी 96 पाठ'],
+p2:['Unlimited AI tutor','معلّم ذكي بلا حدود','Tuteur IA illimité','Tutor IA ilimitado','لامحدود اے آئی ٹیوٹر','असीमित AI ट्यूटर'],
+p3:['AI practice sets for any course','تمارين ذكية لأي دورة','Exercices IA pour chaque cours','Prácticas con IA para cualquier curso','کسی بھی کورس کے لیے اے آئی مشقیں','किसी भी कोर्स के लिए AI अभ्यास'],
+checkout:['Checkout','إتمام الاشتراك','Paiement','Pago','چیک آؤٹ','चेकआउट'],
+demo:['Prototype checkout. No payment is taken and prices are examples.','هذه نسخة تجريبية. لا يُخصم أي مبلغ والأسعار أمثلة.','Paiement de démonstration. Aucun montant n\'est prélevé et les prix sont des exemples.','Pago de demostración. No se cobra nada y los precios son ejemplos.','یہ نمونہ چیک آؤٹ ہے۔ کوئی ادائیگی نہیں لی جاتی اور قیمتیں مثال ہیں۔','यह नमूना चेकआउट है। कोई भुगतान नहीं लिया जाता और कीमतें उदाहरण हैं।'],
+confirm:['Confirm subscription','تأكيد الاشتراك','Confirmer l\'abonnement','Confirmar suscripción','سبسکرپشن کی تصدیق کریں','सदस्यता की पुष्टि करें'],
+cancel:['Cancel','إلغاء','Annuler','Cancelar','منسوخ کریں','रद्द करें'],
+aiOff:['The AI tutor is not available in this view.','المعلّم الذكي غير متاح في هذا العرض.','Le tuteur IA n\'est pas disponible dans cette vue.','El tutor de IA no está disponible en esta vista.','اے آئی ٹیوٹر اس منظر میں دستیاب نہیں۔','AI ट्यूटर इस दृश्य में उपलब्ध नहीं है।'],
+writing:['Writing this lesson…','جارٍ إعداد الدرس…','Rédaction de la leçon…','Escribiendo la lección…','سبق تیار ہو رہا ہے…','पाठ तैयार हो रहा है…'],
+translating:['Translating…','جارٍ الترجمة…','Traduction…','Traduciendo…','ترجمہ ہو رہا ہے…','अनुवाद हो रहा है…'],
+fail:['That did not load. Try again.','تعذّر التحميل. حاول مرة أخرى.','Le chargement a échoué. Réessayez.','No se pudo cargar. Inténtalo de nuevo.','لوڈ نہیں ہو سکا۔ دوبارہ کوشش کریں۔','लोड नहीं हो सका। फिर कोशिश करें।'],
+retry:['Try again','أعد المحاولة','Réessayer','Reintentar','دوبارہ کوشش کریں','फिर कोशिश करें'],
+save33:['Save 33%','وفّر 33%','Économisez 33 %','Ahorra 33 %','33% بچت','33% बचत'],
+soon:['Coming soon','قريبًا','Bientôt disponible','Próximamente','جلد آ رہا ہے','जल्द आ रहा है'],
+launch:['All courses and the AI tutor are free during launch.','جميع الدورات والمعلّم الذكي مجانية خلال فترة الإطلاق.','Tous les cours et le tuteur IA sont gratuits pendant le lancement.','Todos los cursos y el tutor de IA son gratis durante el lanzamiento.','لانچ کے دوران تمام کورسز اور اے آئی ٹیوٹر مفت ہیں۔','लॉन्च के दौरान सभी कोर्स और AI ट्यूटर मुफ़्त हैं।'],
+news:['Updates','التحديثات','Nouveautés','Novedades','اپ ڈیٹس','अपडेट'],
+progress:['Your progress','تقدّمك','Votre progression','Tu progreso','آپ کی پیش رفت','आपकी प्रगति'],
+lessonsDone:['lessons completed','دروس مكتملة','leçons terminées','lecciones completadas','مکمل اسباق','पूरे किए गए पाठ'],
+streak:['day streak','أيام متتالية','jours d\'affilée','días seguidos','دن مسلسل','दिन लगातार'],
+coursesDone:['courses finished','دورات منجزة','cours terminés','cursos terminados','مکمل کورسز','पूरे किए गए कोर्स'],
+formulas:['Formula sheet','ورقة القوانين','Formulaire','Formulario','فارمولا شیٹ','सूत्र पत्र'],
+cert:['Certificate of completion','شهادة إتمام','Certificat de réussite','Certificado de finalización','تکمیل کا سرٹیفکیٹ','पूर्णता प्रमाणपत्र'],
+certText:['You completed every lesson in this course.','أكملت جميع دروس هذه الدورة.','Vous avez terminé toutes les leçons de ce cours.','Completaste todas las lecciones de este curso.','آپ نے اس کورس کے تمام اسباق مکمل کر لیے۔','आपने इस कोर्स के सभी पाठ पूरे कर लिए।'],
+done:['Completed','مكتمل','Terminé','Completado','مکمل','पूरा']
+};
+const C=[
+{id:'arithmetic',lv:'k12',t:'Arithmetic and Number Sense',d:'Place value, the four operations, fractions and decimals.',
+ ls:['Place value','Addition and subtraction strategies','Multiplication facts','Division and remainders','Fractions','Decimals and percents'],
+ f:{body:'The value of a digit depends on its position. Each step to the left makes a digit worth ten times more, which is why 3 can mean three, thirty or three hundred.',ex:['4,372 = 4×1000 + 3×100 + 7×10 + 2×1','The digit 3 stands for 300.'],q:'What is the value of the digit 6 in 56,208?',opts:['60','600','6,000','60,000'],a:2}},
+{id:'prealgebra',lv:'k12',t:'Pre-Algebra',d:'Integers, ratios, exponents and first equations.',
+ ls:['Integers and the number line','Order of operations','Ratios and proportions','Exponents and roots','Variables and expressions','One-step equations'],
+ f:{body:'Integers extend the counting numbers with zero and negatives. Subtracting a number gives the same result as adding its opposite, so every subtraction can be rewritten as an addition.',ex:['7 − 10 = 7 + (−10) = −3','−4 − (−9) = −4 + 9 = 5'],q:'−6 − (−2) = ?',opts:['−8','−4','4','8'],a:1}},
+{id:'algebra',lv:'k12',t:'Algebra I',d:'Linear equations, systems, polynomials and quadratics.',
+ ls:['Solving linear equations','Slope and lines','Systems of equations','Polynomials','Factoring','The quadratic formula'],
+ f:{body:'An equation stays true when you do the same operation to both sides. Undo additions first, then multiplications, until x stands alone.',ex:['3x + 5 = 20','3x = 15   (subtract 5)','x = 5   (divide by 3)'],q:'Solve 2x − 7 = 9.',opts:['x = 1','x = 8','x = 16','x = −1'],a:1}},
+{id:'geometry',lv:'k12',t:'Geometry',d:'Angles, triangles, circles, area and coordinate proofs.',
+ ls:['Angles and parallel lines','Triangles and congruence','The Pythagorean theorem','Circles','Area and volume','Coordinate geometry'],
+ f:{body:'Angles on a straight line add up to 180°. When a line crosses two parallel lines, alternate angles are equal and corresponding angles are equal.',ex:['One angle on a straight line is 65°.','Its neighbor is 180° − 65° = 115°.'],q:'Two angles lie on a straight line. One is 48°. What is the other?',opts:['42°','132°','142°','312°'],a:1}},
+{id:'precalculus',lv:'k12',t:'Trigonometry and Pre-Calculus',d:'Functions, the unit circle, logarithms and series.',
+ ls:['Functions and graphs','The unit circle','Trigonometric identities','Exponentials and logarithms','Sequences and series','A first look at limits'],
+ f:{body:'A function gives exactly one output for each input. The notation f(x) names the output that belongs to the input x.',ex:['f(x) = x² − 3','f(4) = 4² − 3 = 13'],q:'If f(x) = 2x + 1, what is f(−3)?',opts:['−7','−5','5','7'],a:1}},
+{id:'calculus',lv:'uni',t:'Calculus I',d:'Limits, derivatives, optimization and the first integrals.',
+ ls:['Limits','The derivative as a limit','Differentiation rules','The chain rule','Optimization','Integrals and the fundamental theorem'],
+ f:{body:'A limit is the value f(x) approaches as x gets close to a point. The function does not need to be defined at that point for the limit to exist.',ex:['lim x→2 (x² − 4)/(x − 2)','= lim x→2 (x − 2)(x + 2)/(x − 2)','= lim x→2 (x + 2) = 4'],q:'lim x→3 (x² − 9)/(x − 3) = ?',opts:['0','3','6','undefined'],a:2}},
+{id:'linear-algebra',lv:'uni',t:'Linear Algebra',d:'Vectors, matrices, elimination and eigenvalues.',
+ ls:['Vectors and linear combinations','Matrices and multiplication','Gaussian elimination','Determinants','Eigenvalues and eigenvectors','Orthogonality and least squares'],
+ f:{body:'A linear combination scales vectors and adds the results. The set of every combination you can make from some vectors is called their span.',ex:['2(1, 0) + 3(0, 1) = (2, 3)','(1, 0) and (0, 1) span the whole plane.'],q:'3(1, 2) − (2, 1) = ?',opts:['(1, 5)','(5, 7)','(1, 1)','(3, 5)'],a:0}},
+{id:'differential-equations',lv:'uni',t:'Differential Equations',d:'First and second order equations, Laplace transforms, systems.',
+ ls:['Separable equations','First-order linear equations','Second-order equations with constant coefficients','Laplace transforms','Systems of equations','Series solutions'],
+ f:{body:'An equation dy/dx = g(x)·h(y) is separable. Move every y term to one side and every x term to the other, then integrate both sides.',ex:['dy/dx = 2xy','dy/y = 2x dx','ln|y| = x² + C','y = A·e^(x²)'],q:'What is the general solution of dy/dx = 3y?',opts:['y = 3x + C','y = A·e^(3x)','y = e^x + 3','y = A·x³'],a:1}},
+{id:'probability',lv:'uni',t:'Probability and Statistics',d:'Counting, random variables, distributions and inference.',
+ ls:['Counting and probability','Conditional probability and Bayes','Random variables','The normal distribution','Confidence intervals','Hypothesis tests'],
+ f:{body:'When all outcomes are equally likely, the probability of an event is the number of favorable outcomes divided by the total number of outcomes.',ex:['Roll one die: P(even) = 3/6 = 1/2','Flip two coins: P(two heads) = 1/4'],q:'One card is drawn from a 52-card deck. What is P(ace)?',opts:['1/52','1/13','1/4','4/13'],a:1}},
+{id:'numerical-methods',lv:'adv',t:'Numerical Methods',d:'Error, root finding, integration and ODE solvers.',
+ ls:['Floating point and error','Root finding with Newton\'s method','Interpolation','Numerical integration','Linear solvers','Runge–Kutta methods'],
+ f:{body:'A computer keeps a finite number of digits, so every result carries rounding error. Relative error compares the size of the error with the size of the exact value.',ex:['relative error = |approx − exact| / |exact|','exact = 3.14159, approx = 3.14','relative error ≈ 0.00159 / 3.14159 ≈ 0.05%'],q:'The exact value is 100 and the approximation is 98. What is the relative error?',opts:['0.2%','2%','20%','98%'],a:1}},
+{id:'fourier',lv:'adv',t:'Fourier and Transform Methods',d:'Fourier series, transforms, convolution and the DFT.',
+ ls:['Fourier series','Convergence and the Gibbs phenomenon','The Fourier transform','Convolution','The Laplace transform','The discrete Fourier transform'],
+ f:{body:'A periodic function can be written as a sum of sines and cosines. Each coefficient comes from integrating the function against one harmonic.',ex:['f(x) = a₀/2 + Σ (aₙ cos nx + bₙ sin nx)','bₙ = (1/π) ∫ f(x) sin nx dx over [−π, π]','If f is odd, every aₙ = 0.'],q:'For an even function on [−π, π], which coefficients are all zero?',opts:['every aₙ','every bₙ','only a₀','none'],a:1}},
+{id:'vector-calculus',lv:'adv',t:'Vector Calculus and PDEs',d:'Gradient, divergence, curl and the classic field equations.',
+ ls:['Gradient, divergence and curl','Line and surface integrals','Green, Stokes and divergence theorems','The heat equation','The wave equation','Laplace\'s equation and separation of variables'],
+ f:{body:'The gradient of a scalar field points in the direction of steepest increase. Divergence measures how much a vector field flows out of a point, and curl measures how much it rotates.',ex:['f = x² + y²  ⇒  ∇f = (2x, 2y)','F = (x, y, z)  ⇒  ∇·F = 1 + 1 + 1 = 3'],q:'f = 3x + y². What is ∇f at the point (1, 2)?',opts:['(3, 2)','(3, 4)','(1, 4)','(4, 4)'],a:1}},
+{id:'calculus-2',lv:'uni',t:'Calculus II',d:'Integration techniques, sequences, series and Taylor polynomials.',
+ ls:['Integration by substitution','Integration by parts','Partial fractions','Improper integrals','Infinite series and convergence tests','Taylor series'],
+ f:{body:'Substitution reverses the chain rule. Choose u as an inner function whose derivative also appears, rewrite the integral in terms of u, integrate, then substitute back.',ex:['∫ 2x·cos(x²) dx','u = x²,  du = 2x dx','∫ cos u du = sin u + C','= sin(x²) + C'],q:'∫ 3x²·e^(x³) dx = ?',opts:['e^(x³) + C','3e^(x³) + C','x³·e^(x³) + C','e^(3x²) + C'],a:0}},
+{id:'discrete',lv:'uni',t:'Discrete Mathematics',d:'Logic, proofs, counting, graphs and recurrences.',
+ ls:['Logic and truth tables','Proof techniques','Sets and functions','Combinatorics','Graph theory','Recurrence relations'],
+ f:{body:'A statement is either true or false. "P and Q" is true only when both are true. "P or Q" is false only when both are false. "If P then Q" is false only when P is true and Q is false.',ex:['P = true, Q = false','P ∧ Q = false','P ∨ Q = true','P → Q = false'],q:'P is false and Q is true. What is the value of P → Q?',opts:['true','false','undefined','it depends on Q → P'],a:0}},
+{id:'complex-analysis',lv:'adv',t:'Complex Analysis',d:'Complex numbers, analytic functions, contour integrals and residues.',
+ ls:['Complex numbers and the plane','Analytic functions and Cauchy–Riemann','Contour integrals','Cauchy\'s integral formula','Laurent series','The residue theorem'],
+ f:{body:'A complex number z = a + bi is a point (a, b) in the plane. Its modulus |z| is the distance from the origin. Multiplying two complex numbers multiplies their moduli and adds their angles.',ex:['z = 3 + 4i','|z| = √(3² + 4²) = 5','(1 + i)(1 − i) = 1 − i² = 2'],q:'(2 + i)(2 − i) = ?',opts:['3','5','4 + 2i','4 − 2i'],a:1}},
+{id:'optimization',lv:'adv',t:'Optimization',d:'Gradients, constraints, Lagrange multipliers and linear programming.',
+ ls:['Critical points and convexity','Gradient descent','Lagrange multipliers','Linear programming','The simplex method','Duality'],
+ f:{body:'A critical point is where the derivative is zero. When a function is convex, meaning its second derivative is never negative, every critical point is a global minimum.',ex:['f(x) = x² − 6x + 10','f′(x) = 2x − 6 = 0  ⇒  x = 3','f″(x) = 2 > 0, so x = 3 is the minimum','f(3) = 1'],q:'Where is the minimum of f(x) = x² + 4x?',opts:['x = −4','x = −2','x = 0','x = 2'],a:1}}
+];
+const FX={k12:[['Pythagorean theorem','a² + b² = c²'],['Quadratic formula','x = (−b ± √(b² − 4ac)) / 2a'],['Circle area and circumference','A = πr²,  C = 2πr'],['Pythagorean identity','sin²θ + cos²θ = 1'],['Logarithm of a product','log(ab) = log a + log b']],
+uni:[['Power rule','d/dx xⁿ = n·xⁿ⁻¹'],['Fundamental theorem of calculus','∫ₐᵇ f′(x) dx = f(b) − f(a)'],['Product rule','(fg)′ = f′g + fg′'],['Eigenvalue equation','det(A − λI) = 0'],['Bayes\' theorem','P(A|B) = P(B|A)·P(A) / P(B)']],
+adv:[['Euler\'s formula','e^(iθ) = cos θ + i sin θ'],['Taylor series','f(x) = Σ f⁽ⁿ⁾(a)·(x − a)ⁿ / n!'],['Newton\'s method','xₙ₊₁ = xₙ − f(xₙ) / f′(xₙ)'],['Stokes\' theorem','∮ F·dr = ∬ (∇×F)·dS'],['Heat equation','∂u/∂t = α∇²u']]};
+const NEWS=[['2026-11-10','Jabr is live and free','All 16 courses, the AI tutor and practice sets are open to everyone during launch.'],
+['2026-11-10','Four new courses','Calculus II, Discrete Mathematics, Complex Analysis and Optimization have joined the catalog.'],
+['2026-11-10','Progress, streaks and certificates','Your home page now shows your completed lessons and your day streak. Finish every lesson in a course to earn its certificate.'],
+['2026-11-10','Formula sheet','Fifteen key formulas from school to applied mathematics, on one page.'],
+['2026-11-10','Coming soon: Jabr Pro','Pro is planned at $9 per month or $72 per year. Nothing changes for free learners during launch.']];
+const LV=['k12','uni','adv'], PRICE={m:9,y:72}, FREEQ=5;
+
+let st={lang:'en',plan:'free',bill:'m',done:{},tq:{d:'',n:0},sk:{d:'',n:0},trc:{},gen:{},last:null};
+try{Object.assign(st,JSON.parse(localStorage.getItem('jabr')||'{}'))}catch(e){}
+function save(){try{localStorage.setItem('jabr',JSON.stringify(st))}catch(e){}}
+
+let sample=null,sampleReady=false,filter='all',quiz=null,ttab='chat',chat=[],draft='',busy=false,ctx='';
+let pr={cid:C[0].id,items:null,picked:{}},prBusy=false,prFail=false,genBusy={},genFail={},pend=new Set(),tBusy=false,tFail={};
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const li=()=>Math.max(0,LANGS.findIndex(l=>l[0]===st.lang));
+const t=k=>S[k][li()]||S[k][0];
+function tr(s){
+  if(st.lang==='en'||!/[A-Za-z]{2}/.test(s))return s;
+  const k=st.lang+'|'+s;
+  if(st.trc[k])return st.trc[k];
+  if(!tFail[st.lang])pend.add(s);
+  return s;
+}
+async function flushTr(){
+  if(tBusy||!sample||!pend.size||tFail[st.lang])return;
+  tBusy=true;const lang=st.lang,list=[...pend].slice(0,25);showPill();
+  try{
+    let out=await sample.json('Translate each string in this JSON array into '+LNAME[lang]+' for a mathematics learning app. Keep numbers, symbols and mathematical notation unchanged. Return only a JSON array of '+list.length+' strings in the same order.\n'+JSON.stringify(list),{modelTier:'quick'});
+    if(typeof out==='string')out=JSON.parse(out);
+    if(!Array.isArray(out)||out.length!==list.length)throw 0;
+    list.forEach((s,i)=>{st.trc[lang+'|'+s]=String(out[i]);pend.delete(s)});save();
+  }catch(e){tFail[lang]=true;pend.clear();if(e&&e.code==='not_granted')sample=null}
+  tBusy=false;render();
+}
+function showPill(){let p=$('pill');if(tBusy&&!p){p=document.createElement('div');p.id='pill';p.className='pill';p.textContent=t('translating');document.body.appendChild(p)}else if(!tBusy&&p)p.remove()}
+
+const isPro=()=>true;
+const today=()=>new Date().toDateString();
+function qLeft(){if(st.tq.d!==today())st.tq={d:today(),n:0};return Math.max(0,FREEQ-st.tq.n)}
+const dkey=d=>d.toISOString().slice(0,10);
+function bump(){const td=dkey(new Date()),yd=dkey(new Date(Date.now()-864e5));if(st.sk.d===td)return;st.sk={d:td,n:st.sk.d===yd?st.sk.n+1:1}}
+function streak(){const td=dkey(new Date()),yd=dkey(new Date(Date.now()-864e5));return st.sk.d===td||st.sk.d===yd?st.sk.n:0}
+const doneCount=c=>c.ls.filter((_,i)=>st.done[c.id+'-'+i]).length;
+const course=id=>C.find(c=>c.id===id);
+
+function route(){
+  const h=(location.hash||'#home').slice(1);
+  if(h.startsWith('l-')){const m=h.match(/^l-(.+)-(\d)$/);if(m&&course(m[1]))return{v:'lesson',c:course(m[1]),i:+m[2]}}
+  if(h.startsWith('c-')&&course(h.slice(2)))return{v:'course',c:course(h.slice(2))};
+  return{v:['courses','tutor','plans','news','formulas'].includes(h)?h:'home'};
+}
+
+function vHome(){
+  const last=st.last&&course(st.last.c);
+  let h=`<section class="hero"><div class="txt"><h1>${esc(t('heroTitle'))}</h1><p>${esc(t('heroSub'))}</p>
+  <div class="row"><a class="btn" href="#courses">${esc(t('start'))}</a><a class="btn ghost" href="#tutor">${esc(t('ask'))}</a></div></div>
+  <figure class="plot" aria-hidden="true"><svg viewBox="0 0 320 210"><line x1="20" y1="180" x2="300" y2="180" stroke="var(--ink)" stroke-width="1.5"/><line x1="160" y1="14" x2="160" y2="200" stroke="var(--ink)" stroke-width="1.5"/>
+  <path class="curve" d="M40 20 Q160 340 280 20"/><line x1="175" y1="200" x2="280" y2="60" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <circle cx="220" cy="140" r="5" fill="var(--pen)"/><rect x="28" y="40" width="88" height="24" fill="var(--mark)"/><text x="34" y="58" style="fill:var(--mark-ink)">f(x) = x²</text><text x="232" y="150">f′(a) = 2a</text></svg></figure></section>`;
+  if(last)h+=`<section><a class="card course" href="#l-${last.id}-${st.last.i}"><span class="tag">${esc(t('cont'))}</span><h3>${esc(tr(last.t))}</h3><span class="muted">${esc(t('lesson'))} ${st.last.i+1}: ${esc(tr(last.ls[st.last.i]))}</span></a></section>`;
+  const tot=C.reduce((n,c)=>n+doneCount(c),0),all=C.reduce((n,c)=>n+c.ls.length,0),fin=C.filter(c=>doneCount(c)===c.ls.length).length;
+  h+=`<section class="card"><span class="tag">${esc(t('progress'))}</span><div class="stats"><div><b>${tot}<small class="muted small">/${all}</small></b><span class="small muted">${esc(t('lessonsDone'))}</span></div><div><b>${streak()}</b><span class="small muted">${esc(t('streak'))}</span></div><div><b>${fin}</b><span class="small muted">${esc(t('coursesDone'))}</span></div></div></section>`;
+  h+=`<section class="grid">`+LV.map(l=>{const cs=C.filter(c=>c.lv===l);return `<a class="card course" href="#courses" data-act="lvl" data-v="${l}"><span class="tag">${cs.length} ${esc(t('courses'))}</span><h2>${esc(t(l))}</h2><span class="muted">${cs.map(c=>esc(tr(c.t))).join(' · ')}</span></a>`}).join('')+`</section>`;
+  h+=`<section class="row"><a class="btn ghost" href="#formulas">${esc(t('formulas'))}</a><a class="btn ghost" href="#news">${esc(t('news'))}</a></section>`;
+  return h;
+}
+function vCourses(){
+  const chips=['all',...LV].map(l=>`<button class="chip" data-act="lvl" data-v="${l}" aria-pressed="${filter===l}">${esc(t(l))}</button>`).join('');
+  const cards=C.filter(c=>filter==='all'||c.lv===filter).map(c=>{const n=doneCount(c);return `<a class="card course" href="#c-${c.id}"><span class="tag">${esc(t(c.lv))}</span><h3>${esc(tr(c.t))}</h3><span class="muted small">${esc(tr(c.d))}</span><span class="small muted">${n}/${c.ls.length} ${esc(t('lessons'))}</span><span class="bar"><b style="width:${n/c.ls.length*100}%"></b></span></a>`}).join('');
+  return `<h1>${esc(t('courses'))}</h1><div class="chips">${chips}</div><section class="grid">${cards}</section>`;
+}
+function vCourse(c){
+  const rows=c.ls.map((l,i)=>{const d=st.done[c.id+'-'+i];const tag=d?`<span class="ok">✓</span>`:isPro()?'':`<span class="badge pro">Pro</span>`;
+    return `<li><a class="card" href="#l-${c.id}-${i}"><span class="n">${i+1}</span><span class="ti">${esc(tr(l))}</span>${tag}</a></li>`}).join('');
+  return `<div><a class="btn ghost" href="#courses">← ${esc(t('back'))}</a></div><div><span class="tag">${esc(t(c.lv))}</span><h1>${esc(tr(c.t))}</h1><p class="muted">${esc(tr(c.d))}</p></div><ol class="list">${rows}</ol>${doneCount(c)===c.ls.length?`<section class="card cert"><span class="tag">Jabr</span><h2>${esc(t('cert'))}</h2><h3>${esc(tr(c.t))}</h3><p class="muted">${esc(t('certText'))}</p></section>`:''}`;
+}
+function lessonData(c,i){
+  if(i===0){const L=c.f;return{title:tr(c.ls[0]),body:tr(L.body),ex:L.ex.map(tr),q:tr(L.q),opts:L.opts.map(tr),a:L.a}}
+  return st.gen[st.lang+'|'+c.id+'|'+i]||null;
+}
+async function genLesson(c,i){
+  const k=st.lang+'|'+c.id+'|'+i;if(genBusy[k]||!sample)return;genBusy[k]=true;
+  try{
+    let o=await sample.json(`Write one lesson for a mathematics course in a learning app.\nCourse: ${c.t} (level: ${S[c.lv][0]}). Lesson ${i+1} of ${c.ls.length}: "${c.ls[i]}". Earlier lessons: ${c.ls.slice(0,i).join('; ')}.\nWrite everything in ${LNAME[st.lang]}.\nReturn only a JSON object: {"title": string, "body": string of 70 to 120 words that explains the idea clearly, "ex": array of 3 to 5 short strings that form one worked example with one step per string, "q": one multiple-choice question, "opts": array of exactly 4 short answer strings, "a": index 0-3 of the correct option}.\nUse plain Unicode mathematics (x², √, ∫, π, ≤). No LaTeX and no Markdown. Make sure the answer marked correct is mathematically correct.`,{cache:false});
+    if(typeof o==='string')o=JSON.parse(o);
+    if(!o||!o.body||!Array.isArray(o.ex)||!Array.isArray(o.opts)||o.opts.length!==4||!(o.a>=0&&o.a<4))throw 0;
+    st.gen[k]={title:String(o.title||c.ls[i]),body:String(o.body),ex:o.ex.map(String),q:String(o.q),opts:o.opts.map(String),a:+o.a};save();
+  }catch(e){genFail[k]=true;if(e&&e.code==='not_granted')sample=null}
+  genBusy[k]=false;render();
+}
+function vLesson(c,i){
+  const head=`<div><a class="btn ghost" href="#c-${c.id}">← ${esc(tr(c.t))}</a></div>`;
+  if(i>=c.ls.length)return head;
+  if(i>0&&!isPro())return head+`<div class="card lesson"><span class="tag">${esc(t('lesson'))} ${i+1}</span><h2>${esc(tr(c.ls[i]))}</h2><p>${esc(t('locked'))}</p><div><a class="btn" href="#plans">${esc(t('upgrade'))}</a></div></div>`;
+  const k=st.lang+'|'+c.id+'|'+i,L=lessonData(c,i);
+  if(!L){
+    let m;
+    if(!sampleReady)m=`<p class="muted">${esc(t('writing'))}</p>`;
+    else if(!sample)m=`<p class="muted">${esc(t('aiOff'))}</p>`;
+    else if(genFail[k])m=`<p class="msg bad">${esc(t('fail'))}</p><div><button class="btn" data-act="regen">${esc(t('retry'))}</button></div>`;
+    else{m=`<p class="muted">${esc(t('writing'))}</p>`;setTimeout(()=>genLesson(c,i),0)}
+    return head+`<div class="lesson"><span class="tag">${esc(t('lesson'))} ${i+1}</span><h1>${esc(tr(c.ls[i]))}</h1>${m}</div>`;
+  }
+  const qk=c.id+'-'+i;if(!quiz||quiz.k!==qk)quiz={k:qk,bad:[],ok:!!st.done[qk]};
+  const opts=L.opts.map((o,j)=>`<button class="opt ${quiz.ok&&j===L.a?'good':quiz.bad.includes(j)?'bad':''}" dir="auto" data-act="pick" data-v="${j}" ${quiz.ok?'disabled':''}>${esc(o)}</button>`).join('');
+  const msg=quiz.ok?`<p class="msg good">${esc(t('right'))}</p>`:quiz.bad.length?`<p class="msg bad">${esc(t('wrong'))}</p>`:'';
+  const nx=i+1<c.ls.length?`<a class="btn" href="#l-${c.id}-${i+1}">${esc(t('next'))} →</a>`:'';
+  return head+`<article class="lesson"><div><span class="tag">${esc(t('lesson'))} ${i+1} / ${c.ls.length}</span><h1>${esc(L.title)}</h1></div>
+  <p class="body" dir="auto">${esc(L.body)}</p>
+  <div><h3>${esc(t('ex'))}</h3></div><ol class="steps">${L.ex.map(x=>`<li dir="auto">${esc(x)}</li>`).join('')}</ol>
+  <div><h3>${esc(t('quiz'))}</h3><p dir="auto">${esc(L.q)}</p></div><div class="opts">${opts}</div>${msg}
+  <div class="row">${nx}<button class="btn ghost" data-act="asklesson">${esc(t('askLesson'))}</button></div></article>`;
+}
+function vTutor(){
+  let h=`<div><h1>${esc(t('tutor'))}</h1><p class="muted">${esc(t('tutorHint'))}</p></div>
+  <div><div class="tabs"><button data-act="tab" data-v="chat" aria-pressed="${ttab==='chat'}">${esc(t('chat'))}</button><button data-act="tab" data-v="practice" aria-pressed="${ttab==='practice'}">${esc(t('practice'))}</button></div></div>`;
+  if(sampleReady&&!sample)return h+`<p class="note">${esc(t('aiOff'))}</p>`;
+  if(ttab==='chat'){
+    const left=qLeft(),out=!isPro()&&left<=0;
+    if(ctx)h+=`<div><span class="badge">${esc(ctx)}</span></div>`;
+    h+=`<div class="chat" id="chat">${chat.map((m,i)=>`<div class="bub ${m.role==='user'?'u':'a'}" dir="auto" ${busy&&i===chat.length-1?'id="live"':''}>${esc(m.content||'…')}</div>`).join('')}</div>`;
+    if(out)h+=`<p class="note">${esc(t('limit'))}</p><div><a class="btn" href="#plans">${esc(t('upgrade'))}</a></div>`;
+    else h+=`<form class="ask" id="askf"><textarea id="q" rows="1" dir="auto" placeholder="${esc(t('ph'))}" aria-label="${esc(t('ph'))}">${esc(draft)}</textarea><button class="btn" ${busy||!sampleReady?'disabled':''}>${esc(t('send'))}</button></form>`+(isPro()?'':`<p class="small muted">${left} ${esc(t('left'))}</p>`);
+  }else{
+    if(!isPro())return h+`<p class="note">${esc(t('proOnly'))}</p><div><a class="btn" href="#plans">${esc(t('upgrade'))}</a></div>`;
+    h+=`<div class="row"><select id="prc" aria-label="${esc(t('courses'))}">${C.map(c=>`<option value="${c.id}" ${pr.cid===c.id?'selected':''}>${esc(tr(c.t))}</option>`).join('')}</select><button class="btn" data-act="gen" ${prBusy||!sampleReady?'disabled':''}>${esc(prBusy?'…':t('gen'))}</button></div>`;
+    if(prFail)h+=`<p class="msg bad">${esc(t('fail'))}</p>`;
+    if(pr.items)h+=pr.items.map((it,n)=>{const p=pr.picked[n];return `<div class="card lesson"><p dir="auto"><b>${n+1}.</b> ${esc(it.q)}</p><div class="opts">${it.opts.map((o,j)=>`<button class="opt ${p!==undefined&&j===it.a?'good':p===j?'bad':''}" dir="auto" data-act="ppick" data-n="${n}" data-v="${j}" ${p!==undefined?'disabled':''}>${esc(o)}</button>`).join('')}</div>${p!==undefined?`<p class="small muted" dir="auto">${esc(it.why||'')}</p>`:''}</div>`}).join('');
+  }
+  return h;
+}
+function vNews(){
+  return `<h1>${esc(t('news'))}</h1>`+NEWS.map(n=>`<article class="card news"><span class="tag">${esc(new Date(n[0]+'T12:00:00').toLocaleDateString(st.lang,{year:'numeric',month:'long',day:'numeric'}))}</span><h3>${esc(tr(n[1]))}</h3><p class="muted" dir="auto">${esc(tr(n[2]))}</p></article>`).join('');
+}
+function vFormulas(){
+  return `<div><a class="btn ghost" href="#home">← ${esc(t('back'))}</a></div><h1>${esc(t('formulas'))}</h1>`+LV.map(l=>`<section class="card"><span class="tag">${esc(t(l))}</span>${FX[l].map(f=>`<div class="fx"><span>${esc(tr(f[0]))}</span><span>${esc(f[1])}</span></div>`).join('')}</section>`).join('');
+}
+function vPlans(){
+  const y=st.bill==='y',price=y?PRICE.y:PRICE.m;
+  return `<h1>${esc(t('plansTitle'))}</h1><p class="note">${esc(t('launch'))}</p>
+  <div class="row"><div class="tabs"><button data-act="bill" data-v="m" aria-pressed="${!y}">${esc(t('monthly'))}</button><button data-act="bill" data-v="y" aria-pressed="${y}">${esc(t('yearly'))}</button></div>${y?`<span class="badge pro">${esc(t('save33'))}</span>`:''}</div>
+  <section class="plans">
+  <div class="card plan hi"><h2>${esc(t('free'))}</h2><div class="price">$0</div><ul class="feat"><li>${esc(t('p1'))}</li><li>${esc(t('tutor'))}</li><li>${esc(t('f3'))}</li></ul><div><span class="badge">${esc(t('current'))}</span></div></div>
+  <div class="card plan"><h2>Pro</h2><div class="price">$${price} <small>${esc(t(y?'perY':'perM'))}</small></div><ul class="feat"><li>${esc(t('p2'))}</li><li>${esc(t('p3'))}</li></ul><div><span class="badge pro">${esc(t('soon'))}</span></div></div>
+  </section>`;
+}
+function openCheckout(){
+  const y=st.bill==='y';
+  $('modal').innerHTML=`<div class="card"><h2>${esc(t('checkout'))}</h2><div class="row" style="justify-content:space-between"><span>Jabr Pro · ${esc(t(y?'yearly':'monthly'))}</span><b>$${y?PRICE.y:PRICE.m} ${esc(t(y?'perY':'perM'))}</b></div><p class="note">${esc(t('demo'))}</p><div class="row"><button class="btn" data-act="confirm" id="cf">${esc(t('confirm'))}</button><button class="btn ghost" data-act="cancel">${esc(t('cancel'))}</button></div></div>`;
+  $('modal').classList.add('on');$('cf').focus();
+}
+function closeModal(){$('modal').classList.remove('on');$('modal').innerHTML=''}
+
+function render(){
+  const r=route(),aid=document.activeElement&&document.activeElement.id;
+  document.documentElement.lang=st.lang;document.documentElement.dir=(st.lang==='ar'||st.lang==='ur')?'rtl':'ltr';
+  const tabs=[['home','⌂'],['courses','∑'],['tutor','∫'],['plans','π'],['news','Δ']];
+  const cur=r.v==='course'||r.v==='lesson'?'courses':r.v;
+  $('nav').innerHTML=tabs.map(([k,ic])=>`<a href="#${k}" ${cur===k?'aria-current="page"':''}><i>${ic}</i>${esc(t(k))}</a>`).join('');
+  if(r.v==='lesson'&&(r.i===0||isPro())){st.last={c:r.c.id,i:r.i};save()}
+  $('app').innerHTML=r.v==='home'?vHome():r.v==='courses'?vCourses():r.v==='course'?vCourse(r.c):r.v==='lesson'?vLesson(r.c,r.i):r.v==='tutor'?vTutor():r.v==='news'?vNews():r.v==='formulas'?vFormulas():vPlans();
+  if(aid&&$(aid)&&aid!=='lang'){$(aid).focus();if(aid==='q'){const q=$('q');q.selectionStart=q.selectionEnd=q.value.length}}
+  showPill();setTimeout(flushTr,0);
+}
+
+async function send(text){
+  text=text.trim();if(!text||busy||!sample)return;
+  if(!isPro()){if(qLeft()<=0){render();return}st.tq.n++;save()}
+  chat.push({role:'user',content:text},{role:'assistant',content:''});draft='';busy=true;render();
+  const sys=`You are a patient mathematics tutor inside the Jabr learning app. Reply in ${LNAME[st.lang]}. Explain step by step in short lines. Use plain text with Unicode mathematics (x², √, ∫, π, ≤). No LaTeX and no Markdown. Finish with one short question that checks understanding.`+(ctx?` The student is studying: ${ctx}.`:'');
+  const msgs=chat.slice(0,-1).slice(-11).map(m=>({role:m.role,content:m.content}));
+  msgs[0]={role:'user',content:sys+'\n\nStudent: '+msgs[0].content};
+  const last=chat[chat.length-1];
+  try{
+    const r=await sample(msgs,{cache:false,onText:({text})=>{const el=$('live');if(el){el.textContent=text;el.scrollIntoView({block:'end'})}}});
+    last.content=r.text;
+  }catch(e){last.content=(e&&e.text)||t('fail');if(e&&e.code==='not_granted')sample=null}
+  busy=false;render();
+}
+async function genPractice(){
+  const c=course(pr.cid);if(!sample||prBusy)return;prBusy=true;prFail=false;render();
+  try{
+    let o=await sample.json(`Write 3 multiple-choice practice problems of increasing difficulty for the course "${c.t}" (level: ${S[c.lv][0]}; topics: ${c.ls.join('; ')}). Write in ${LNAME[st.lang]}.\nReturn only a JSON array of 3 objects: {"q": string, "opts": array of exactly 4 short strings, "a": index 0-3 of the correct option, "why": one sentence that explains the answer}.\nUse plain Unicode mathematics. No LaTeX and no Markdown. Check that each marked answer is correct.`,{cache:false});
+    if(typeof o==='string')o=JSON.parse(o);
+    if(!Array.isArray(o)||!o.length||o.some(x=>!x||!Array.isArray(x.opts)||!(x.a>=0&&x.a<4)))throw 0;
+    pr.items=o;pr.picked={};
+  }catch(e){prFail=true;if(e&&e.code==='not_granted')sample=null}
+  prBusy=false;render();
+}
+
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v,r=route();
+  if(a==='lvl'){filter=v;if(r.v==='courses')render()}
+  else if(a==='pick'&&r.v==='lesson'){const L=lessonData(r.c,r.i);if(+v===L.a){quiz.ok=true;st.done[quiz.k]=1;bump();save()}else if(!quiz.bad.includes(+v))quiz.bad.push(+v);render()}
+  else if(a==='regen'){genFail[st.lang+'|'+r.c.id+'|'+r.i]=false;render()}
+  else if(a==='asklesson'){ctx=r.c.t+' — '+r.c.ls[r.i];ttab='chat';location.hash='#tutor'}
+  else if(a==='tab'){ttab=v;render()}
+  else if(a==='bill'){st.bill=v;save();render()}
+  else if(a==='checkout')openCheckout();
+  else if(a==='confirm'){st.plan='pro';save();closeModal();render()}
+  else if(a==='cancel')closeModal();
+  else if(a==='tofree'){st.plan='free';save();render()}
+  else if(a==='gen')genPractice();
+  else if(a==='ppick'){pr.picked[+el.dataset.n]=+v;render()}
+});
+document.addEventListener('submit',e=>{e.preventDefault();if(e.target.id==='askf')send($('q').value)});
+document.addEventListener('input',e=>{if(e.target.id==='q')draft=e.target.value});
+document.addEventListener('keydown',e=>{if(e.target.id==='q'&&e.key==='Enter'&&!e.shiftKey){e.preventDefault();send(e.target.value)}if(e.key==='Escape')closeModal()});
+document.addEventListener('change',e=>{
+  if(e.target.id==='lang'){st.lang=e.target.value;pend.clear();save();render()}
+  if(e.target.id==='prc')pr.cid=e.target.value;
+});
+$('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0)});
+$('lang').innerHTML=LANGS.map(l=>`<option value="${l[0]}">${l[1]}</option>`).join('');$('lang').value=st.lang;
+render();
+(async()=>{try{sample=(await window.claude?.use?.('sample'))||null}catch(e){sample=null}sampleReady=true;render()})();
+</script>
+</body>
+</html>

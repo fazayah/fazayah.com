@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NeutrAI</title>
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<style>:root{color-scheme:light;box-sizing:border-box}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+:root {
+    color-scheme: dark;
+    --void:     #050A0F;
+    --core:     #0D1B2A;
+    --reactor:  #0A3D5C;
+    --plasma:   #00D4FF;
+    --fission:  #39FF97;
+    --decay:    #FF6B35;
+    --shield:   #8B9EB7;
+    --surface:  #C8D8E8;
+    --white:    #EDF4F9;
+
+    --f-display: 'Instrument Serif', Georgia, serif;
+    --f-body:    'Space Grotesk', system-ui, sans-serif;
+    --f-mono:    'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--void);
+    color: var(--surface);
+    font-family: var(--f-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── REACTOR GRID BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: calc(20px + env(safe-area-inset-top, 0px)) 48px 20px;
+    background: rgba(5,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,212,255,0.1);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-atom {
+    width: 36px; height: 36px;
+    position: relative;
+    animation: spin-slow 8s linear infinite;
+  }
+
+  .logo-atom svg { width: 100%; height: 100%; }
+
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .logo-text {
+    font-family: var(--f-mono);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text span { color: var(--plasma); }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--shield);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--plasma); }
+
+  .nav-cta {
+    background: var(--plasma);
+    color: var(--void) !important;
+    padding: 10px 22px;
+    border-radius: 4px;
+    font-weight: 600 !important;
+  }
+
+  .nav-cta:hover { background: var(--fission) !important; color: var(--void) !important; }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 140px 48px 80px;
+    overflow: hidden;
+  }
+
+  .hero-reactor {
+    position: absolute;
+    right: -80px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 650px;
+    height: 650px;
+    opacity: 0.18;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--plasma);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: var(--plasma);
+  }
+
+  h1 {
+    font-family: var(--f-display);
+    font-size: clamp(48px, 6vw, 88px);
+    font-weight: 400;
+    line-height: 1.05;
+    color: var(--white);
+    max-width: 760px;
+    margin-bottom: 28px;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--plasma);
+  }
+
+  .hero-sub {
+    font-size: 18px;
+    color: var(--shield);
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--plasma);
+    color: var(--void);
+    padding: 16px 32px;
+    border-radius: 4px;
+    font-family: var(--f-body);
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-primary:hover {
+    background: var(--fission);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 32px rgba(0,212,255,0.3);
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    color: var(--surface);
+    padding: 16px 32px;
+    border-radius: 4px;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid rgba(139,158,183,0.35);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--plasma);
+    color: var(--plasma);
+  }
+
+  /* METRICS STRIP */
+  .metrics-strip {
+    position: relative; z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid rgba(0,212,255,0.12);
+    border-bottom: 1px solid rgba(0,212,255,0.12);
+    background: rgba(13,27,42,0.6);
+  }
+
+  .metric {
+    padding: 36px 48px;
+    border-right: 1px solid rgba(0,212,255,0.1);
+  }
+
+  .metric:last-child { border-right: none; }
+
+  .metric-value {
+    font-family: var(--f-mono);
+    font-size: 38px;
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .metric-value span { color: var(--plasma); }
+
+  .metric-label {
+    font-size: 12px;
+    color: var(--shield);
+    letter-spacing: 0.5px;
+  }
+
+  /* ── SECTION SHARED ── */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 100px 48px;
+  }
+
+  .section-label {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--plasma);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  h2 {
+    font-family: var(--f-display);
+    font-size: clamp(36px, 4vw, 58px);
+    font-weight: 400;
+    color: var(--white);
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  h2 em { font-style: italic; color: var(--fission); }
+
+  .section-intro {
+    font-size: 17px;
+    color: var(--shield);
+    max-width: 580px;
+    line-height: 1.75;
+    margin-bottom: 60px;
+  }
+
+  /* ── CAPABILITIES ── */
+  .capabilities-bg {
+    background: var(--core);
+  }
+
+  .cap-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.08);
+  }
+
+  .cap-card {
+    background: var(--core);
+    padding: 40px 36px;
+    transition: background 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cap-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 0;
+    background: var(--plasma);
+    transition: height 0.3s ease;
+  }
+
+  .cap-card:hover::before { height: 100%; }
+
+  .cap-card:hover { background: rgba(0,212,255,0.04); }
+
+  .cap-icon {
+    width: 44px; height: 44px;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    font-size: 20px;
+  }
+
+  .cap-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 10px;
+  }
+
+  .cap-desc {
+    font-size: 14px;
+    color: var(--shield);
+    line-height: 1.65;
+  }
+
+  .cap-tag {
+    display: inline-block;
+    margin-top: 16px;
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--plasma);
+    background: rgba(0,212,255,0.08);
+    padding: 4px 10px;
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ── LIVE DEMO WIDGET ── */
+  .demo-section {
+    background: linear-gradient(180deg, var(--void) 0%, var(--core) 100%);
+  }
+
+  .demo-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  .demo-panel {
+    background: rgba(13,27,42,0.9);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .demo-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 20px;
+    background: rgba(0,212,255,0.06);
+    border-bottom: 1px solid rgba(0,212,255,0.1);
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #FF5F57; }
+  .dot-y { background: #FFBD2E; }
+  .dot-g { background: #28CA41; }
+
+  .demo-panel-title {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--shield);
+    margin-left: 8px;
+    letter-spacing: 1px;
+  }
+
+  .demo-body { padding: 24px; }
+
+  .demo-prompt-label {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--plasma);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  .demo-select {
+    width: 100%;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 4px;
+    color: var(--surface);
+    font-family: var(--f-mono);
+    font-size: 13px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .demo-select:focus { border-color: var(--plasma); }
+
+  .demo-run-btn {
+    width: 100%;
+    background: var(--plasma);
+    color: var(--void);
+    border: none;
+    border-radius: 4px;
+    padding: 14px;
+    font-family: var(--f-body);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .demo-run-btn:hover { background: var(--fission); }
+
+  .demo-output {
+    min-height: 280px;
+    font-family: var(--f-mono);
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--fission);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .demo-output .dim  { color: var(--shield); }
+  .demo-output .hi   { color: var(--plasma); font-weight: 600; }
+  .demo-output .warn { color: var(--decay); }
+
+  .cursor {
+    display: inline-block;
+    width: 8px; height: 15px;
+    background: var(--plasma);
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+
+  .loading {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    color: var(--shield);
+    font-size: 13px;
+  }
+
+  .loading-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--plasma);
+    animation: pulse-dot 1.2s ease-in-out infinite;
+  }
+
+  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes pulse-dot {
+    0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1.2); }
+  }
+
+  /* ── PRICING ── */
+  .pricing-section {
+    background: var(--void);
+  }
+
+  .pricing-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--core);
+    border: 1px solid rgba(0,212,255,0.12);
+    border-radius: 40px;
+    padding: 6px;
+    margin-bottom: 60px;
+  }
+
+  .toggle-opt {
+    padding: 8px 24px;
+    border-radius: 32px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--shield);
+    border: none;
+    background: none;
+  }
+
+  .toggle-opt.active {
+    background: var(--plasma);
+    color: var(--void);
+    font-weight: 600;
+  }
+
+  .pricing-badge {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    background: rgba(57,255,151,0.15);
+    color: var(--fission);
+    padding: 3px 8px;
+    border-radius: 12px;
+    letter-spacing: 1px;
+  }
+
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+
+  .plan-card {
+    border: 1px solid rgba(139,158,183,0.15);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--core);
+    transition: transform 0.25s, border-color 0.25s;
+    position: relative;
+  }
+
+  .plan-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(0,212,255,0.3);
+  }
+
+  .plan-card.featured {
+    border-color: var(--plasma);
+    background: rgba(0,212,255,0.04);
+  }
+
+  .plan-badge {
+    position: absolute;
+    top: -1px; right: 20px;
+    background: var(--plasma);
+    color: var(--void);
+    font-family: var(--f-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    padding: 4px 12px;
+    border-radius: 0 0 6px 6px;
+    text-transform: uppercase;
+  }
+
+  .plan-header {
+    padding: 32px 28px 24px;
+    border-bottom: 1px solid rgba(139,158,183,0.1);
+  }
+
+  .plan-tier {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--plasma);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .plan-name {
+    font-family: var(--f-display);
+    font-size: 26px;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+
+  .plan-desc {
+    font-size: 13px;
+    color: var(--shield);
+    line-height: 1.5;
+    margin-bottom: 24px;
+  }
+
+  .plan-price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+
+  .price-currency {
+    font-family: var(--f-mono);
+    font-size: 18px;
+    color: var(--shield);
+  }
+
+  .price-amount {
+    font-family: var(--f-mono);
+    font-size: 44px;
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .plan-card.featured .price-amount { color: var(--plasma); }
+
+  .price-period {
+    font-size: 13px;
+    color: var(--shield);
+  }
+
+  .plan-cta {
+    margin: 24px 28px 0;
+    display: block;
+    text-align: center;
+    padding: 13px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .plan-cta-outline {
+    background: transparent;
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--plasma);
+  }
+
+  .plan-cta-outline:hover {
+    background: rgba(0,212,255,0.08);
+  }
+
+  .plan-cta-solid {
+    background: var(--plasma);
+    color: var(--void);
+  }
+
+  .plan-cta-solid:hover {
+    background: var(--fission);
+  }
+
+  .plan-features {
+    padding: 28px 28px 32px;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .plan-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--surface);
+    line-height: 1.5;
+  }
+
+  .feat-check {
+    color: var(--fission);
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .feat-x {
+    color: rgba(139,158,183,0.4);
+    flex-shrink: 0;
+  }
+
+  .feat-dim { color: var(--shield); }
+
+  .plan-divider {
+    height: 1px;
+    background: rgba(139,158,183,0.1);
+    margin: 4px 28px;
+  }
+
+  /* ── USE CASES ── */
+  .use-cases {
+    background: var(--core);
+  }
+
+  .cases-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+
+  .case-card {
+    border: 1px solid rgba(139,158,183,0.12);
+    border-radius: 8px;
+    padding: 36px;
+    background: rgba(5,10,15,0.6);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .case-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%);
+  }
+
+  .case-sector {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--decay);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .case-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+
+  .case-desc {
+    font-size: 14px;
+    color: var(--shield);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .case-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tool-tag {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--plasma);
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.15);
+    padding: 4px 10px;
+    border-radius: 2px;
+  }
+
+  /* ── TRUST ── */
+  .trust-section {
+    background: var(--void);
+    text-align: center;
+  }
+
+  .trust-logos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+    flex-wrap: wrap;
+    margin-top: 48px;
+    opacity: 0.45;
+  }
+
+  .trust-logo {
+    font-family: var(--f-mono);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--surface);
+    text-transform: uppercase;
+  }
+
+  .compliance-row {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-top: 60px;
+  }
+
+  .compliance-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--core);
+    border: 1px solid rgba(0,212,255,0.12);
+    border-radius: 6px;
+    padding: 16px 24px;
+  }
+
+  .compliance-icon { font-size: 22px; }
+
+  .compliance-text { font-size: 13px; font-weight: 500; color: var(--surface); }
+
+  .compliance-sub { font-size: 11px; color: var(--shield); margin-top: 2px; font-family: var(--f-mono); }
+
+  /* ── FAQ ── */
+  .faq-section {
+    background: var(--core);
+  }
+
+  .faq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid rgba(0,212,255,0.1);
+  }
+
+  .faq-item {
+    padding: 32px;
+    border-bottom: 1px solid rgba(0,212,255,0.08);
+    border-right: 1px solid rgba(0,212,255,0.08);
+  }
+
+  .faq-item:nth-child(2n) { border-right: none; }
+  .faq-item:nth-last-child(-n+2) { border-bottom: none; }
+
+  .faq-q {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+
+  .faq-a {
+    font-size: 13px;
+    color: var(--shield);
+    line-height: 1.7;
+  }
+
+  /* ── CTA FINAL ── */
+  .cta-final {
+    background: linear-gradient(135deg, var(--reactor) 0%, var(--void) 60%);
+    text-align: center;
+    padding: 120px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-final::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(0,212,255,0.15) 0%, transparent 60%);
+  }
+
+  .cta-final > * { position: relative; z-index: 1; }
+
+  .cta-final h2 { max-width: 700px; margin: 0 auto 24px; }
+
+  .cta-final p {
+    color: var(--shield);
+    font-size: 18px;
+    margin-bottom: 48px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--void);
+    border-top: 1px solid rgba(0,212,255,0.08);
+    padding: 60px 48px 36px;
+    position: relative; z-index: 1;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+    margin-bottom: 48px;
+  }
+
+  .footer-brand p {
+    color: var(--shield);
+    font-size: 13px;
+    line-height: 1.7;
+    margin-top: 16px;
+    max-width: 280px;
+  }
+
+  .footer-col h4 {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--plasma);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+  .footer-col ul a {
+    color: var(--shield);
+    font-size: 13px;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-col ul a:hover { color: var(--white); }
+
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(139,158,183,0.1);
+    padding-top: 24px;
+    font-size: 12px;
+    color: var(--shield);
+    font-family: var(--f-mono);
+  }
+
+  .status-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--fission);
+  }
+
+  .status-dot::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--fission);
+    animation: pulse-green 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-green {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(57,255,151,0.4); }
+    50% { box-shadow: 0 0 0 6px transparent; }
+  }
+
+  /* ── REACTOR SVG ANIMATION ── */
+  .ring {
+    fill: none;
+    stroke: rgba(0,212,255,0.4);
+    stroke-width: 1;
+    transform-origin: center;
+    animation: orbit var(--dur, 6s) linear infinite;
+  }
+
+  .ring:nth-child(2) { --dur: 9s; animation-direction: reverse; }
+  .ring:nth-child(3) { --dur: 12s; }
+
+  @keyframes orbit {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1100px) {
+    .plans-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 860px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .hero { padding: 120px 24px 60px; }
+    section { padding: 72px 24px; }
+    .metrics-strip { grid-template-columns: repeat(2, 1fr); }
+    .metric { padding: 28px 24px; }
+    .cap-grid { grid-template-columns: 1fr; }
+    .demo-container { grid-template-columns: 1fr; }
+    .plans-grid { grid-template-columns: 1fr; }
+    .cases-grid { grid-template-columns: 1fr; }
+    .faq-grid { grid-template-columns: 1fr; }
+    .faq-item:nth-child(2n) { border-right: 1px solid rgba(0,212,255,0.08); }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .trust-logos { gap: 32px; }
+    .hero-reactor { display: none; }
+    footer { padding: 48px 24px 28px; }
+  }
+</style>
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="logo-atom">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="18" cy="18" r="3" fill="#00D4FF"/>
+        <ellipse cx="18" cy="18" rx="16" ry="6" stroke="#00D4FF" stroke-width="1.2" opacity="0.6"/>
+        <ellipse cx="18" cy="18" rx="16" ry="6" stroke="#00D4FF" stroke-width="1.2" opacity="0.6" transform="rotate(60 18 18)"/>
+        <ellipse cx="18" cy="18" rx="16" ry="6" stroke="#00D4FF" stroke-width="1.2" opacity="0.6" transform="rotate(120 18 18)"/>
+      </svg>
+    </div>
+    <span class="logo-text">Neutr<span>AI</span></span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#capabilities">Capabilities</a></li>
+    <li><a href="#demo">Sample Demo</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#use-cases">Use Cases</a></li>
+    <li><a href="#demo" class="nav-cta">See the demo</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-reactor" aria-hidden="true">
+    <svg viewBox="0 0 650 650" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="325" cy="325" r="280" stroke="rgba(0,212,255,0.15)" stroke-width="1"/>
+      <circle cx="325" cy="325" r="200" stroke="rgba(0,212,255,0.2)" stroke-width="1" stroke-dasharray="4 8"/>
+      <circle cx="325" cy="325" r="120" stroke="rgba(0,212,255,0.3)" stroke-width="1.5"/>
+      <circle cx="325" cy="325" r="40"  stroke="rgba(0,212,255,0.6)" stroke-width="2"/>
+      <circle cx="325" cy="325" r="12"  fill="rgba(0,212,255,0.8)"/>
+      <ellipse cx="325" cy="325" rx="280" ry="80" stroke="rgba(57,255,151,0.15)" stroke-width="1"/>
+      <ellipse cx="325" cy="325" rx="280" ry="80" stroke="rgba(57,255,151,0.15)" stroke-width="1" transform="rotate(60 325 325)"/>
+      <ellipse cx="325" cy="325" rx="280" ry="80" stroke="rgba(57,255,151,0.15)" stroke-width="1" transform="rotate(120 325 325)"/>
+    </svg>
+  </div>
+
+  <p class="hero-eyebrow">AI-Powered Nuclear Engineering Platform · Concept preview</p>
+  <h1>Precision intelligence<br>for the <em>nuclear age</em></h1>
+  <p class="hero-sub">From reactor core neutronics to thermal-hydraulics and safety system analysis — NeutrAI is being built to bring advanced AI reasoning to every phase of nuclear engineering.</p>
+  <div class="hero-actions">
+    <a href="#demo" class="btn-primary">
+      ⚛ See the sample demo
+    </a>
+    <a href="#pricing" class="btn-ghost">
+      View pricing →
+    </a>
+  </div>
+</section>
+
+<!-- METRICS -->
+<div class="metrics-strip">
+  <div class="metric">
+    <div class="metric-value">6</div>
+    <div class="metric-label">Engineering disciplines in the plan</div>
+  </div>
+  <div class="metric">
+    <div class="metric-value">5</div>
+    <div class="metric-label">Sample scenarios in the demo</div>
+  </div>
+  <div class="metric">
+    <div class="metric-value">4</div>
+    <div class="metric-label">Proposed subscription tiers</div>
+  </div>
+  <div class="metric">
+    <div class="metric-value">2026</div>
+    <div class="metric-label">Concept preview, not yet in service</div>
+  </div>
+</div>
+
+<!-- CAPABILITIES -->
+<section class="capabilities-bg" id="capabilities">
+  <p class="section-label">Core Capabilities</p>
+  <h2>Every discipline.<br><em>One intelligence.</em></h2>
+  <p class="section-intro">NeutrAI is being designed to combine AI reasoning with regulatory references and engineering codes across the full nuclear engineering workflow. The capabilities below are planned.</p>
+
+  <div class="cap-grid">
+    <div class="cap-card">
+      <div class="cap-icon">⚛</div>
+      <div class="cap-title">Reactor Neutronics</div>
+      <div class="cap-desc">AI-assisted criticality calculations, flux distribution modeling, burnup analysis, and control rod worth estimation with Monte Carlo cross-validation.</div>
+      <span class="cap-tag">MCNP · SERPENT · OpenMC</span>
+    </div>
+    <div class="cap-card">
+      <div class="cap-icon">🌡</div>
+      <div class="cap-title">Thermal-Hydraulics</div>
+      <div class="cap-desc">Fuel temperature modeling, coolant flow analysis, DNB margin prediction, and LOCA/transient simulations guided by AI-driven parameter optimization.</div>
+      <span class="cap-tag">RELAP5 · TRACE · CATHARE</span>
+    </div>
+    <div class="cap-card">
+      <div class="cap-icon">🛡</div>
+      <div class="cap-title">Safety Analysis</div>
+      <div class="cap-desc">Probabilistic Risk Assessment (PRA), fault tree generation, event sequence analysis, and FSAR chapter drafting aligned with NRC and IAEA standards.</div>
+      <span class="cap-tag">PRA · FSAR · 10 CFR 50</span>
+    </div>
+    <div class="cap-card">
+      <div class="cap-icon">📐</div>
+      <div class="cap-title">Structural & Materials</div>
+      <div class="cap-desc">Radiation embrittlement prediction, RPV surveillance analysis, creep-fatigue calculations under ASME Section III, and weld integrity assessment.</div>
+      <span class="cap-tag">ASME III · RG 1.99 · IGSCC</span>
+    </div>
+    <div class="cap-card">
+      <div class="cap-icon">☢</div>
+      <div class="cap-title">Radiation Protection</div>
+      <div class="cap-desc">Shielding design optimization, source term calculations, occupational dose assessment, and ALARA planning with AI-generated work package strategies.</div>
+      <span class="cap-tag">ORIGEN · MicroShield · SCALE</span>
+    </div>
+    <div class="cap-card">
+      <div class="cap-icon">📋</div>
+      <div class="cap-title">Regulatory Intelligence</div>
+      <div class="cap-desc">Automatic mapping of design changes to applicable regulations, license amendment request drafting, and NRC inspection preparation with Q&A simulation.</div>
+      <span class="cap-tag">10 CFR · NEI · EPRI · IAEA</span>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE DEMO -->
+<section class="demo-section" id="demo">
+  <p class="section-label">Sample Demo</p>
+  <h2>Ask an engineering<br><em>question now</em></h2>
+  <p class="section-intro">Select a scenario to see a sample of the kind of report NeutrAI is designed to produce. The numbers are illustrative examples, not live calculations.</p>
+
+  <div class="demo-container">
+    <div class="demo-panel">
+      <div class="demo-panel-header">
+        <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+        <span class="demo-panel-title">NEUTRAI CONSOLE — QUERY INPUT</span>
+      </div>
+      <div class="demo-body">
+        <div class="demo-prompt-label">// SELECT SCENARIO</div>
+        <select class="demo-select" id="scenario-select">
+          <option value="criticality">Criticality Safety — k-eff Analysis</option>
+          <option value="therm">Thermal Margin — DNB Ratio Calculation</option>
+          <option value="pra">PRA — Initiating Event Frequency</option>
+          <option value="dose">Shielding — Annual Dose Estimate</option>
+          <option value="emb">Embrittlement — RT_NDT Shift Prediction</option>
+        </select>
+        <div class="demo-prompt-label" style="margin-top:12px;">// PARAMETERS</div>
+        <select class="demo-select" id="param-select">
+          <option>PWR · 3-loop · 2785 MWth · Cycle 22</option>
+          <option>BWR/6 · 3923 MWth · Control Cell Core</option>
+          <option>SMR · NuScale · 160 MWth · VOYGR-12</option>
+        </select>
+        <button class="demo-run-btn" onclick="runDemo()">
+          ▶ Show sample
+        </button>
+      </div>
+    </div>
+
+    <div class="demo-panel">
+      <div class="demo-panel-header">
+        <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+        <span class="demo-panel-title">NEUTRAI OUTPUT — SAMPLE REPORT</span>
+      </div>
+      <div class="demo-body">
+        <div class="demo-output" id="demo-output">
+<span class="dim">// Sample output only. Select a scenario and run.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <p class="section-label">Subscription Plans</p>
+  <h2>Scale with your<br><em>engineering needs</em></h2>
+  <p class="section-intro">From individual engineers to enterprise nuclear fleets — choose the plan that matches your operational scope. These are proposed prices; sign-up is not open yet.</p>
+
+  <div>
+    <div class="pricing-toggle">
+      <button class="toggle-opt active" onclick="setPeriod('monthly', this)">Monthly</button>
+      <button class="toggle-opt" onclick="setPeriod('annual', this)">Annual <span class="pricing-badge">SAVE 20%</span></button>
+    </div>
+  </div>
+
+  <div class="plans-grid" id="plans-grid">
+
+    <!-- STARTER -->
+    <div class="plan-card">
+      <div class="plan-header">
+        <div class="plan-tier">Starter</div>
+        <div class="plan-name">Engineer</div>
+        <div class="plan-desc">For individual nuclear engineers exploring AI-assisted analysis.</div>
+        <div class="plan-price">
+          <span class="price-currency">$</span>
+          <span class="price-amount" data-m="149" data-a="119">149</span>
+          <span class="price-period">/month</span>
+        </div>
+        <button class="plan-cta plan-cta-outline">Start Free Trial</button>
+      </div>
+      <ul class="plan-features">
+        <li><span class="feat-check">✓</span> 500 AI analysis queries/month</li>
+        <li><span class="feat-check">✓</span> Neutronics & criticality tools</li>
+        <li><span class="feat-check">✓</span> Regulatory search (NRC, IAEA)</li>
+        <li><span class="feat-check">✓</span> PDF report export</li>
+        <li><span class="feat-check">✓</span> 10 GB document vault</li>
+        <div class="plan-divider"></div>
+        <li><span class="feat-x feat-dim">—</span> <span class="feat-dim">Thermal-hydraulics module</span></li>
+        <li><span class="feat-x feat-dim">—</span> <span class="feat-dim">PRA / Safety analysis</span></li>
+        <li><span class="feat-x feat-dim">—</span> <span class="feat-dim">API access</span></li>
+      </ul>
+    </div>
+
+    <!-- PRO -->
+    <div class="plan-card featured">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-header">
+        <div class="plan-tier">Professional</div>
+        <div class="plan-name">Reactor</div>
+        <div class="plan-desc">Full-spectrum analysis for active plant engineers and consultants.</div>
+        <div class="plan-price">
+          <span class="price-currency">$</span>
+          <span class="price-amount" data-m="499" data-a="399">499</span>
+          <span class="price-period">/month</span>
+        </div>
+        <button class="plan-cta plan-cta-solid">Start Free Trial</button>
+      </div>
+      <ul class="plan-features">
+        <li><span class="feat-check">✓</span> Unlimited AI queries</li>
+        <li><span class="feat-check">✓</span> All neutronics tools</li>
+        <li><span class="feat-check">✓</span> Thermal-hydraulics module</li>
+        <li><span class="feat-check">✓</span> PRA & safety analysis</li>
+        <li><span class="feat-check">✓</span> Radiation protection suite</li>
+        <li><span class="feat-check">✓</span> FSAR chapter drafting</li>
+        <li><span class="feat-check">✓</span> 100 GB document vault</li>
+        <li><span class="feat-check">✓</span> Priority support (4 hr SLA)</li>
+        <div class="plan-divider"></div>
+        <li><span class="feat-x feat-dim">—</span> <span class="feat-dim">Team collaboration</span></li>
+        <li><span class="feat-x feat-dim">—</span> <span class="feat-dim">API access</span></li>
+      </ul>
+    </div>
+
+    <!-- TEAM -->
+    <div class="plan-card">
+      <div class="plan-header">
+        <div class="plan-tier">Team</div>
+        <div class="plan-name">Critical</div>
+        <div class="plan-desc">Collaborative engineering for project teams and utilities.</div>
+        <div class="plan-price">
+          <span class="price-currency">$</span>
+          <span class="price-amount" data-m="1299" data-a="1039">1,299</span>
+          <span class="price-period">/mo · up to 10 seats</span>
+        </div>
+        <button class="plan-cta plan-cta-outline">Start Free Trial</button>
+      </div>
+      <ul class="plan-features">
+        <li><span class="feat-check">✓</span> Everything in Reactor</li>
+        <li><span class="feat-check">✓</span> Team workspaces & sharing</li>
+        <li><span class="feat-check">✓</span> Structural & materials module</li>
+        <li><span class="feat-check">✓</span> Regulatory audit trails</li>
+        <li><span class="feat-check">✓</span> REST API access (50k calls/mo)</li>
+        <li><span class="feat-check">✓</span> SSO / SAML integration</li>
+        <li><span class="feat-check">✓</span> 1 TB document vault</li>
+        <li><span class="feat-check">✓</span> Dedicated account manager</li>
+        <div class="plan-divider"></div>
+        <li><span class="feat-x feat-dim">—</span> <span class="feat-dim">On-premise deployment</span></li>
+      </ul>
+    </div>
+
+    <!-- ENTERPRISE -->
+    <div class="plan-card">
+      <div class="plan-header">
+        <div class="plan-tier">Enterprise</div>
+        <div class="plan-name">Fusion</div>
+        <div class="plan-desc">For utilities, OEMs, and national labs with advanced security needs.</div>
+        <div class="plan-price">
+          <span class="price-amount" style="font-size:32px;">Custom</span>
+        </div>
+        <button class="plan-cta plan-cta-outline">Contact Sales</button>
+      </div>
+      <ul class="plan-features">
+        <li><span class="feat-check">✓</span> Everything in Critical</li>
+        <li><span class="feat-check">✓</span> Unlimited seats</li>
+        <li><span class="feat-check">✓</span> On-premise / air-gapped deploy</li>
+        <li><span class="feat-check">✓</span> Unlimited API calls</li>
+        <li><span class="feat-check">✓</span> Custom model fine-tuning</li>
+        <li><span class="feat-check">✓</span> FISMA / FedRAMP (planned)</li>
+        <li><span class="feat-check">✓</span> 10 CFR 73 cybersecurity mode</li>
+        <li><span class="feat-check">✓</span> 24/7 phone support + SRE team</li>
+        <li><span class="feat-check">✓</span> Unlimited document storage</li>
+        <li><span class="feat-check">✓</span> Custom integrations & workflows</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section class="use-cases" id="use-cases">
+  <p class="section-label">Applications</p>
+  <h2>Built for every<br><em>nuclear discipline</em></h2>
+  <p class="section-intro">NeutrAI adapts to the domain — from operating reactor support to advanced reactor development to decommissioning.</p>
+
+  <div class="cases-grid">
+    <div class="case-card">
+      <div class="case-sector">Operating Reactors</div>
+      <div class="case-title">Outage Planning & Fuel Management</div>
+      <div class="case-desc">AI-driven fuel shuffle optimization, refueling outage schedule compression, and predictive maintenance prioritization for operating PWR and BWR fleets — cutting critical path by weeks.</div>
+      <div class="case-tools">
+        <span class="tool-tag">SIMULATE-3</span>
+        <span class="tool-tag">Fuel Depletion</span>
+        <span class="tool-tag">MAAP</span>
+        <span class="tool-tag">Work Order AI</span>
+      </div>
+    </div>
+    <div class="case-card">
+      <div class="case-sector">Advanced Reactors</div>
+      <div class="case-title">SMR & Gen IV Design Support</div>
+      <div class="case-desc">From molten salt to high-temperature gas-cooled reactors — NeutrAI's physics engine handles novel geometries, unconventional coolants, and pre-application regulatory interaction preparation.</div>
+      <div class="case-tools">
+        <span class="tool-tag">OpenMC</span>
+        <span class="tool-tag">Serpent 2</span>
+        <span class="tool-tag">IAPWS</span>
+        <span class="tool-tag">Pre-App Guidance</span>
+      </div>
+    </div>
+    <div class="case-card">
+      <div class="case-sector">Decommissioning</div>
+      <div class="case-title">D&D Cost & Dose Optimization</div>
+      <div class="case-desc">Characterization survey planning, residual radioactivity mapping, waste stream classification, and NRC License Termination Plan drafting with AI-assisted MARSSIM sampling design.</div>
+      <div class="case-tools">
+        <span class="tool-tag">RESRAD</span>
+        <span class="tool-tag">MARSSIM</span>
+        <span class="tool-tag">DandD</span>
+        <span class="tool-tag">LTP Drafting</span>
+      </div>
+    </div>
+    <div class="case-card">
+      <div class="case-sector">Research & Academia</div>
+      <div class="case-title">Research Reactor & Education</div>
+      <div class="case-desc">Discounted access for university research reactors, national laboratory programs, and accredited nuclear engineering programs — with curriculum-integrated analysis modules and student sandboxes.</div>
+      <div class="case-tools">
+        <span class="tool-tag">OpenMC</span>
+        <span class="tool-tag">SCALE 6.3</span>
+        <span class="tool-tag">Student Sandbox</span>
+        <span class="tool-tag">Lab Integration</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section class="trust-section">
+  <p class="section-label">Standards we design for</p>
+  <h2>Standards we<br><em>plan to meet</em></h2>
+  <p class="section-intro" style="margin:0 auto">NeutrAI is a concept in preview. It holds no licences, certifications or memberships yet. These are the standards and sources the product is being designed around.</p>
+
+  <div class="trust-logos">
+    <span class="trust-logo">NRC regulations</span>
+    <span class="trust-logo">IAEA safety standards</span>
+    <span class="trust-logo">NEI guidance</span>
+    <span class="trust-logo">EPRI reports</span>
+    <span class="trust-logo">ANS standards</span>
+    <span class="trust-logo">DOE references</span>
+  </div>
+
+  <div class="compliance-row">
+    <div class="compliance-badge">
+      <span class="compliance-icon">🔐</span>
+      <div>
+        <div class="compliance-text">SOC 2 Type II</div>
+        <div class="compliance-sub">PLANNED</div>
+      </div>
+    </div>
+    <div class="compliance-badge">
+      <span class="compliance-icon">🏛</span>
+      <div>
+        <div class="compliance-text">FedRAMP Ready</div>
+        <div class="compliance-sub">PLANNED</div>
+      </div>
+    </div>
+    <div class="compliance-badge">
+      <span class="compliance-icon">🛡</span>
+      <div>
+        <div class="compliance-text">10 CFR 73.54</div>
+        <div class="compliance-sub">DESIGN TARGET</div>
+      </div>
+    </div>
+    <div class="compliance-badge">
+      <span class="compliance-icon">🌐</span>
+      <div>
+        <div class="compliance-text">GDPR / CCPA</div>
+        <div class="compliance-sub">DESIGN TARGET</div>
+      </div>
+    </div>
+    <div class="compliance-badge">
+      <span class="compliance-icon">⚙</span>
+      <div>
+        <div class="compliance-text">ISO 27001</div>
+        <div class="compliance-sub">PLANNED</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <p class="section-label">FAQ</p>
+  <h2>Common <em>questions</em></h2>
+
+  <div class="faq-grid">
+    <div class="faq-item">
+      <div class="faq-q">Is NeutrAI acceptable for NRC submittals?</div>
+      <div class="faq-a">NeutrAI outputs are analysis aids and technical references. All safety-related calculations must be reviewed and approved by licensed engineers per 10 CFR 50 Appendix B. Audit trails and QA documentation to support that review are planned features.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How is sensitive plant data protected?</div>
+      <div class="faq-a">The planned design encrypts data at rest and in transit, with on-premise and air-gapped options for enterprise clients. These are design goals; no certification has been obtained yet.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Which nuclear codes does NeutrAI integrate with?</div>
+      <div class="faq-a">NeutrAI is being designed to work alongside MCNP, SERPENT, OpenMC, RELAP5-3D, TRACE, MAAP, SCALE, ORIGEN, and SIMULATE-3. No integrations are available yet.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is there an academic / research discount?</div>
+      <div class="faq-a">It is planned. Universities and research laboratories are intended to get discounted access once the product launches.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Can I switch plans or cancel anytime?</div>
+      <div class="faq-a">Sign-up is not open yet. The plan is for monthly plans that can be changed or cancelled at the end of any billing cycle.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Does NeutrAI cover international regulatory frameworks?</div>
+      <div class="faq-a">That is the plan. The knowledge base is being designed to include IAEA Safety Standards, WENRA Reference Levels, EUR requirements, CNS/FANR/CNSC frameworks, and the regulatory regimes of all 30+ countries with operating nuclear programs.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="cta-final">
+  <p class="section-label">Get Started</p>
+  <h2>The reactor doesn't wait.<br><em>Neither should you.</em></h2>
+  <p>NeutrAI is in concept preview. The plans and prices shown are proposals, and nothing can be purchased yet.</p>
+  <div class="hero-actions" style="justify-content: center;">
+    <a href="#pricing" class="btn-primary">⚛ Start free trial</a>
+    <a href="#demo" class="btn-ghost">Talk to an engineer →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <span class="logo-text">Neutr<span style="color:var(--plasma)">AI</span></span>
+      <p>Advanced AI intelligence for nuclear engineering — from first criticality to license termination.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Platform</h4>
+      <ul>
+        <li><a href="#">Neutronics</a></li>
+        <li><a href="#">Thermal-Hydraulics</a></li>
+        <li><a href="#">Safety Analysis</a></li>
+        <li><a href="#">Radiation Protection</a></li>
+        <li><a href="#">Regulatory Intelligence</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Press</a></li>
+        <li><a href="#">Academic Partners</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="#">Documentation</a></li>
+        <li><a href="#">API Reference</a></li>
+        <li><a href="#">Case Studies</a></li>
+        <li><a href="#">Webinars</a></li>
+        <li><a href="#">Support</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 NeutrAI — Concept preview.</span>
+    <span class="status-dot">Concept preview</span>
+    <span>Privacy · Terms · Security</span>
+  </div>
+</footer>
+
+<script>
+// ── PRICING TOGGLE ──
+let isAnnual = false;
+
+function setPeriod(period, btn) {
+  isAnnual = period === 'annual';
+  document.querySelectorAll('.toggle-opt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.price-amount').forEach(el => {
+    const m = el.dataset.m, a = el.dataset.a;
+    if (!m) return;
+    const val = isAnnual ? a : m;
+    const num = parseInt(val.replace(',',''));
+    el.textContent = num >= 1000
+      ? num.toLocaleString()
+      : val;
+  });
+}
+
+// ── DEMO ENGINE ──
+const scenarios = {
+  criticality: {
+    label: 'Criticality Safety — k-eff Analysis',
+    lines: [
+      { t: 0,    text: '> Initializing NeutrAI neutronics engine v4.1...', cls: 'dim' },
+      { t: 300,  text: '> Loading 3-loop PWR geometry: 193 fuel assemblies, 17×17 lattice', cls: '' },
+      { t: 700,  text: '> Cross-section library: ENDF/B-VIII.0 @ 900K Doppler broadened', cls: 'dim' },
+      { t: 1100, text: '' },
+      { t: 1200, text: '━━ CRITICALITY SEARCH RESULTS ━━━━━━━━━━━━━━━━━━━━', cls: 'hi' },
+      { t: 1400, text: '  k-eff (BOL, HFP, no Xe):     1.06847 ± 0.00012', cls: '' },
+      { t: 1600, text: '  k-eff (EOL, HFP, eq Xe):     1.00213 ± 0.00009', cls: '' },
+      { t: 1800, text: '  Shutdown margin (CRs in):    -10,842 pcm  ✓ > -1000 pcm', cls: '' },
+      { t: 2100, text: '' },
+      { t: 2200, text: '━━ REACTIVITY COEFFICIENTS ━━━━━━━━━━━━━━━━━━━━━━', cls: 'hi' },
+      { t: 2400, text: '  MTC (HFP):    -32.4 pcm/°F   [limit: < -50 pcm/°F ✓]', cls: '' },
+      { t: 2600, text: '  DTC:          -2.81 pcm/°F   [all conditions negative ✓]', cls: '' },
+      { t: 2800, text: '  Boron worth:  +8.2 pcm/ppm   [SDBl: 1247 ppm soluble]', cls: '' },
+      { t: 3000, text: '' },
+      { t: 3100, text: '⚠ FLAG: MTC at 75% power plateau approaches COLSS limit.', cls: 'warn' },
+      { t: 3300, text: '  Recommend re-evaluation at cycle 22 EOC conditions.', cls: 'warn' },
+      { t: 3600, text: '' },
+      { t: 3700, text: '> Analysis complete. Reference: NeutrAI-CRITS-2026-0615', cls: 'dim' },
+    ]
+  },
+  therm: {
+    label: 'Thermal Margin — DNB Ratio',
+    lines: [
+      { t: 0,    text: '> Loading thermal-hydraulics solver — COBRA-TF kernel', cls: 'dim' },
+      { t: 400,  text: '> Core inlet conditions: Tc_in = 555°F, P_sys = 2235 psia', cls: '' },
+      { t: 800,  text: '> Applying Westinghouse WRB-2M CHF correlation...', cls: 'dim' },
+      { t: 1100, text: '' },
+      { t: 1200, text: '━━ DNBR RESULTS @ 102% FP, 118% FLOW ━━━━━━━━━━━━', cls: 'hi' },
+      { t: 1400, text: '  Minimum DNBR (hot rod):   1.473   [limit: 1.17 ✓]', cls: '' },
+      { t: 1600, text: '  DNBR margin:              +26.1%', cls: '' },
+      { t: 1800, text: '  Hot spot location:        node 24 of 30 (axial)', cls: '' },
+      { t: 2000, text: '  Peak clad temp (PCT):     697°F   [< 2200°F ✓]', cls: '' },
+      { t: 2200, text: '' },
+      { t: 2300, text: '━━ LOCA SENSITIVITY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━', cls: 'hi' },
+      { t: 2500, text: '  Double-ended cold leg guillotine break:', cls: '' },
+      { t: 2700, text: '    Peak clad temp (10 CFR 50.46):  1843°F  [< 2200°F ✓]', cls: '' },
+      { t: 2900, text: '    Max oxidation:                    4.2%   [< 17%   ✓]', cls: '' },
+      { t: 3200, text: '    Core coolability maintained:      YES    ✓', cls: '' },
+      { t: 3500, text: '' },
+      { t: 3600, text: '> Report generated. Reference: NeutrAI-TH-2026-0615', cls: 'dim' },
+    ]
+  },
+  pra: {
+    label: 'PRA — Initiating Event Frequency',
+    lines: [
+      { t: 0,    text: '> Loading Level 1 PRA model — Internal Events, At-Power', cls: 'dim' },
+      { t: 400,  text: '> Fault tree solver: CAFTA 7.0 compatible kernel', cls: 'dim' },
+      { t: 800,  text: '> Applying NUREG-1829 generic IE frequencies...', cls: '' },
+      { t: 1100, text: '' },
+      { t: 1200, text: '━━ CORE DAMAGE FREQUENCY SUMMARY ━━━━━━━━━━━━━━━', cls: 'hi' },
+      { t: 1400, text: '  Total CDF:               3.2 × 10⁻⁵ /ry', cls: '' },
+      { t: 1600, text: '  Large LOCA contribution: 8.1 × 10⁻⁷ /ry  (2.5%)', cls: '' },
+      { t: 1800, text: '  SLOCA contribution:      1.4 × 10⁻⁵ /ry  (43.8%)', cls: '' },
+      { t: 2000, text: '  Transients contribution: 1.6 × 10⁻⁵ /ry  (50.0%)', cls: '' },
+      { t: 2200, text: '' },
+      { t: 2300, text: '━━ TOP RISK-SIGNIFICANT SEQUENCES ━━━━━━━━━━━━━━', cls: 'hi' },
+      { t: 2500, text: '  [1] LOOP → SBO → FLEX failure:  4.1 × 10⁻⁶ /ry', cls: 'warn' },
+      { t: 2700, text: '  [2] SLOCA → HHSI failure:       3.8 × 10⁻⁶ /ry', cls: 'warn' },
+      { t: 2900, text: '  [3] ATWS → HPSI success:        2.2 × 10⁻⁶ /ry', cls: '' },
+      { t: 3200, text: '' },
+      { t: 3300, text: '  ⚠ Fussell-Vesely > 0.01 for FLEX diesel start', cls: 'warn' },
+      { t: 3500, text: '  Recommend: update maintenance rule monitoring per 10 CFR 50.65', cls: 'warn' },
+      { t: 3700, text: '' },
+      { t: 3800, text: '> PRA summary complete. Reference: NeutrAI-PRA-2026-0615', cls: 'dim' },
+    ]
+  },
+  dose: {
+    label: 'Shielding — Annual Dose Estimate',
+    lines: [
+      { t: 0,    text: '> Initializing radiation transport — point-kernel method', cls: 'dim' },
+      { t: 400,  text: '> Source term: Co-60, Cs-137, Ba-137m per ORIGEN depletion', cls: '' },
+      { t: 800,  text: '> Geometry: containment building, 4-ft thick reinforced concrete', cls: 'dim' },
+      { t: 1100, text: '' },
+      { t: 1200, text: '━━ OCCUPATIONAL DOSE ASSESSMENT ━━━━━━━━━━━━━━━━', cls: 'hi' },
+      { t: 1400, text: '  Reactor cavity (contact dose):   4,820 mR/hr', cls: '' },
+      { t: 1600, text: '  2m from primary loop piping:       340 mR/hr', cls: '' },
+      { t: 1800, text: '  SG manway (entry):                 85 mR/hr', cls: '' },
+      { t: 2000, text: '  Control room (occupancy zone):    0.12 mR/hr   ✓', cls: '' },
+      { t: 2200, text: '' },
+      { t: 2300, text: '━━ ALARA OPTIMIZATION RESULTS ━━━━━━━━━━━━━━━━━', cls: 'hi' },
+      { t: 2500, text: '  Projected outage collective dose:   52.3 person-rem', cls: '' },
+      { t: 2700, text: '  AI-optimized crew rotation plan:    38.1 person-rem', cls: '' },
+      { t: 2900, text: '  Reduction achieved:                 27.2%  ✓ ALARA', cls: '' },
+      { t: 3100, text: '' },
+      { t: 3200, text: '  Top ALARA action items:', cls: '' },
+      { t: 3400, text: '    [1] Defer RCP seal work post Zn injection (−4.1 p-rem)', cls: '' },
+      { t: 3600, text: '    [2] Pre-stage tooling at SG manway (−2.8 p-rem)', cls: '' },
+      { t: 3800, text: '' },
+      { t: 3900, text: '> Shielding report ready. Reference: NeutrAI-RP-2026-0615', cls: 'dim' },
+    ]
+  },
+  emb: {
+    label: 'Embrittlement — RT_NDT Shift',
+    lines: [
+      { t: 0,    text: '> Loading RPV embrittlement model — RG 1.99 Rev. 2 + ML', cls: 'dim' },
+      { t: 400,  text: '> Material: ASME SA-508 Class 2 base metal, heat C4381-1', cls: '' },
+      { t: 800,  text: '> Applying surveillance capsule data + ORNL/TM-2019 corpus...', cls: 'dim' },
+      { t: 1100, text: '' },
+      { t: 1200, text: '━━ EMBRITTLEMENT PREDICTION @ EOL ━━━━━━━━━━━━━━', cls: 'hi' },
+      { t: 1400, text: '  EOL fluence (E > 1 MeV):   3.82 × 10¹⁹ n/cm²', cls: '' },
+      { t: 1600, text: '  CF (chemistry factor):       82.4°F  (Cu=0.14%, Ni=0.68%)', cls: '' },
+      { t: 1800, text: '  ΔRT_NDT (base metal):       +68°F   [mean]', cls: '' },
+      { t: 2000, text: '  ΔRT_NDT (2σ margin):        +92°F', cls: '' },
+      { t: 2200, text: '' },
+      { t: 2300, text: '━━ P-T CURVE IMPACT ━━━━━━━━━━━━━━━━━━━━━━━━━━', cls: 'hi' },
+      { t: 2500, text: '  RT_PTS (predicted EOL):      254°F', cls: '' },
+      { t: 2700, text: '  10 CFR 50.61 screening:      270°F  (limit)', cls: '' },
+      { t: 2900, text: '  Margin to PTS limit:          16°F', cls: 'warn' },
+      { t: 3100, text: '' },
+      { t: 3200, text: '  ⚠ Approaching PTS screening criterion.', cls: 'warn' },
+      { t: 3300, text: '  Recommend: 10 CFR 50.61a alternative fracture toughness', cls: 'warn' },
+      { t: 3500, text: '  evaluation. Initiate with NRC pre-submittal meeting.', cls: 'warn' },
+      { t: 3700, text: '' },
+      { t: 3800, text: '> Embrittlement analysis complete. Ref: NeutrAI-STR-2026-0615', cls: 'dim' },
+    ]
+  }
+};
+
+function runDemo() {
+  const key = document.getElementById('scenario-select').value;
+  const out = document.getElementById('demo-output');
+  const sc  = scenarios[key];
+
+  out.innerHTML = '<div class="loading"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div><span style="margin-left:8px;font-size:12px;">Initializing analysis engine...</span></div>';
+
+  setTimeout(() => {
+    out.innerHTML = '';
+    let i = 0;
+    function nextLine() {
+      if (i >= sc.lines.length) {
+        out.innerHTML += '<div class="dim">// Illustrative sample. Not a real calculation.</div><span class="cursor"></span>';
+        return;
+      }
+      const { t, text, cls } = sc.lines[i++];
+      const delay = i === 1 ? 0 : (sc.lines[i-1].t - (sc.lines[i-2]?.t || 0));
+
+      setTimeout(() => {
+        const span = document.createElement('div');
+        span.className = cls || '';
+        span.textContent = text;
+        out.appendChild(span);
+        out.scrollTop = out.scrollHeight;
+        nextLine();
+      }, delay);
+    }
+    nextLine();
+  }, 900);
+}
+</script>
+</body>
+</html>

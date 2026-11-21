@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fazayah Apps</title>
+<meta name="description" content="Every school, course site and app on fazayah.com in one list.">
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>*{margin:0}
+/* Layout: a ledger. One header with counts and a filter, then shelves (groups) of plain link rows; no cards. */
+:root{
+  --bg:#f3f6f5; --surface:#ffffff; --fg:#14211f; --muted:#5b6b68; --line:#d5dedc;
+  --accent:#0b6b5e; --accent-soft:#dcefeb; --live:#a2510a; --live-soft:#fbe9d3;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1716; --surface:#172221; --fg:#e6efed; --muted:#93a5a1; --line:#2a3937;
+  --accent:#5fd0bd; --accent-soft:#16332e; --live:#f0a85a; --live-soft:#3a2a15; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1716; --surface:#172221; --fg:#e6efed; --muted:#93a5a1; --line:#2a3937;
+  --accent:#5fd0bd; --accent-soft:#16332e; --live:#f0a85a; --live-soft:#3a2a15; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:2.5rem 4rem}
+.wrap{max-width:60rem;margin:0 auto;display:flex;flex-direction:column;gap:2.25rem}
+header{display:flex;flex-direction:column;gap:1rem}
+h1{font:700 clamp(2.1rem,6vw,3.4rem)/1.02 var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance}
+.lede{color:var(--muted);max-width:38rem;margin:0}
+.counts{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;font:500 .8rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.counts b{color:var(--fg);font-weight:500}
+#q{width:100%;max-width:26rem;font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.6rem .8rem}
+#q:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#list{width:100%;max-width:none;margin:0}
+section{display:flex;flex-direction:column;gap:.5rem}
+h2{font:500 .8rem var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0;display:flex;justify-content:space-between;gap:1rem}
+ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,27rem),1fr));column-gap:2rem}
+li{border-bottom:1px solid var(--line);min-width:0}
+li a{display:flex;align-items:baseline;gap:.75rem;padding:.7rem .25rem;color:inherit;text-decoration:none}
+li a:hover .n{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.n{font:500 1.08rem/1.3 var(--display);min-width:0;overflow-wrap:anywhere}
+.d{color:var(--muted);font-size:.86rem;flex:1;min-width:0}
+.home{font:500 .8rem var(--mono);color:var(--accent);text-decoration:none;letter-spacing:.04em}
+#none,footer{color:var(--muted);font-size:.88rem}
+footer{border-top:1px solid var(--line);padding-top:1rem;max-width:44rem}
+@media (max-width:520px){li a{flex-wrap:wrap}.d{flex-basis:100%;order:3}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <a class="home" href="../">fazayah.com</a>
+    <h1>Everything Fazayah has built</h1>
+    <p class="lede">Every school, course site and app on fazayah.com in one list. Each row opens the real thing.</p>
+    <div class="counts"><span><b id="cTotal"></b> sites and apps</span></div>
+    <input id="q" type="search" placeholder="Filter by name, e.g. nuclear" aria-label="Filter the list by name">
+  </header>
+  <main id="list" class="wrap"></main>
+  <p id="none" hidden>Nothing matches that filter.</p>
+  <footer>© 2026 Fazayah. Some apps have an AI tutor or saved accounts that only work in their original Claude version; everything else works here.</footer>
+</div>
+
+<script>
+const GROUPS=[
+ ["Schools and courses",[
+  ["Fazayah School of Mechanical Engineering","../","Course catalog in five languages, installable"],
+  ["Fazayah School of Mineral Engineering","../?school=mineral","Second school in the same catalog"],
+  ["Fulcrum Mechanical Engineering","../fulcrum/"],
+  ["Fazayah Civil Toolkit","../civil/"],
+  ["Junction Electronic Engineering","../junction/"],
+  ["Phasor Electrical Engineering","../phasor/"]]],
+ ["Nuclear engineering",[
+  ["NeutrAI","../neutrai/"],
+  ["NeutrAI Academy","../neutrai-academy/","Courses"],
+  ["NeutrAI Academy","../neutrai-academy-app/","Learner dashboard"],
+  ["NeutrAI Physics","../neutrai-physics/"],
+  ["AI in Nuclear Engineering","../ai-in-nuclear/","Who is building what, November 2026"],
+  ["Advanced Nuclear Engineering Guide","../nuclear-engineering-guide.html","Free reference guide, study draft"]]],
+ ["Math, space and language",[
+  ["Jabr Math Academy","../jabr/"],
+  ["Tangent Calculus","../tangent/"],
+  ["Suhail Space Academy","../suhail/"],
+  ["Parlance English","../parlance/"],
+  ["Aloud","../aloud/"]]],
+ ["Everyday apps",[
+  ["Anwa Weather","../weather/","Live forecast for any city, ten languages"],
+  ["Atheer Radio","../radio/","Internet radio station directory and player"],
+  ["Awan AI Calendar","../calendar/"],
+  ["Hisab Calculator","../calculator/"],
+  ["Qafila Marketplace","../qafila/"]]]
+];
+const list=document.getElementById("list");
+let total=0;
+for(const [name,items] of GROUPS){
+  const sec=document.createElement("section"), h=document.createElement("h2"), ul=document.createElement("ul");
+  h.innerHTML="<span></span><span></span>"; h.children[0].textContent=name; h.children[1].textContent=items.length;
+  for(const [n,u,d] of items){
+    total++;
+    const li=document.createElement("li"), a=document.createElement("a");
+    a.href=u;
+    const sn=document.createElement("span"); sn.className="n"; sn.textContent=n; a.append(sn);
+    if(d){const sd=document.createElement("span"); sd.className="d"; sd.textContent=d; a.append(sd);}
+    li.dataset.s=(n+" "+(d||"")+" "+name).toLowerCase(); li.append(a); ul.append(li);
+  }
+  sec.append(h,ul); list.append(sec);
+}
+cTotal.textContent=total;
+document.getElementById("q").addEventListener("input",e=>{
+  const v=e.target.value.trim().toLowerCase(); let any=false;
+  for(const sec of list.children){let n=0;
+    for(const li of sec.querySelectorAll("li")){li.hidden=!li.dataset.s.includes(v); if(!li.hidden)n++;}
+    sec.hidden=!n; any=any||n>0;}
+  document.getElementById("none").hidden=any;
+});
+</script>
+</body>
+</html>

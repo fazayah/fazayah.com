@@ -21,7 +21,7 @@ window.FAZAYAH = {
 
   ui: {
     en: {
-      nav_courses: "Courses", nav_pricing: "Prices", nav_faq: "FAQ", nav_weather: "Weather", nav_nuclear: "Nuclear guide", lang_label: "Language",
+      nav_courses: "Courses", nav_pricing: "Prices", nav_faq: "FAQ", nav_weather: "Weather", nav_nuclear: "Nuclear guide", nav_apps: "Apps", lang_label: "Language",
       school_label: "School", school_mechanical: "Mechanical Engineering", school_mineral: "Mineral Engineering",
       hero_eyebrow_mechanical: "Fazayah School of Mechanical Engineering",
       hero_title_mechanical: "Learn mechanical engineering, taught in your language.",
@@ -62,7 +62,7 @@ window.FAZAYAH = {
     },
 
     ar: {
-      nav_courses: "الدورات", nav_pricing: "الأسعار", nav_faq: "الأسئلة الشائعة", nav_weather: "الطقس", nav_nuclear: "دليل الهندسة النووية", lang_label: "اللغة",
+      nav_courses: "الدورات", nav_pricing: "الأسعار", nav_faq: "الأسئلة الشائعة", nav_weather: "الطقس", nav_nuclear: "دليل الهندسة النووية", nav_apps: "التطبيقات", lang_label: "اللغة",
       school_label: "المدرسة", school_mechanical: "الهندسة الميكانيكية", school_mineral: "هندسة التعدين والمعادن",
       hero_eyebrow_mechanical: "مدرسة Fazayah للهندسة الميكانيكية",
       hero_title_mechanical: "تعلّم الهندسة الميكانيكية بلغتك.",
@@ -103,7 +103,7 @@ window.FAZAYAH = {
     },
 
     ur: {
-      nav_courses: "کورسز", nav_pricing: "قیمتیں", nav_faq: "عمومی سوالات", nav_weather: "موسم", nav_nuclear: "نیوکلیئر گائیڈ", lang_label: "زبان",
+      nav_courses: "کورسز", nav_pricing: "قیمتیں", nav_faq: "عمومی سوالات", nav_weather: "موسم", nav_nuclear: "نیوکلیئر گائیڈ", nav_apps: "ایپس", lang_label: "زبان",
       school_label: "اسکول", school_mechanical: "مکینیکل انجینئرنگ", school_mineral: "معدنی انجینئرنگ",
       hero_eyebrow_mechanical: "Fazayah اسکول برائے مکینیکل انجینئرنگ",
       hero_title_mechanical: "مکینیکل انجینئرنگ اپنی زبان میں سیکھیں۔",
@@ -144,7 +144,7 @@ window.FAZAYAH = {
     },
 
     fr: {
-      nav_courses: "Cours", nav_pricing: "Tarifs", nav_faq: "FAQ", nav_weather: "Météo", nav_nuclear: "Guide nucléaire", lang_label: "Langue",
+      nav_courses: "Cours", nav_pricing: "Tarifs", nav_faq: "FAQ", nav_weather: "Météo", nav_nuclear: "Guide nucléaire", nav_apps: "Applis", lang_label: "Langue",
       school_label: "École", school_mechanical: "Génie mécanique", school_mineral: "Génie minéral",
       hero_eyebrow_mechanical: "École de génie mécanique Fazayah",
       hero_title_mechanical: "Apprenez le génie mécanique, dans votre langue.",
@@ -185,7 +185,7 @@ window.FAZAYAH = {
     },
 
     es: {
-      nav_courses: "Cursos", nav_pricing: "Precios", nav_faq: "Preguntas", nav_weather: "El tiempo", nav_nuclear: "Guía nuclear", lang_label: "Idioma",
+      nav_courses: "Cursos", nav_pricing: "Precios", nav_faq: "Preguntas", nav_weather: "El tiempo", nav_nuclear: "Guía nuclear", nav_apps: "Apps", lang_label: "Idioma",
       school_label: "Escuela", school_mechanical: "Ingeniería mecánica", school_mineral: "Ingeniería de minerales",
       hero_eyebrow_mechanical: "Escuela de Ingeniería Mecánica Fazayah",
       hero_title_mechanical: "Aprende ingeniería mecánica, en tu idioma.",

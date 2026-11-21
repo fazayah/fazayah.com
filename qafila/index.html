@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qafila Marketplace</title>
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: dense marketplace. Deep-teal trading header, saffron buy actions, product tiles tinted per item. */
+:root{
+  --bg:#f2f5f4; --surface:#ffffff; --ink:#14201f; --muted:#586a67; --line:#d9e1df;
+  --brand:#0e4a47; --on-brand:#f0faf7; --accent:#f2a516; --on-accent:#231700;
+  --sale:#c2301d; --ok:#1b7a48; --phl:89%; --phi:30%;
+  --display:"Bricolage Grotesque","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --body:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d1413; --surface:#16201e; --ink:#e7efed; --muted:#9bb0ac; --line:#2a3937;
+    --brand:#0b302e; --on-brand:#e7f5f2; --accent:#f5b436; --on-accent:#231700;
+    --sale:#ff8572; --ok:#5fd093; --phl:21%; --phi:78%; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d1413; --surface:#16201e; --ink:#e7efed; --muted:#9bb0ac; --line:#2a3937;
+  --brand:#0b302e; --on-brand:#e7f5f2; --accent:#f5b436; --on-accent:#231700;
+  --sale:#ff8572; --ok:#5fd093; --phl:21%; --phi:78%; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--body)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+.num{font-variant-numeric:tabular-nums}
+svg{display:block}
+
+header{background:var(--brand);color:var(--on-brand);position:sticky;top:0;z-index:5}
+.top{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.logo{font:800 24px/1 var(--display);background:none;border:0;color:var(--on-brand);padding:4px 0;letter-spacing:-.02em}
+.logo i{color:var(--accent);font-style:normal}
+.search{flex:1 1 320px;display:flex;min-width:0;order:2}
+.search input{flex:1;min-width:0;border:0;padding:10px 14px;border-radius:8px 0 0 8px;background:#fff;color:#14201f}
+[dir=rtl] .search input{border-radius:0 8px 8px 0}
+.search button{border:0;background:var(--accent);color:var(--on-accent);padding:0 16px;border-radius:0 8px 8px 0}
+[dir=rtl] .search button{border-radius:8px 0 0 8px}
+.tools{display:flex;gap:8px;align-items:center;margin-inline-start:auto;order:3}
+.tools select{background:transparent;border:1px solid color-mix(in srgb,var(--on-brand) 35%,transparent);color:var(--on-brand);border-radius:8px;padding:7px 6px;max-width:112px}
+.tools select option{color:#14201f;background:#fff}
+.cartb{display:flex;gap:6px;align-items:center;background:var(--accent);color:var(--on-accent);border:0;border-radius:8px;padding:8px 12px;font-weight:600}
+@media (max-width:640px){.search{order:4;flex-basis:100%}.tools{order:2}}
+.strip{max-width:1180px;margin:0 auto;padding:0 16px 10px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.strip button{flex:none;border:1px solid color-mix(in srgb,var(--on-brand) 28%,transparent);background:transparent;color:var(--on-brand);padding:6px 12px;border-radius:999px;white-space:nowrap}
+.strip button.on{background:var(--on-brand);color:var(--brand);font-weight:600}
+.strip .sep{flex:none;width:1px;background:color-mix(in srgb,var(--on-brand) 30%,transparent);margin:4px 2px}
+
+main{max-width:1180px;margin:0 auto;padding:16px;display:grid;gap:18px}
+.hero{background:var(--brand);color:var(--on-brand);border-radius:14px;padding:22px;display:grid;gap:14px}
+.hero h1{font-size:clamp(24px,5vw,38px)}
+.hero p{margin:0;max-width:56ch;opacity:.9}
+.tiers{display:flex;flex-wrap:wrap;gap:8px}
+.tier{border:1px solid color-mix(in srgb,var(--on-brand) 30%,transparent);border-radius:10px;padding:8px 12px;min-width:92px}
+.tier b{display:block;font:800 18px var(--display)}
+.tier.code{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.sec{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px}
+.sec h2{font-size:21px}
+.clock{color:var(--sale);font-weight:600}
+.row{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px}
+.row .card{flex:0 0 168px}
+.bar{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.bar label{display:flex;gap:6px;align-items:center}
+.bar select,.field input,.field select,.coupon input{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px}
+.bar input[type=range]{width:120px;accent-color:var(--brand)}
+input[type=checkbox],input[type=radio]{accent-color:var(--brand);width:17px;height:17px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.ph{border:0;width:100%;aspect-ratio:1;display:grid;place-items:center;background:hsl(var(--h) 42% var(--phl));color:hsl(var(--h) 45% var(--phi));padding:0}
+.ph svg{width:62%;height:62%}
+.off{position:absolute;top:8px;inset-inline-start:8px;background:var(--sale);color:#fff;font-size:12px;font-weight:600;border-radius:6px;padding:2px 6px}
+.heart{position:absolute;top:6px;inset-inline-end:6px;width:34px;height:34px;border-radius:50%;border:0;background:color-mix(in srgb,var(--surface) 85%,transparent);color:var(--muted);display:grid;place-items:center}
+.heart.on{color:var(--sale)}
+.cb{padding:10px;display:grid;gap:4px}
+.nm{background:none;border:0;padding:0;text-align:start;font-weight:500;line-height:1.3}
+.pr{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
+.pr b{font:800 18px var(--display)}
+.pr s,.meta{color:var(--muted);font-size:13px}
+.chip{display:inline-block;font-size:12px;border-radius:6px;padding:1px 6px;background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok);font-weight:600;justify-self:start}
+.star{color:var(--accent)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:10px 16px;font-weight:600}
+.btn.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.btn.dark{background:var(--brand);color:var(--on-brand);border-color:transparent}
+.link{background:none;border:0;padding:0;color:var(--brand);font-weight:600;text-decoration:underline}
+:root[data-theme="dark"] .link{color:var(--accent)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .link{color:var(--accent)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px;align-content:start}
+.pd{display:grid;gap:18px;grid-template-columns:minmax(0,5fr) minmax(0,6fr);align-items:start}
+.pd .ph{border-radius:14px}
+.two{display:grid;gap:18px;grid-template-columns:minmax(0,1fr) 340px;align-items:start}
+@media (max-width:760px){.pd,.two{grid-template-columns:minmax(0,1fr)}}
+.big{font:800 30px var(--display)}
+.tt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tt div{border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}
+.tt div.on{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 10%,transparent)}
+.tt small{display:block;color:var(--muted)}
+.sw{display:flex;gap:8px}
+.sw button{width:32px;height:32px;border-radius:50%;border:2px solid var(--line)}
+.sw button.on{outline:3px solid var(--brand);outline-offset:2px}
+.qty{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.qty button{border:0;background:var(--bg);width:38px;height:38px;font-size:18px}
+.qty span{min-width:46px;display:grid;place-items:center;font-weight:600}
+.acts{display:flex;flex-wrap:wrap;gap:10px}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 16px}
+dt{color:var(--muted)} dd{margin:0}
+.rb{display:grid;grid-template-columns:28px 1fr 40px;gap:8px;align-items:center;font-size:13px}
+.rb i{height:8px;border-radius:4px;background:var(--line);overflow:hidden;display:block}
+.rb i b{display:block;height:100%;background:var(--accent)}
+.ci{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.ci:last-child{border:0;padding:0}
+.ci .ph{border-radius:10px}
+.ci .l{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.sum{display:grid;gap:8px}
+.sum div{display:flex;justify-content:space-between;gap:12px}
+.sum .tot{border-top:1px solid var(--line);padding-top:10px;font:800 20px var(--display)}
+.coupon{display:flex;gap:8px}
+.coupon input{flex:1;min-width:0}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.field{display:grid;gap:4px}
+.field span{font-size:13px;color:var(--muted)}
+.field input,.field select{width:100%}
+.opt{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.opt.on{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 8%,transparent)}
+.opt b{margin-inline-start:auto}
+.note{border-radius:10px;padding:10px 12px;background:color-mix(in srgb,var(--accent) 18%,transparent);font-size:14px}
+.err{color:var(--sale);font-weight:600}
+.okb{border-radius:12px;padding:14px;background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok);font-weight:600}
+.track{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:12px;text-align:center}
+.track span{border-top:4px solid var(--line);padding-top:6px;color:var(--muted)}
+.track span.on{border-color:var(--ok);color:var(--ink);font-weight:600}
+.emp{text-align:center;padding:36px 16px;color:var(--muted);display:grid;gap:12px;justify-items:center}
+footer{max-width:1180px;margin:0 auto;padding:8px 16px 32px;color:var(--muted);font-size:13px}
+#toast{position:fixed;inset-inline:16px;bottom:18px;margin:auto;max-width:340px;background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:10px;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
+#toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+</style>
+</head>
+<body>
+<header><div class="top" id="top"></div><nav class="strip" id="strip" aria-label="Categories"></nav></header>
+<main id="main"></main>
+<footer id="foot"></footer>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+const L=['en','ar','fr','es','tr','zh'];
+const LN={en:'English',ar:'العربية',fr:'Français',es:'Español',tr:'Türkçe',zh:'中文'};
+const LOC={en:'en-US',ar:'ar-SA-u-nu-latn',fr:'fr-FR',es:'es-ES',tr:'tr-TR',zh:'zh-CN'};
+const RATE={USD:1,SAR:3.75,AED:3.67,EUR:.92,CNY:7.2};
+const T={
+search:["Search products","ابحث عن منتجات","Rechercher des produits","Buscar productos","Ürün ara","搜索商品"],
+all:["All","الكل","Tout","Todo","Tümü","全部"],
+cart:["Cart","السلة","Panier","Carrito","Sepet","购物车"],
+orders:["Orders","الطلبات","Commandes","Pedidos","Siparişler","订单"],
+sell:["Sell","بِع معنا","Vendre","Vender","Satış yap","我要开店"],
+wishlist:["Wishlist","المفضلة","Favoris","Favoritos","Favoriler","收藏"],
+heroT:["Retail and wholesale, one cart","تجزئة وجملة في سلة واحدة","Détail et gros, un seul panier","Minorista y mayorista en un solo carrito","Perakende ve toptan tek sepette","零售与批发，一个购物车"],
+heroS:["Buy one piece or a full carton. The price drops as the quantity rises.","اشترِ قطعة واحدة أو كرتونة كاملة. السعر ينخفض كلما زادت الكمية.","Achetez une pièce ou un carton entier. Le prix baisse avec la quantité.","Compra una unidad o una caja completa. El precio baja con la cantidad.","Tek parça ya da koli alın. Adet arttıkça fiyat düşer.","单件或整箱都能买，数量越多价格越低。"],
+list:["List price","السعر الأساسي","Prix de base","Precio base","Liste fiyatı","标价"],
+deals:["Flash deals","عروض خاطفة","Ventes flash","Ofertas relámpago","Fırsat ürünleri","限时特卖"],
+ends:["Ends in","ينتهي خلال","Fin dans","Termina en","Bitiş","距结束"],
+maxp:["Max price","أقصى سعر","Prix max","Precio máx.","En yüksek fiyat","最高价"],
+minr:["4 stars and up","4 نجوم فأكثر","4 étoiles et plus","4 estrellas o más","4 yıldız ve üzeri","4星及以上"],
+freeship:["Free shipping","شحن مجاني","Livraison gratuite","Envío gratis","Ücretsiz kargo","包邮"],
+sort:["Sort","الترتيب","Trier","Ordenar","Sırala","排序"],
+s_pop:["Best selling","الأكثر مبيعًا","Meilleures ventes","Más vendidos","Çok satanlar","销量优先"],
+s_low:["Price: low to high","السعر: من الأقل","Prix croissant","Precio: menor a mayor","Fiyat: artan","价格从低到高"],
+s_high:["Price: high to low","السعر: من الأعلى","Prix décroissant","Precio: mayor a menor","Fiyat: azalan","价格从高到低"],
+s_rate:["Top rated","الأعلى تقييمًا","Mieux notés","Mejor valorados","En yüksek puan","评分优先"],
+sold:["sold","مباع","vendus","vendidos","satıldı","已售"],
+add:["Add to cart","أضف إلى السلة","Ajouter au panier","Añadir al carrito","Sepete ekle","加入购物车"],
+buy:["Buy now","اشترِ الآن","Acheter maintenant","Comprar ahora","Hemen al","立即购买"],
+qty:["Quantity","الكمية","Quantité","Cantidad","Adet","数量"],
+whole:["Wholesale pricing","أسعار الجملة","Prix de gros","Precios al por mayor","Toptan fiyatlar","批发价"],
+pcs:["pcs","قطعة","pièces","uds.","adet","件"],
+perpc:["per piece","للقطعة","la pièce","por unidad","adet başı","每件"],
+seller:["Seller","البائع","Vendeur","Vendedor","Satıcı","卖家"],
+shipsfrom:["Ships from","يُشحن من","Expédié depuis","Se envía desde","Gönderim yeri","发货地"],
+delivery:["Delivery","التوصيل","Livraison","Entrega","Teslimat","配送"],
+days:["days","أيام","jours","días","gün","天"],
+back:["Back to shop","العودة للمتجر","Retour à la boutique","Volver a la tienda","Mağazaya dön","返回商城"],
+color:["Color","اللون","Couleur","Color","Renk","颜色"],
+empty:["Your cart is empty","سلتك فارغة","Votre panier est vide","Tu carrito está vacío","Sepetiniz boş","购物车是空的"],
+subtotal:["Subtotal","المجموع الفرعي","Sous-total","Subtotal","Ara toplam","小计"],
+shipping:["Shipping","الشحن","Livraison","Envío","Kargo","运费"],
+vat:["VAT (15%)","ضريبة القيمة المضافة (15%)","TVA (15 %)","IVA (15 %)","KDV (%15)","增值税 (15%)"],
+discount:["Discount","الخصم","Remise","Descuento","İndirim","优惠"],
+total:["Total","الإجمالي","Total","Total","Toplam","合计"],
+coupon:["Coupon code","رمز القسيمة","Code promo","Cupón","Kupon kodu","优惠码"],
+apply:["Apply","تطبيق","Appliquer","Aplicar","Uygula","使用"],
+checkout:["Checkout","إتمام الشراء","Passer la commande","Finalizar compra","Ödemeye geç","去结算"],
+remove:["Remove","حذف","Retirer","Quitar","Kaldır","删除"],
+addr:["Delivery address","عنوان التوصيل","Adresse de livraison","Dirección de entrega","Teslimat adresi","收货地址"],
+name:["Full name","الاسم الكامل","Nom complet","Nombre completo","Ad soyad","姓名"],
+phone:["Phone","الهاتف","Téléphone","Teléfono","Telefon","电话"],
+city:["City","المدينة","Ville","Ciudad","Şehir","城市"],
+street:["Street address","عنوان الشارع","Adresse","Dirección","Adres","街道地址"],
+country:["Country","الدولة","Pays","País","Ülke","国家"],
+std:["Standard","عادي","Standard","Estándar","Standart","标准"],
+exp:["Express","سريع","Express","Exprés","Hızlı","特快"],
+pay:["Payment","الدفع","Paiement","Pago","Ödeme","支付"],
+p_card:["Credit or debit card","بطاقة ائتمان أو خصم","Carte bancaire","Tarjeta de crédito o débito","Kredi veya banka kartı","信用卡或借记卡"],
+p_wallet:["Digital wallet","محفظة رقمية","Portefeuille numérique","Monedero digital","Dijital cüzdan","电子钱包"],
+p_bnpl:["Pay in 4 installments","ادفع على 4 أقساط","Payer en 4 fois","Paga en 4 plazos","4 taksitle öde","分4期付款"],
+p_bank:["Bank transfer","تحويل بنكي","Virement bancaire","Transferencia bancaria","Banka havalesi","银行转账"],
+p_cod:["Cash on delivery","الدفع عند الاستلام","Paiement à la livraison","Pago contra reembolso","Kapıda ödeme","货到付款"],
+cardno:["Card number","رقم البطاقة","Numéro de carte","Número de tarjeta","Kart numarası","卡号"],
+expiry:["Expiry (MM/YY)","الانتهاء (شهر/سنة)","Expiration (MM/AA)","Caducidad (MM/AA)","Son kullanma (AA/YY)","有效期 (月/年)"],
+cvc:["Security code","رمز الأمان","Code de sécurité","Código de seguridad","Güvenlik kodu","安全码"],
+testnote:["Test mode: no money is taken. Use the test card, not a real one.","وضع تجريبي: لا يُخصم أي مبلغ. استخدم البطاقة التجريبية لا بطاقة حقيقية.","Mode test : aucun débit. Utilisez la carte de test, pas une vraie carte.","Modo de prueba: no se cobra nada. Usa la tarjeta de prueba, no una real.","Test modu: para çekilmez. Gerçek kart değil, test kartını kullanın.","测试模式：不会扣款。请使用测试卡，不要输入真实卡号。"],
+usetest:["Use test card","استخدم البطاقة التجريبية","Utiliser la carte de test","Usar tarjeta de prueba","Test kartını kullan","使用测试卡"],
+handoff:["The live shop hands this step to your payment provider.","في المتجر الفعلي تُحوَّل هذه الخطوة إلى مزوّد الدفع.","En production, cette étape passe par votre prestataire de paiement.","En la tienda real, este paso lo gestiona tu proveedor de pagos.","Canlı mağazada bu adım ödeme sağlayıcınıza devredilir.","正式商城中，此步骤将跳转至支付服务商。"],
+place:["Place order","تأكيد الطلب","Valider la commande","Realizar pedido","Siparişi ver","提交订单"],
+fill:["Fill in every address field.","املأ جميع حقول العنوان.","Remplissez tous les champs d'adresse.","Completa todos los campos de dirección.","Tüm adres alanlarını doldurun.","请填写所有地址栏。"],
+badcard:["Check the card number, expiry and security code.","تحقق من رقم البطاقة وتاريخ الانتهاء ورمز الأمان.","Vérifiez le numéro, l'expiration et le code.","Revisa el número, la caducidad y el código.","Kart numarası, tarih ve kodu kontrol edin.","请检查卡号、有效期和安全码。"],
+thanks:["Order placed","تم تأكيد الطلب","Commande confirmée","Pedido realizado","Sipariş alındı","下单成功"],
+ordno:["Order","طلب","Commande","Pedido","Sipariş","订单"],
+noorders:["No orders yet","لا توجد طلبات بعد","Aucune commande","Aún no hay pedidos","Henüz sipariş yok","暂无订单"],
+st1:["Confirmed","مؤكد","Confirmée","Confirmado","Onaylandı","已确认"],
+st2:["Packed","تم التجهيز","Préparée","Preparado","Hazırlandı","已打包"],
+st3:["Shipped","تم الشحن","Expédiée","Enviado","Kargoda","已发货"],
+st4:["Delivered","تم التسليم","Livrée","Entregado","Teslim edildi","已送达"],
+added:["Added to cart","أُضيف إلى السلة","Ajouté au panier","Añadido al carrito","Sepete eklendi","已加入购物车"],
+couponok:["Coupon applied","تم تطبيق القسيمة","Code appliqué","Cupón aplicado","Kupon uygulandı","优惠码已使用"],
+couponbad:["That code is not valid. Try WELCOME10.","الرمز غير صالح. جرّب WELCOME10.","Code invalide. Essayez WELCOME10.","Código no válido. Prueba WELCOME10.","Kod geçersiz. WELCOME10 deneyin.","优惠码无效，请试试 WELCOME10。"],
+results:["products","منتج","produits","productos","ürün","件商品"],
+nores:["No products match. Clear a filter.","لا توجد منتجات مطابقة. أزل أحد عوامل التصفية.","Aucun produit. Retirez un filtre.","Ningún producto coincide. Quita un filtro.","Eşleşen ürün yok. Bir filtreyi kaldırın.","没有匹配的商品，请减少筛选条件。"],
+clear:["Clear filters","مسح التصفية","Effacer les filtres","Borrar filtros","Filtreleri temizle","清除筛选"],
+sellT:["List a product","أضف منتجًا","Publier un produit","Publicar un producto","Ürün ekle","发布商品"],
+pname:["Product name","اسم المنتج","Nom du produit","Nombre del producto","Ürün adı","商品名称"],
+price:["Price (USD)","السعر (دولار)","Prix (USD)","Precio (USD)","Fiyat (USD)","价格 (美元)"],
+cat:["Category","الفئة","Catégorie","Categoría","Kategori","分类"],
+publish:["Publish listing","نشر المنتج","Publier","Publicar","Yayınla","发布"],
+listed:["Listed. It now appears in the shop.","تم النشر. المنتج ظاهر الآن في المتجر.","Publié. Il apparaît dans la boutique.","Publicado. Ya aparece en la tienda.","Yayınlandı. Artık mağazada görünüyor.","已发布，现已在商城展示。"],
+yours:["Your listings","منتجاتك","Vos annonces","Tus productos","Ürünleriniz","你的商品"],
+foot:["Sample catalog, sample exchange rates, payments in test mode.","كتالوج تجريبي وأسعار صرف تجريبية والدفع في الوضع التجريبي.","Catalogue, taux de change et paiements de démonstration.","Catálogo, tipos de cambio y pagos de demostración.","Örnek katalog, örnek kurlar, ödemeler test modunda.","示例商品与汇率，支付为测试模式。"],
+specs:["Details","التفاصيل","Détails","Detalles","Detaylar","详情"],
+ratings:["Ratings (sample)","التقييمات (تجريبية)","Notes (exemple)","Valoraciones (muestra)","Puanlar (örnek)","评分（示例）"],
+moq:["Min. order","أقل طلب","Commande min.","Pedido mín.","Min. sipariş","起订量"],
+free:["Free","مجاني","Gratuit","Gratis","Ücretsiz","免费"],
+nowish:["Nothing saved yet","لا شيء محفوظ بعد","Rien d'enregistré","Nada guardado aún","Henüz kayıt yok","暂无收藏"],
+mystore:["Your store","متجرك","Votre boutique","Tu tienda","Mağazanız","你的店铺"]
+};
+const CATS={
+el:["Electronics","إلكترونيات","Électronique","Electrónica","Elektronik","电子产品"],
+fa:["Fashion","أزياء","Mode","Moda","Moda","服饰"],
+ho:["Home & kitchen","المنزل والمطبخ","Maison et cuisine","Hogar y cocina","Ev ve mutfak","家居厨房"],
+be:["Beauty","الجمال","Beauté","Belleza","Güzellik","美妆"],
+sp:["Sports","رياضة","Sport","Deportes","Spor","运动"],
+to:["Tools","أدوات","Outils","Herramientas","Aletler","工具"],
+ty:["Toys","ألعاب","Jouets","Juguetes","Oyuncak","玩具"]
+};
+const CTRY={
+CN:["China","الصين","Chine","China","Çin","中国"],
+TR:["Türkiye","تركيا","Turquie","Turquía","Türkiye","土耳其"],
+SA:["Saudi Arabia","السعودية","Arabie saoudite","Arabia Saudí","Suudi Arabistan","沙特阿拉伯"],
+AE:["UAE","الإمارات","Émirats arabes unis","EAU","BAE","阿联酋"]
+};
+const IC={
+headphones:'<path d="M22 58V50a28 28 0 0 1 56 0v8"/><rect x="15" y="56" width="15" height="26" rx="6"/><rect x="70" y="56" width="15" height="26" rx="6"/>',
+phone:'<rect x="31" y="12" width="38" height="76" rx="8"/><path d="M44 78h12"/>',
+watch:'<rect x="32" y="32" width="36" height="36" rx="9"/><path d="M40 32V14h20v18M40 68v18h20V68M50 42v9h7"/>',
+laptop:'<rect x="22" y="24" width="56" height="40" rx="4"/><path d="M10 72h80l-6 7H16z"/>',
+camera:'<rect x="14" y="32" width="72" height="46" rx="7"/><circle cx="50" cy="55" r="13"/><path d="M38 32l4-10h16l4 10"/>',
+shirt:'<path d="M36 18L16 30l9 15 9-5v42h32V40l9 5 9-15-20-12q-14 12-28 0z"/>',
+shoe:'<path d="M12 60V42h20l16 14 30 4q10 2 10 10v6H12z"/><path d="M12 68h76"/>',
+bag:'<rect x="20" y="36" width="60" height="48" rx="7"/><path d="M37 36v-6a13 13 0 0 1 26 0v6"/>',
+lamp:'<path d="M37 16h26l11 32H26zM50 48v32M32 84h36"/>',
+chair:'<path d="M32 12v40h36V12"/><rect x="26" y="52" width="48" height="11" rx="4"/><path d="M32 63v25M68 63v25"/>',
+blender:'<path d="M32 14h36l-7 44H39z"/><rect x="34" y="58" width="32" height="28" rx="5"/><circle cx="50" cy="72" r="4"/>',
+pan:'<circle cx="40" cy="54" r="27"/><path d="M67 54h27"/>',
+bottle:'<rect x="35" y="38" width="30" height="48" rx="7"/><rect x="42" y="22" width="16" height="16" rx="2"/><path d="M44 14h12"/>',
+drill:'<rect x="12" y="28" width="52" height="22" rx="6"/><path d="M64 34h16v10H64M80 39h12M32 50l-4 34h18l2-34"/>',
+ball:'<circle cx="50" cy="50" r="33"/><path d="M50 34l15 11-6 18H41l-6-18zM50 17v17M83 45l-18 0M70 77l-11-14M30 77l11-14M17 45h18"/>',
+blocks:'<rect x="16" y="50" width="32" height="32" rx="3"/><rect x="52" y="50" width="32" height="32" rx="3"/><rect x="34" y="16" width="32" height="32" rx="3"/>',
+box:'<path d="M14 34l36-18 36 18v36L50 88 14 70zM14 34l36 18 36-18M50 52v36"/>'
+};
+const P=[
+{id:1,c:'el',i:'headphones',h:205,p:59.9,w:89,r:4.7,s:12840,f:1,sl:'Nahr Electronics',fr:'CN',d:'7–12',n:["Wireless noise-cancelling headphones","سماعات لاسلكية عازلة للضوضاء","Casque sans fil à réduction de bruit","Auriculares inalámbricos con cancelación de ruido","Gürültü engelleyici kablosuz kulaklık","无线降噪耳机"]},
+{id:2,c:'el',i:'phone',h:250,p:329,w:399,r:4.5,s:5310,f:1,sl:'Nahr Electronics',fr:'CN',d:'7–12',n:['Smartphone 6.7" 256 GB',"هاتف ذكي 6.7 بوصة 256 جيجابايت",'Smartphone 6,7" 256 Go','Smartphone 6,7" 256 GB','Akıllı telefon 6,7" 256 GB',"智能手机 6.7英寸 256GB"]},
+{id:3,c:'el',i:'watch',h:330,p:45.5,w:69,r:4.4,s:9120,f:1,sl:'Lumen Works',fr:'CN',d:'8–14',n:["Fitness smartwatch","ساعة ذكية رياضية","Montre connectée sport","Reloj inteligente deportivo","Spor akıllı saat","运动智能手表"]},
+{id:4,c:'el',i:'laptop',h:220,p:649,w:749,r:4.6,s:1870,f:1,sl:'Lumen Works',fr:'AE',d:'2–4',n:['Ultralight laptop 14"',"حاسوب محمول خفيف 14 بوصة",'Ordinateur portable ultraléger 14"','Portátil ultraligero 14"','Ultra hafif dizüstü 14"',"14英寸超轻笔记本电脑"]},
+{id:5,c:'el',i:'camera',h:20,p:520,w:610,r:4.8,s:940,f:1,sl:'Lumen Works',fr:'AE',d:'2–4',n:["Mirrorless camera kit","طقم كاميرا بدون مرآة","Kit appareil photo hybride","Kit de cámara sin espejo","Aynasız fotoğraf makinesi seti","微单相机套装"]},
+{id:6,c:'fa',i:'shirt',h:160,p:8.9,w:14,r:4.3,s:48200,f:0,sl:'Atlas Textiles',fr:'TR',d:'5–9',n:["Cotton crew-neck T-shirt","قميص قطني برقبة دائرية","T-shirt col rond en coton","Camiseta de algodón cuello redondo","Pamuklu bisiklet yaka tişört","纯棉圆领T恤"]},
+{id:7,c:'fa',i:'shoe',h:10,p:38,w:55,r:4.5,s:15600,f:1,sl:'Atlas Textiles',fr:'TR',d:'5–9',n:["Running shoes","حذاء جري","Chaussures de course","Zapatillas de running","Koşu ayakkabısı","跑步鞋"]},
+{id:8,c:'fa',i:'bag',h:30,p:42,w:60,r:4.6,s:3980,f:1,sl:'Atlas Textiles',fr:'TR',d:'5–9',n:["Leather tote bag","حقيبة يد جلدية","Sac cabas en cuir","Bolso tote de piel","Deri tote çanta","真皮托特包"]},
+{id:9,c:'ho',i:'lamp',h:48,p:19.5,w:29,r:4.4,s:22100,f:0,sl:'Dar Home',fr:'SA',d:'1–3',n:["LED desk lamp","مصباح مكتب LED","Lampe de bureau LED","Lámpara de escritorio LED","LED masa lambası","LED台灯"]},
+{id:10,c:'ho',i:'chair',h:190,p:129,w:179,r:4.6,s:2750,f:1,sl:'Dar Home',fr:'SA',d:'1–3',n:["Ergonomic office chair","كرسي مكتب مريح","Chaise de bureau ergonomique","Silla de oficina ergonómica","Ergonomik ofis koltuğu","人体工学办公椅"]},
+{id:11,c:'ho',i:'blender',h:350,p:54,w:79,r:4.5,s:7400,f:1,sl:'Dar Home',fr:'SA',d:'1–3',n:["High-speed blender 1200 W","خلاط عالي السرعة 1200 واط","Blender haute vitesse 1200 W","Batidora de alta velocidad 1200 W","Yüksek hızlı blender 1200 W","1200W高速破壁机"]},
+{id:12,c:'ho',i:'pan',h:270,p:17,w:25,r:4.2,s:18300,f:0,sl:'Dar Home',fr:'CN',d:'8–14',n:["Non-stick frying pan 28 cm","مقلاة غير لاصقة 28 سم","Poêle antiadhésive 28 cm","Sartén antiadherente 28 cm","Yapışmaz tava 28 cm","28厘米不粘煎锅"]},
+{id:13,c:'be',i:'bottle',h:340,p:12.5,w:18,r:4.6,s:31500,f:0,sl:'Pinecrest Goods',fr:'AE',d:'2–4',n:["Hydrating face serum 30 ml","سيروم مرطب للوجه 30 مل","Sérum visage hydratant 30 ml","Sérum facial hidratante 30 ml","Nemlendirici yüz serumu 30 ml","保湿面部精华 30毫升"]},
+{id:14,c:'to',i:'drill',h:40,p:48,w:65,r:4.7,s:6200,f:1,sl:'Pinecrest Goods',fr:'CN',d:'8–14',n:["Cordless drill 20 V","مثقاب لاسلكي 20 فولت","Perceuse sans fil 20 V","Taladro inalámbrico 20 V","Akülü matkap 20 V","20V无线电钻"]},
+{id:15,c:'sp',i:'ball',h:130,p:15,w:22,r:4.4,s:11900,f:0,sl:'Pinecrest Goods',fr:'CN',d:'8–14',n:["Match football, size 5","كرة قدم مقاس 5","Ballon de football taille 5","Balón de fútbol talla 5","5 numara futbol topu","5号比赛足球"]},
+{id:16,c:'sp',i:'bottle',h:175,p:11,w:16,r:4.8,s:27600,f:0,sl:'Pinecrest Goods',fr:'CN',d:'8–14',n:["Insulated water bottle 750 ml","قارورة ماء حافظة للحرارة 750 مل","Gourde isotherme 750 ml","Botella térmica 750 ml","Termos su şişesi 750 ml","750毫升保温水瓶"]},
+{id:17,c:'ty',i:'blocks',h:90,p:21,w:30,r:4.9,s:8650,f:0,sl:'Dar Home',fr:'TR',d:'5–9',n:["Wooden building blocks, 100 pcs","مكعبات بناء خشبية 100 قطعة","Cubes de construction en bois, 100 pièces","Bloques de madera, 100 piezas","Ahşap yapı blokları, 100 parça","木制积木100块"]},
+{id:18,c:'fa',i:'bag',h:235,p:33,w:48,r:4.5,s:10400,f:1,sl:'Atlas Textiles',fr:'TR',d:'5–9',n:["Travel backpack 35 L","حقيبة ظهر للسفر 35 لتر","Sac à dos de voyage 35 L","Mochila de viaje 35 L","Seyahat sırt çantası 35 L","35升旅行背包"]}
+];
+const SW=['#1f2937','#b45309','#0f766e'];
+const S={lang:'en',cur:'SAR',view:'shop',h:'shop',pid:1,pq:1,pc:0,q:'',cat:'',maxp:800,r4:false,fs:false,sort:'pop',
+  cart:[],wish:[],orders:[],extra:[],addr:{country:'SA'},coupon:false,ship:'std',pay:'card',flash:'',err:''};
+try{const d=JSON.parse(localStorage.getItem('qafila')||'null');if(d)Object.assign(S,d)}catch(e){}
+function save(){try{localStorage.setItem('qafila',JSON.stringify({lang:S.lang,cur:S.cur,cart:S.cart,wish:S.wish,orders:S.orders,extra:S.extra,addr:S.addr,coupon:S.coupon}))}catch(e){}}
+const $=id=>document.getElementById(id);
+const li=()=>L.indexOf(S.lang);
+const t=k=>T[k][li()];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const all=()=>P.concat(S.extra);
+const byId=id=>all().find(p=>p.id==id);
+const nm=p=>esc(p.n[li()]);
+const money=u=>new Intl.NumberFormat(LOC[S.lang],{style:'currency',currency:S.cur}).format(u*RATE[S.cur]);
+const num=n=>new Intl.NumberFormat(LOC[S.lang]).format(n);
+const unit=(p,q)=>q>=50?p.p*.78:q>=10?p.p*.88:p.p;
+const icon=p=>'<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(IC[p.i]||IC.box)+'</svg>';
+const HEART='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-10-9.3C.3 8.300 2 4.500 5.700 4.500c2.100 0 3.400 1.100 4.300 2.300h4c.9-1.200 2.200-2.300 4.300-2.300 3.700 0 5.400 3.800 3.700 7.200C19.500 16.400 12 21 12 21z"/></svg>';
+function toast(m){const e=$('toast');e.textContent=m;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),2200)}
+function count(){return S.cart.reduce((a,c)=>a+c.qty,0)}
+
+function renderTop(){
+  document.documentElement.lang=S.lang;document.documentElement.dir=S.lang==='ar'?'rtl':'ltr';
+  $('top').innerHTML=`<button class="logo" data-a="go" data-v="shop">Qafila<i>.</i></button>
+  <form class="search" data-f="search" role="search"><input id="q" type="search" data-i="q" value="${esc(S.q)}" placeholder="${t('search')}" aria-label="${t('search')}"><button aria-label="${t('search')}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.500 16.500L21 21"/></svg></button></form>
+  <div class="tools"><select id="lang" data-c="lang" aria-label="Language">${L.map(l=>`<option value="${l}"${l===S.lang?' selected':''}>${LN[l]}</option>`).join('')}</select>
+  <select id="cur" data-c="cur" aria-label="Currency">${Object.keys(RATE).map(c=>`<option${c===S.cur?' selected':''}>${c}</option>`).join('')}</select>
+  <button class="cartb" data-a="go" data-v="cart"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.500 12h11L21 8H7"/><circle cx="9" cy="20" r="1.500"/><circle cx="17" cy="20" r="1.500"/></svg><span>${t('cart')}</span> <span class="num" id="cc">${count()}</span></button></div>`;
+  $('foot').textContent=t('foot');
+  renderStrip();
+}
+function renderStrip(){
+  const b=(v,l,on)=>`<button data-a="go" data-v="${v}" class="${on?'on':''}">${l}</button>`;
+  $('strip').innerHTML=`<button data-a="cat" data-v="" class="${S.view==='shop'&&!S.cat?'on':''}">${t('all')}</button>`+
+    Object.keys(CATS).map(k=>`<button data-a="cat" data-v="${k}" class="${S.view==='shop'&&S.cat===k?'on':''}">${CATS[k][li()]}</button>`).join('')+
+    '<span class="sep"></span>'+b('orders',t('orders'),S.view==='orders')+b('wishlist',t('wishlist'),S.view==='wishlist')+b('sell',t('sell'),S.view==='sell');
+}
+function card(p){
+  const off=p.w>p.p?Math.round((1-p.p/p.w)*100):0, w=S.wish.includes(p.id);
+  return `<article class="card"><button class="ph" style="--h:${p.h}" data-a="open" data-id="${p.id}" aria-label="${nm(p)}">${icon(p)}</button>
+  ${off?`<span class="off num">−${off}%</span>`:''}<button class="heart${w?' on':''}" data-a="wish" data-id="${p.id}" aria-label="${t('wishlist')}" aria-pressed="${w}">${HEART}</button>
+  <div class="cb"><button class="nm" data-a="open" data-id="${p.id}">${nm(p)}</button>
+  <div class="pr num"><b>${money(p.p)}</b>${off?`<s>${money(p.w)}</s>`:''}</div>
+  <div class="meta num"><span class="star">★</span> ${p.r.toFixed(1)} · ${num(p.s)} ${t('sold')}</div>
+  ${p.f?`<span class="chip">${t('freeship')}</span>`:''}</div></article>`;
+}
+function shop(){
+  let list=all().filter(p=>(!S.cat||p.c===S.cat)&&p.p<=S.maxp&&(!S.r4||p.r>=4.5||p.r>=4)&&(!S.fs||p.f));
+  if(S.r4)list=list.filter(p=>p.r>=4);
+  const q=S.q.trim().toLowerCase();
+  if(q)list=list.filter(p=>p.n.some(x=>x.toLowerCase().includes(q))||CATS[p.c].some(x=>x.toLowerCase().includes(q)));
+  const so={pop:(a,b)=>b.s-a.s,low:(a,b)=>a.p-b.p,high:(a,b)=>b.p-a.p,rate:(a,b)=>b.r-a.r}[S.sort];
+  list.sort(so);
+  const plain=!q&&!S.cat;
+  const deals=P.slice().sort((a,b)=>(a.p/a.w)-(b.p/b.w)).slice(0,6);
+  return (plain?`<section class="hero"><h1>${t('heroT')}</h1><p>${t('heroS')}</p>
+    <div class="tiers num"><div class="tier"><b>1+</b>${t('list')}</div><div class="tier"><b>10+</b>−12%</div><div class="tier"><b>50+</b>−22%</div><div class="tier code"><b>WELCOME10</b>−10%</div></div></section>
+    <section><div class="sec"><h2>${t('deals')}</h2><span class="clock num">${t('ends')} <span id="clock">${clock()}</span></span></div><div class="row" style="margin-top:10px">${deals.map(card).join('')}</div></section>`:'')+
+  `<section style="display:grid;gap:12px"><div class="bar">
+    <label for="maxp">${t('maxp')} <input id="maxp" type="range" min="10" max="800" step="10" value="${S.maxp}" data-c="maxp"> <b class="num">${money(S.maxp)}</b></label>
+    <label for="r4"><input id="r4" type="checkbox" data-c="r4"${S.r4?' checked':''}> ${t('minr')}</label>
+    <label for="fs"><input id="fs" type="checkbox" data-c="fs"${S.fs?' checked':''}> ${t('freeship')}</label>
+    <label for="sort">${t('sort')} <select id="sort" data-c="sort">${['pop','low','high','rate'].map(s=>`<option value="${s}"${s===S.sort?' selected':''}>${t('s_'+s)}</option>`).join('')}</select></label>
+    <span class="meta num" style="margin-inline-start:auto">${num(list.length)} ${t('results')}</span></div>
+    ${list.length?`<div class="grid">${list.map(card).join('')}</div>`:`<div class="panel emp"><span>${t('nores')}</span><button class="btn" data-a="clear">${t('clear')}</button></div>`}</section>`;
+}
+function clock(){const n=new Date(),e=new Date(n);e.setHours(24,0,0,0);let s=Math.floor((e-n)/1000);const p=x=>String(x).padStart(2,'0');return p(Math.floor(s/3600))+':'+p(Math.floor(s%3600/60))+':'+p(s%60)}
+function qtyBox(v,dec,inc,extra){return `<span class="qty"><button data-a="${dec}" ${extra} aria-label="−">−</button><span class="num">${v}</span><button data-a="${inc}" ${extra} aria-label="+">+</button></span>`}
+function product(){
+  const p=byId(S.pid);if(!p)return shop();
+  const u=unit(p,S.pq),m=p.m||1,ti=S.pq>=50?2:S.pq>=10?1:0;
+  const five=Math.max(40,Math.min(88,Math.round((p.r-3.6)*60))),rest=100-five,dist=[five,Math.round(rest*.6),Math.round(rest*.25),Math.round(rest*.1),0];dist[4]=100-dist[0]-dist[1]-dist[2]-dist[3];
+  return `<div><button class="link" data-a="go" data-v="shop">${t('back')}</button></div>
+  <div class="pd"><div class="ph" style="--h:${p.h}">${icon(p)}</div>
+  <div class="panel"><div><div class="meta">${CATS[p.c][li()]}</div><h1 style="font-size:26px">${nm(p)}</h1>
+    <div class="meta num" style="margin-top:6px"><span class="star">★</span> ${p.r.toFixed(1)} · ${num(p.s)} ${t('sold')}</div></div>
+    <div class="pr num"><span class="big">${money(u)}</span> <span class="meta">${t('perpc')}</span>${p.w>p.p?` <s>${money(p.w)}</s>`:''}</div>
+    <div><h3 style="font-size:15px;margin-bottom:8px">${t('whole')}</h3><div class="tt num">${[['1–9',1],['10–49',.88],['50+',.78]].map((x,i)=>`<div class="${i===ti?'on':''}"><small>${x[0]} ${t('pcs')}</small><b>${money(p.p*x[1])}</b></div>`).join('')}</div></div>
+    <div><div class="meta" style="margin-bottom:6px">${t('color')}</div><div class="sw">${SW.map((c,i)=>`<button style="background:${c}" class="${i===S.pc?'on':''}" data-a="color" data-v="${i}" aria-label="${t('color')} ${i+1}" aria-pressed="${i===S.pc}"></button>`).join('')}</div></div>
+    <div><div class="meta" style="margin-bottom:6px">${t('qty')}</div><div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">${qtyBox(S.pq,'pq-','pq+','')}<button class="btn" data-a="pq10">10</button><button class="btn" data-a="pq50">50</button><b class="num">${money(u*S.pq)}</b></div></div>
+    <div class="acts"><button class="btn pri" data-a="add">${t('add')}</button><button class="btn dark" data-a="buy">${t('buy')}</button><button class="btn" data-a="wish" data-id="${p.id}" aria-pressed="${S.wish.includes(p.id)}">${S.wish.includes(p.id)?'♥':'♡'} ${t('wishlist')}</button></div>
+  </div></div>
+  <div class="two"><div class="panel"><h2 style="font-size:19px">${t('specs')}</h2><dl>
+    <dt>${t('seller')}</dt><dd>${p.sl?esc(p.sl):t('mystore')}</dd>
+    <dt>${t('shipsfrom')}</dt><dd>${CTRY[p.fr][li()]}</dd>
+    <dt>${t('delivery')}</dt><dd class="num">${p.d} ${t('days')}</dd>
+    <dt>${t('shipping')}</dt><dd>${p.f?t('free'):money(4.9)}</dd>
+    <dt>${t('moq')}</dt><dd class="num">${m} ${t('pcs')}</dd>
+    <dt>SKU</dt><dd class="num">QF-${String(p.id).padStart(5,'0')}</dd></dl></div>
+  <div class="panel"><h2 style="font-size:19px">${t('ratings')}</h2>${p.s?dist.map((d,i)=>`<div class="rb num"><span>${5-i} ★</span><i><b style="width:${d}%"></b></i><span>${d}%</span></div>`).join(''):`<span class="meta">—</span>`}</div></div>`;
+}
+function totals(){
+  const sub=S.cart.reduce((a,c)=>{const p=byId(c.id);return p?a+unit(p,c.qty)*c.qty:a},0);
+  const disc=S.coupon?sub*.1:0;
+  const allFree=S.cart.every(c=>{const p=byId(c.id);return p&&p.f});
+  const ship=!S.cart.length?0:S.ship==='exp'?12.9:(allFree||sub>=50?0:4.9);
+  const vat=(sub-disc+ship)*.15;
+  return {sub,disc,ship,vat,total:sub-disc+ship+vat};
+}
+function summary(x){
+  return `<div class="sum num"><div><span>${t('subtotal')}</span><span>${money(x.sub)}</span></div>
+  ${x.disc?`<div style="color:var(--ok)"><span>${t('discount')} WELCOME10</span><span>−${money(x.disc)}</span></div>`:''}
+  <div><span>${t('shipping')}</span><span>${x.ship?money(x.ship):t('free')}</span></div>
+  <div><span>${t('vat')}</span><span>${money(x.vat)}</span></div>
+  <div class="tot"><span>${t('total')}</span><span>${money(x.total)}</span></div></div>`;
+}
+function cartItems(edit){
+  return S.cart.map((c,i)=>{const p=byId(c.id);if(!p)return'';const u=unit(p,c.qty);
+    return `<div class="ci"><div class="ph" style="--h:${p.h}">${icon(p)}</div><div style="display:grid;gap:6px"><button class="nm" data-a="open" data-id="${p.id}">${nm(p)}</button>
+    <div class="meta num"><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${SW[c.color||0]};vertical-align:-1px"></span> ${money(u)} ${t('perpc')}${u<p.p?` · <span style="color:var(--ok)">−${Math.round((1-u/p.p)*100)}%</span>`:''}</div>
+    <div class="l">${edit?qtyBox(c.qty,'dec','inc',`data-v="${i}"`):`<span class="num">× ${c.qty}</span>`}<b class="num">${money(u*c.qty)}</b>${edit?`<button class="link" data-a="rm" data-v="${i}">${t('remove')}</button>`:''}</div></div></div>`}).join('');
+}
+function cart(){
+  if(!S.cart.length)return `<div class="panel emp"><h2>${t('empty')}</h2><button class="btn pri" data-a="go" data-v="shop">${t('back')}</button></div>`;
+  return `<h1 style="font-size:26px">${t('cart')}</h1><div class="two"><div class="panel">${cartItems(true)}</div>
+  <aside class="panel"><form class="coupon" data-f="coupon"><input id="coupon" placeholder="${t('coupon')}" aria-label="${t('coupon')}" value="${S.coupon?'WELCOME10':''}"><button class="btn">${t('apply')}</button></form>
+  ${summary(totals())}<button class="btn pri" data-a="go" data-v="checkout">${t('checkout')}</button></aside></div>`;
+}
+function checkout(){
+  if(!S.cart.length)return cart();
+  const a=S.addr,x=totals(),f=(k,type,ac)=>`<label class="field" for="a_${k}"><span>${t(k)}</span><input id="a_${k}" type="${type}" autocomplete="${ac}" data-i="addr" data-k="${k}" value="${esc(a[k]||'')}"></label>`;
+  const sub=x.sub,stdCost=(S.cart.every(c=>(byId(c.id)||{}).f)||sub>=50)?0:4.9;
+  const opt=(grp,v,label,right)=>`<label class="opt${S[grp]===v?' on':''}" for="${grp}_${v}"><input type="radio" id="${grp}_${v}" name="${grp}" value="${v}" data-c="${grp}"${S[grp]===v?' checked':''}> <span>${label}</span>${right?`<b class="num">${right}</b>`:''}</label>`;
+  return `<h1 style="font-size:26px">${t('checkout')}</h1><form data-f="place" class="two" novalidate><div style="display:grid;gap:18px">
+  <section class="panel"><h2 style="font-size:19px">1. ${t('addr')}</h2><div class="fields">${f('name','text','name')}${f('phone','tel','tel')}${f('street','text','street-address')}${f('city','text','address-level2')}
+    <label class="field" for="a_country"><span>${t('country')}</span><select id="a_country" data-c="country">${Object.keys(CTRY).map(k=>`<option value="${k}"${a.country===k?' selected':''}>${CTRY[k][li()]}</option>`).join('')}</select></label></div></section>
+  <section class="panel"><h2 style="font-size:19px">2. ${t('shipping')}</h2>${opt('ship','std',`${t('std')} · 5–12 ${t('days')}`,stdCost?money(stdCost):t('free'))}${opt('ship','exp',`${t('exp')} · 1–3 ${t('days')}`,money(12.9))}</section>
+  <section class="panel"><h2 style="font-size:19px">3. ${t('pay')}</h2><div class="note">${t('testnote')}</div>
+    ${['card','wallet','bnpl','bank','cod'].map(v=>opt('pay',v,t('p_'+v),v==='bnpl'?`4 × ${money(x.total/4)}`:'')).join('')}
+    ${S.pay==='card'?`<div class="fields"><label class="field" for="cardno"><span>${t('cardno')}</span><input id="cardno" inputmode="numeric" autocomplete="off" placeholder="4242 4242 4242 4242"></label>
+      <label class="field" for="cardexp"><span>${t('expiry')}</span><input id="cardexp" inputmode="numeric" autocomplete="off" placeholder="12/30"></label>
+      <label class="field" for="cardcvc"><span>${t('cvc')}</span><input id="cardcvc" inputmode="numeric" autocomplete="off" placeholder="123"></label></div>
+      <div><button type="button" class="btn" data-a="testcard">${t('usetest')}</button></div>`:S.pay==='cod'?'':`<div class="meta">${t('handoff')}</div>`}</section></div>
+  <aside class="panel"><div style="display:grid;gap:14px">${cartItems(false)}</div>${summary(x)}<div class="err" id="err" role="alert">${esc(S.err)}</div><button class="btn pri">${t('place')} · <span class="num">${money(x.total)}</span></button></aside></form>`;
+}
+function orders(){
+  const fl=S.flash?`<div class="okb">${t('thanks')} · ${t('ordno')} <span class="num">${esc(S.flash)}</span></div>`:'';
+  if(!S.orders.length)return `<div class="panel emp"><h2>${t('noorders')}</h2><button class="btn pri" data-a="go" data-v="shop">${t('back')}</button></div>`;
+  return `<h1 style="font-size:26px">${t('orders')}</h1>${fl}`+S.orders.map(o=>`<section class="panel"><div class="l" style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px"><b class="num">${t('ordno')} ${esc(o.no)}</b><span class="meta num">${new Date(o.at).toLocaleDateString(LOC[S.lang])} · ${t('p_'+o.pay)}</span></div>
+    <div>${o.items.map(c=>{const p=byId(c.id);return p?`<div class="num">${c.qty} × ${nm(p)}</div>`:''}).join('')}</div>
+    <div class="track">${[1,2,3,4].map(i=>`<span class="${i===1?'on':''}">${t('st'+i)}</span>`).join('')}</div>
+    <div class="sum"><div class="tot num"><span>${t('total')}</span><span>${money(o.total)}</span></div></div></section>`).join('');
+}
+function wishlist(){
+  const l=all().filter(p=>S.wish.includes(p.id));
+  return `<h1 style="font-size:26px">${t('wishlist')}</h1>`+(l.length?`<div class="grid">${l.map(card).join('')}</div>`:`<div class="panel emp"><span>${t('nowish')}</span><button class="btn pri" data-a="go" data-v="shop">${t('back')}</button></div>`);
+}
+function sell(){
+  return `<h1 style="font-size:26px">${t('sellT')}</h1><div class="two"><form class="panel" data-f="publish"><div class="fields">
+    <label class="field" for="s_name"><span>${t('pname')}</span><input id="s_name" required maxlength="80"></label>
+    <label class="field" for="s_price"><span>${t('price')}</span><input id="s_price" type="number" min="1" max="800" step="0.01" required></label>
+    <label class="field" for="s_cat"><span>${t('cat')}</span><select id="s_cat">${Object.keys(CATS).map(k=>`<option value="${k}">${CATS[k][li()]}</option>`).join('')}</select></label>
+    <label class="field" for="s_moq"><span>${t('moq')}</span><input id="s_moq" type="number" min="1" max="500" value="1" required></label></div>
+    <div><button class="btn pri">${t('publish')}</button></div></form>
+  <aside class="panel"><h2 style="font-size:19px">${t('yours')} <span class="num">(${S.extra.length})</span></h2>${S.extra.length?S.extra.map(p=>`<div style="display:flex;justify-content:space-between;gap:10px"><button class="nm" data-a="open" data-id="${p.id}">${nm(p)}</button><b class="num">${money(p.p)}</b></div>`).join(''):`<span class="meta">—</span>`}</aside></div>`;
+}
+const VIEWS={shop,product,cart,checkout,orders,wishlist,sell};
+function renderMain(){$('main').innerHTML=(VIEWS[S.view]||shop)();const c=$('cc');if(c)c.textContent=count()}
+function route(h){
+  S.h=h;S.err='';
+  if(h.indexOf('item-')===0){S.view='product';S.pid=+h.slice(5);const p=byId(S.pid);S.pq=p&&p.m||1;S.pc=0}
+  else S.view=VIEWS[h]&&h!=='product'?h:'shop';
+  if(S.view!=='orders')S.flash='';
+  renderMain();renderStrip();window.scrollTo(0,0);
+}
+function go(h){try{if(location.hash.slice(1)!==h)location.hash=h}catch(e){}route(h)}
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1)||'shop';if(h!==S.h)route(h)});
+function addCart(){const p=byId(S.pid);if(!p)return;const e=S.cart.find(c=>c.id===p.id&&(c.color||0)===S.pc);if(e)e.qty+=S.pq;else S.cart.push({id:p.id,qty:S.pq,color:S.pc});save()}
+function luhn(n){let s=0,d=false;for(let i=n.length-1;i>=0;i--){let x=+n[i];if(d){x*=2;if(x>9)x-=9}s+=x;d=!d}return n.length>=13&&n.length<=19&&s%10===0}
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,v=b.dataset.v;
+  if(a==='go')go(v);
+  else if(a==='cat'){S.cat=v;go('shop')}
+  else if(a==='open')go('item-'+b.dataset.id);
+  else if(a==='wish'){const id=+b.dataset.id,i=S.wish.indexOf(id);i<0?S.wish.push(id):S.wish.splice(i,1);save();renderMain()}
+  else if(a==='clear'){S.q='';S.cat='';S.maxp=800;S.r4=S.fs=false;const q=$('q');if(q)q.value='';renderMain();renderStrip()}
+  else if(a==='color'){S.pc=+v;renderMain()}
+  else if(a==='pq+'){S.pq++;renderMain()}
+  else if(a==='pq-'){const m=(byId(S.pid)||{}).m||1;S.pq=Math.max(m,S.pq-1);renderMain()}
+  else if(a==='pq10'){S.pq=10;renderMain()}
+  else if(a==='pq50'){S.pq=50;renderMain()}
+  else if(a==='add'){addCart();renderMain();toast(t('added'))}
+  else if(a==='buy'){addCart();go('checkout')}
+  else if(a==='inc'){S.cart[+v].qty++;save();renderMain()}
+  else if(a==='dec'){const c=S.cart[+v],m=(byId(c.id)||{}).m||1;c.qty=Math.max(m,c.qty-1);save();renderMain()}
+  else if(a==='rm'){S.cart.splice(+v,1);save();renderMain()}
+  else if(a==='testcard'){$('cardno').value='4242 4242 4242 4242';$('cardexp').value='12/30';$('cardcvc').value='123'}
+});
+document.addEventListener('change',e=>{
+  const c=e.target.dataset.c;if(!c)return;const v=e.target.value;
+  if(c==='lang'){S.lang=v;save();renderTop();renderMain()}
+  else if(c==='cur'){S.cur=v;save();renderMain()}
+  else if(c==='maxp'){S.maxp=+v;renderMain()}
+  else if(c==='r4'||c==='fs'){S[c]=e.target.checked;renderMain()}
+  else if(c==='sort'){S.sort=v;renderMain()}
+  else if(c==='country'){S.addr.country=v;save()}
+  else if(c==='ship'||c==='pay'){S[c]=v;S.err='';renderMain()}
+});
+document.addEventListener('input',e=>{
+  const i=e.target.dataset.i;
+  if(i==='q'){S.q=e.target.value;if(S.view!=='shop'){S.view='shop';S.h='shop';try{location.hash='shop'}catch(x){}renderStrip()}renderMain()}
+  else if(i==='addr'){S.addr[e.target.dataset.k]=e.target.value;save()}
+});
+document.addEventListener('submit',e=>{
+  e.preventDefault();const f=e.target.dataset.f;
+  if(f==='coupon'){const ok=$('coupon').value.trim().toUpperCase()==='WELCOME10';S.coupon=ok;save();renderMain();toast(t(ok?'couponok':'couponbad'))}
+  else if(f==='publish'){
+    const n=$('s_name').value.trim(),p=parseFloat($('s_price').value),m=Math.max(1,parseInt($('s_moq').value)||1);
+    if(!n||!(p>0))return;
+    S.extra.push({id:1000+Date.now()%1e7,c:$('s_cat').value,i:'box',h:Math.floor(Math.random()*360),p:Math.min(p,800),w:0,r:0,s:0,f:0,sl:'',fr:'SA',d:'1–3',m,n:Array(6).fill(n)});
+    save();renderMain();toast(t('listed'));
+  }
+  else if(f==='place'){
+    const a=S.addr;
+    if(!['name','phone','street','city'].every(k=>(a[k]||'').trim())){S.err=t('fill');$('err').textContent=S.err;return}
+    if(S.pay==='card'){
+      const n=$('cardno').value.replace(/\D/g,''),x=$('cardexp').value.trim().match(/^(\d{2})\s*\/\s*(\d{2})$/),c=$('cardcvc').value.trim();
+      const now=new Date(),okx=x&&+x[1]>=1&&+x[1]<=12&&(2000+ +x[2]>now.getFullYear()||(2000+ +x[2]===now.getFullYear()&&+x[1]>=now.getMonth()+1));
+      if(!luhn(n)||!okx||!/^\d{3,4}$/.test(c)){S.err=t('badcard');$('err').textContent=S.err;return}
+    }
+    const no='QF-'+String(Date.now()).slice(-8);
+    S.orders.unshift({no,at:Date.now(),items:S.cart.slice(),total:totals().total,pay:S.pay});
+    S.cart=[];S.coupon=false;save();go('orders');S.flash=no;renderMain();
+  }
+});
+setInterval(()=>{const c=$('clock');if(c)c.textContent=clock()},1000);
+renderTop();route((location.hash||'#shop').slice(1));
+</script>
+</body>
+</html>

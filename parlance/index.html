@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parlance English</title>
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a dictionary. Thumb-index of 26 letters drives everything; one highlighter stroke is the only loud element. */
+:root{
+  --paper:#f2f4f8; --surface:#ffffff; --ink:#121a2c; --muted:#566079; --line:#d7dce8;
+  --hi:#ffd23f; --on-hi:#121a2c; --link:#2443c9; --good:#17794f; --bad:#b93229;
+  --display:"Gloock","IBM Plex Sans Arabic","Noto Sans Devanagari",Georgia,serif;
+  --body:"Figtree","IBM Plex Sans Arabic","Noto Sans Devanagari",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0d1220; --surface:#161d2f; --ink:#eef1f8; --muted:#9ba5bd; --line:#2a3350;
+    --hi:#ffd23f; --on-hi:#121a2c; --link:#93a6ff; --good:#58c99a; --bad:#ff8a80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0d1220; --surface:#161d2f; --ink:#eef1f8; --muted:#9ba5bd; --line:#2a3350;
+  --hi:#ffd23f; --on-hi:#121a2c; --link:#93a6ff; --good:#58c99a; --bad:#ff8a80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:1rem;line-height:1.55}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.08;margin:0;text-wrap:balance}
+h2{font-size:clamp(1.7rem,5vw,2.5rem)}
+h3{font-size:1.45rem}
+p{margin:0}
+a{color:var(--link)}
+button,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+.muted{color:var(--muted)}
+.ipa{font-family:"Figtree","Segoe UI","Noto Sans",sans-serif;color:var(--muted)}
+
+header.top{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px;padding:18px 0}
+.brand{font-family:var(--display);font-size:1.5rem;text-decoration:none;color:var(--ink);display:flex;align-items:baseline;gap:8px}
+.brand small{font-family:var(--body);font-size:.8rem}
+nav{display:flex;gap:18px;flex-wrap:wrap;margin-inline-start:auto}
+nav a{color:var(--ink);text-decoration:none;font-weight:600;font-size:.95rem;padding:6px 0;border-bottom:2px solid transparent}
+nav a:hover{border-color:var(--hi)}
+select#lang{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-weight:600}
+
+.hero{display:grid;grid-template-columns:1.25fr .9fr;gap:36px;align-items:center;padding:34px 0 46px}
+.eyebrow{font-size:.82rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+h1{font-size:clamp(2.5rem,9vw,4.7rem)}
+mark{color:var(--on-hi);background:linear-gradient(var(--hi),var(--hi)) no-repeat 0 55%/100% 78%;padding:0 .14em;border-radius:.06em;-webkit-box-decoration-break:clone;box-decoration-break:clone;animation:stroke .9s .2s cubic-bezier(.2,.7,.2,1) backwards}
+[dir="rtl"] mark{background-position:100% 55%}
+@keyframes stroke{from{background-size:0 78%;color:var(--ink)}}
+@media (prefers-reduced-motion:reduce){mark{animation:none}html{scroll-behavior:auto}}
+.hero p.lead{font-size:1.1rem;max-width:34em;margin-top:18px;color:var(--muted)}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+.btn{display:inline-block;border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);padding:11px 18px;border-radius:8px;font-weight:700;text-decoration:none;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn:hover{filter:brightness(1.15)}
+.stats{display:flex;flex-wrap:wrap;gap:8px 28px;margin-top:28px;font-variant-numeric:tabular-nums}
+.stats b{font-family:var(--display);font-weight:400;font-size:1.7rem;margin-inline-end:6px}
+.entry{background:var(--surface);border:1px solid var(--line);border-inline-start:6px solid var(--hi);padding:22px 24px;border-radius:4px 12px 12px 4px}
+.entry .hw{font-family:var(--display);font-size:2.1rem}
+.entry ol{margin:12px 0 0;padding-inline-start:20px;display:grid;gap:8px}
+.entry em{color:var(--muted)}
+.entry .origin{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);font-size:.92rem;color:var(--muted)}
+
+section{padding:40px 0}
+.sec-head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px;margin-bottom:20px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:600;font-size:.9rem;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+.az{display:grid;grid-template-columns:repeat(13,1fr);gap:6px}
+.az button{aspect-ratio:1/1.1;border:1px solid var(--line);background:var(--surface);border-radius:6px;cursor:pointer;display:grid;place-content:center;justify-items:center;gap:1px;padding:2px;transition:transform .12s}
+.az button b{font-family:var(--display);font-weight:400;font-size:clamp(1.2rem,3.4vw,1.8rem);line-height:1}
+.az button span{font-size:.62rem;color:var(--muted);font-weight:600;white-space:nowrap}
+.az button:hover{transform:translateY(-2px);border-color:var(--ink)}
+.az button[aria-pressed="true"]{background:var(--hi);border-color:var(--hi);color:var(--on-hi)}
+.az button[aria-pressed="true"] span{color:var(--on-hi)}
+.az button.dim{opacity:.28}
+
+.course{display:grid;grid-template-columns:.85fr 1.15fr;gap:22px;margin-top:22px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 12px}
+.pill{font-size:.78rem;font-weight:700;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-variant-numeric:tabular-nums}
+.pill.lvl{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.units{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:6px;counter-reset:u}
+.units button{width:100%;text-align:start;display:flex;gap:10px;align-items:center;background:transparent;border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer}
+.units button::before{counter-increment:u;content:counter(u);font-variant-numeric:tabular-nums;font-weight:700;color:var(--muted);min-width:1.1em}
+.units button span.t{flex:1}
+.units button[aria-current="true"]{border-color:var(--ink);box-shadow:inset 4px 0 0 var(--hi)}
+[dir="rtl"] .units button[aria-current="true"]{box-shadow:inset -4px 0 0 var(--hi)}
+.tag{font-size:.7rem;font-weight:700;border-radius:4px;padding:2px 6px;border:1px solid var(--line);color:var(--muted)}
+.tag.open{background:var(--hi);color:var(--on-hi);border-color:var(--hi)}
+
+.lesson h3{margin-bottom:10px}
+.lesson .pt{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.lesson h4{margin:0 0 6px;font-size:1.02rem}
+.lesson ul{margin:8px 0 0;padding-inline-start:0;list-style:none;display:grid;gap:5px}
+.lesson li{padding:7px 12px;background:var(--paper);border-radius:6px;font-style:italic}
+.quiz{margin-top:22px;padding-top:18px;border-top:2px solid var(--ink)}
+.quiz h4{font-family:var(--display);font-weight:400;font-size:1.25rem;margin-bottom:10px}
+.q{margin-top:14px}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.opts button{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:8px 12px;cursor:pointer;text-align:start}
+.opts button:hover:not(:disabled){border-color:var(--ink)}
+.opts button.ok{border-color:var(--good);color:var(--good);font-weight:700}
+.opts button.no{border-color:var(--bad);color:var(--bad);text-decoration:line-through}
+.fb{margin-top:8px;font-size:.93rem}
+.ai-out{white-space:pre-wrap;overflow-wrap:anywhere;margin-top:14px;padding:14px 16px;background:var(--paper);border-radius:8px;border-inline-start:4px solid var(--hi);min-height:3em}
+.ai-out:empty{display:none}
+
+.tutor{display:grid;gap:14px}
+textarea{width:100%;min-height:120px;resize:vertical;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px;line-height:1.5}
+
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;background:var(--surface);padding:3px}
+.toggle button{border:0;background:transparent;border-radius:999px;padding:7px 14px;font-weight:600;font-size:.9rem;cursor:pointer}
+.toggle button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.plan{display:flex;flex-direction:column;gap:12px}
+.plan.best{border:2px solid var(--ink);box-shadow:0 -6px 0 var(--hi) inset}
+.plan .name{font-family:var(--display);font-size:1.5rem}
+.price{font-variant-numeric:tabular-nums}
+.price b{font-family:var(--display);font-weight:400;font-size:2.4rem}
+.plan ul{margin:0;padding-inline-start:20px;display:grid;gap:6px;flex:1}
+.plan .btn{text-align:center}
+#paynote{margin-top:16px;font-weight:600}
+footer{padding:30px 0 50px;border-top:1px solid var(--line);color:var(--muted);font-size:.92rem}
+
+@media (max-width:820px){
+  .hero,.course{grid-template-columns:1fr}
+  .plans{grid-template-columns:1fr}
+  .az{grid-template-columns:repeat(7,1fr)}
+  nav{margin-inline-start:0;order:3;width:100%}
+  header.top{justify-content:space-between}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="#top" id="top">Parlance <small class="ipa" dir="ltr">/ˈpɑː.ləns/</small></a>
+  <nav>
+    <a href="#courses" data-i18n="nav_courses"></a>
+    <a href="#tutor" data-i18n="nav_tutor"></a>
+    <a href="#plans" data-i18n="nav_plans"></a>
+  </nav>
+  <select id="lang" aria-label="Language"></select>
+</header>
+
+<div class="hero">
+  <div>
+    <p class="eyebrow" data-i18n="eyebrow"></p>
+    <h1><span data-i18n="h1_pre"></span> <mark data-i18n="h1_mark"></mark></h1>
+    <p class="lead" data-i18n="hero_p"></p>
+    <div class="cta">
+      <a class="btn" href="#courses" data-i18n="cta_start"></a>
+      <a class="btn ghost" href="#plans" data-i18n="cta_plans"></a>
+    </div>
+    <div class="stats">
+      <span><b>26</b><span data-i18n="s_courses"></span></span>
+      <span><b>130</b><span data-i18n="s_units"></span></span>
+      <span><b>6</b><span data-i18n="s_langs"></span></span>
+    </div>
+  </div>
+  <aside class="entry" lang="en" dir="ltr">
+    <div class="hw">parlance</div>
+    <div><span class="ipa">/ˈpɑː.ləns/</span> · <em>noun, uncountable</em></div>
+    <ol>
+      <li>A particular way of speaking or of using words, especially one shared by a group. <em>“In legal parlance, this is called consideration.”</em></li>
+      <li>Everyday speech. <em>“What is known in common parlance as a white lie.”</em></li>
+    </ol>
+    <div class="origin">Origin: late 16th century, from Old French <em>parler</em>, “to speak”.</div>
+  </aside>
+</div>
+
+<section id="courses">
+  <div class="sec-head">
+    <div>
+      <h2 data-i18n="idx_title"></h2>
+      <p class="muted" data-i18n="idx_sub"></p>
+    </div>
+    <div class="chips" id="filters"></div>
+  </div>
+  <div class="az" id="az"></div>
+  <div class="course">
+    <div class="panel" id="courseInfo" lang="en" dir="ltr"></div>
+    <div class="panel lesson" id="lesson"></div>
+  </div>
+</section>
+
+<section id="tutor">
+  <div class="sec-head">
+    <div>
+      <h2 data-i18n="tutor_title"></h2>
+      <p class="muted" data-i18n="tutor_sub"></p>
+    </div>
+  </div>
+  <div class="panel tutor">
+    <div class="chips" id="modes"></div>
+    <textarea id="tutorIn" lang="en" dir="ltr" data-i18n-ph="tutor_ph">Despite of the rain, we have went to the conference and I am agree with the most of speakers.</textarea>
+    <div><button class="btn" id="tutorGo" data-i18n="send"></button></div>
+    <div class="ai-out" id="tutorOut" dir="auto"></div>
+  </div>
+</section>
+
+<section id="plans">
+  <div class="sec-head">
+    <div>
+      <h2 data-i18n="plans_title"></h2>
+      <p class="muted" data-i18n="plans_sub"></p>
+    </div>
+    <div class="toggle" id="billing"></div>
+  </div>
+  <div class="plans" id="planGrid"></div>
+  <p id="paynote" role="status"></p>
+</section>
+
+<footer><span data-i18n="foot"></span></footer>
+</div>
+
+<script>
+const LANGS={en:["English","ltr","English"],ar:["العربية","rtl","Arabic"],fr:["Français","ltr","French"],es:["Español","ltr","Spanish"],ur:["اردو","rtl","Urdu"],hi:["हिन्दी","ltr","Hindi"]};
+const T={
+en:{nav_courses:"Courses",nav_tutor:"AI tutor",nav_plans:"Plans",eyebrow:"Advanced English · CEFR B2 to C2",h1_pre:"Advanced English, from",h1_mark:"A to Z",hero_p:"26 in-depth courses, one for every letter of the alphabet. Grammar, vocabulary, pronunciation, writing and exam preparation, taught the way educated speakers really use the language.",cta_start:"Browse the courses",cta_plans:"See plans",s_courses:"courses",s_units:"units",s_langs:"interface languages",idx_title:"The A to Z index",idx_sub:"Pick a letter. Each one opens a full course.",all:"All levels",units:"Units",hours:"hours",open:"Open",ai:"AI",check:"Check yourself",explain:"Explain this lesson in my language",ai_wait:"Writing…",ai_off:"The AI tutor works when this page is open in Claude.",ai_busy:"The tutor is busy. Try again in a minute.",ai_err:"Something went wrong. Try again.",tutor_title:"Your AI tutor",tutor_sub:"Paste a sentence, a paragraph or a single word. Explanations come back in your language.",m_correct:"Correct my writing",m_word:"Explain a word",m_translate:"Translate with nuance",tutor_ph:"Type or paste English here",send:"Ask the tutor",empty:"Write something first.",plans_title:"Plans",plans_sub:"Start free. Subscribe when you want the whole index.",monthly:"Monthly",yearly:"Yearly, save about 35%",per:"per month",billed:"billed yearly",free:"Free",f1:"6 open lessons",f2:"Full syllabus and level filter",f3:"Interface in 6 languages",f4:"All 26 courses, 130 units",f5:"AI lessons for every unit",f6:"Explanations in your language",f7:"AI writing correction",f8:"Everything in Scholar",f9:"IELTS, TOEFL and C2 exam tracks",f10:"Feedback on long essays",f11:"Completion certificates",choose:"Choose",pay_note:"Payments are not connected in this preview. Nothing is charged.",foot:"Lessons are taught in English. Explanations are available in your language.",right:"Correct.",wrong:"Not quite."},
+ar:{nav_courses:"الدورات",nav_tutor:"المعلّم الذكي",nav_plans:"الاشتراكات",eyebrow:"الإنجليزية المتقدمة · من B2 إلى C2",h1_pre:"الإنجليزية المتقدمة، من",h1_mark:"الألف إلى الياء",hero_p:"26 دورة مفصّلة، دورة لكل حرف من الأبجدية الإنجليزية. قواعد ومفردات ونطق وكتابة وتحضير للاختبارات، كما يستخدم اللغةَ أهلُها المتعلّمون فعلًا.",cta_start:"تصفّح الدورات",cta_plans:"عرض الاشتراكات",s_courses:"دورة",s_units:"وحدة",s_langs:"لغات للواجهة",idx_title:"الفهرس من A إلى Z",idx_sub:"اختر حرفًا. كل حرف يفتح دورة كاملة.",all:"كل المستويات",units:"الوحدات",hours:"ساعة",open:"مفتوح",ai:"ذكاء اصطناعي",check:"اختبر نفسك",explain:"اشرح هذا الدرس بلغتي",ai_wait:"جارٍ الكتابة…",ai_off:"يعمل المعلّم الذكي عند فتح هذه الصفحة داخل Claude.",ai_busy:"المعلّم مشغول الآن. حاول بعد دقيقة.",ai_err:"حدث خطأ. حاول مرة أخرى.",tutor_title:"معلّمك الذكي",tutor_sub:"الصق جملة أو فقرة أو كلمة واحدة. يصلك الشرح بلغتك.",m_correct:"صحّح كتابتي",m_word:"اشرح كلمة",m_translate:"ترجم مع الفروق الدقيقة",tutor_ph:"اكتب أو الصق نصًا إنجليزيًا هنا",send:"اسأل المعلّم",empty:"اكتب شيئًا أولًا.",plans_title:"الاشتراكات",plans_sub:"ابدأ مجانًا. اشترك عندما تريد الفهرس كاملًا.",monthly:"شهري",yearly:"سنوي، وفّر نحو 35%",per:"شهريًا",billed:"يُدفع سنويًا",free:"مجاني",f1:"6 دروس مفتوحة",f2:"المنهج الكامل وتصفية المستويات",f3:"واجهة بست لغات",f4:"كل الدورات الـ26 و130 وحدة",f5:"دروس بالذكاء الاصطناعي لكل وحدة",f6:"شرح بلغتك",f7:"تصحيح الكتابة بالذكاء الاصطناعي",f8:"كل ما في Scholar",f9:"مسارات IELTS وTOEFL وC2",f10:"ملاحظات على المقالات الطويلة",f11:"شهادات إتمام",choose:"اختر",pay_note:"الدفع غير مفعّل في هذه النسخة التجريبية. لن يُخصم أي مبلغ.",foot:"تُدرَّس الدروس بالإنجليزية، والشرح متاح بلغتك.",right:"صحيح.",wrong:"ليست الإجابة الصحيحة."},
+fr:{nav_courses:"Cours",nav_tutor:"Tuteur IA",nav_plans:"Abonnements",eyebrow:"Anglais avancé · CECR B2 à C2",h1_pre:"L’anglais avancé, de",h1_mark:"A à Z",hero_p:"26 cours approfondis, un pour chaque lettre de l’alphabet. Grammaire, vocabulaire, prononciation, rédaction et préparation aux examens, tels que les locuteurs cultivés emploient vraiment la langue.",cta_start:"Parcourir les cours",cta_plans:"Voir les abonnements",s_courses:"cours",s_units:"unités",s_langs:"langues d’interface",idx_title:"L’index de A à Z",idx_sub:"Choisissez une lettre. Chacune ouvre un cours complet.",all:"Tous les niveaux",units:"Unités",hours:"heures",open:"Ouvert",ai:"IA",check:"Testez-vous",explain:"Expliquer cette leçon dans ma langue",ai_wait:"Rédaction…",ai_off:"Le tuteur IA fonctionne quand cette page est ouverte dans Claude.",ai_busy:"Le tuteur est occupé. Réessayez dans une minute.",ai_err:"Une erreur s’est produite. Réessayez.",tutor_title:"Votre tuteur IA",tutor_sub:"Collez une phrase, un paragraphe ou un seul mot. Les explications arrivent dans votre langue.",m_correct:"Corriger mon texte",m_word:"Expliquer un mot",m_translate:"Traduire avec nuance",tutor_ph:"Saisissez ou collez de l’anglais ici",send:"Demander au tuteur",empty:"Écrivez d’abord quelque chose.",plans_title:"Abonnements",plans_sub:"Commencez gratuitement. Abonnez-vous pour l’index complet.",monthly:"Mensuel",yearly:"Annuel, environ 35 % d’économie",per:"par mois",billed:"facturé à l’année",free:"Gratuit",f1:"6 leçons ouvertes",f2:"Programme complet et filtre de niveau",f3:"Interface en 6 langues",f4:"Les 26 cours, 130 unités",f5:"Leçons IA pour chaque unité",f6:"Explications dans votre langue",f7:"Correction de texte par IA",f8:"Tout ce qu’offre Scholar",f9:"Parcours IELTS, TOEFL et C2",f10:"Retours sur les longs essais",f11:"Certificats de réussite",choose:"Choisir",pay_note:"Le paiement n’est pas connecté dans cet aperçu. Rien n’est débité.",foot:"Les leçons sont en anglais. Les explications sont disponibles dans votre langue.",right:"Correct.",wrong:"Pas tout à fait."},
+es:{nav_courses:"Cursos",nav_tutor:"Tutor de IA",nav_plans:"Planes",eyebrow:"Inglés avanzado · MCER B2 a C2",h1_pre:"Inglés avanzado, de la",h1_mark:"A a la Z",hero_p:"26 cursos a fondo, uno por cada letra del alfabeto. Gramática, vocabulario, pronunciación, redacción y preparación de exámenes, tal como usan el idioma los hablantes cultos.",cta_start:"Ver los cursos",cta_plans:"Ver planes",s_courses:"cursos",s_units:"unidades",s_langs:"idiomas de interfaz",idx_title:"El índice de la A a la Z",idx_sub:"Elige una letra. Cada una abre un curso completo.",all:"Todos los niveles",units:"Unidades",hours:"horas",open:"Abierta",ai:"IA",check:"Ponte a prueba",explain:"Explicar esta lección en mi idioma",ai_wait:"Escribiendo…",ai_off:"El tutor de IA funciona cuando esta página está abierta en Claude.",ai_busy:"El tutor está ocupado. Inténtalo en un minuto.",ai_err:"Algo salió mal. Inténtalo de nuevo.",tutor_title:"Tu tutor de IA",tutor_sub:"Pega una frase, un párrafo o una sola palabra. Las explicaciones llegan en tu idioma.",m_correct:"Corregir mi texto",m_word:"Explicar una palabra",m_translate:"Traducir con matices",tutor_ph:"Escribe o pega inglés aquí",send:"Preguntar al tutor",empty:"Escribe algo primero.",plans_title:"Planes",plans_sub:"Empieza gratis. Suscríbete cuando quieras el índice completo.",monthly:"Mensual",yearly:"Anual, ahorra cerca del 35 %",per:"al mes",billed:"facturado al año",free:"Gratis",f1:"6 lecciones abiertas",f2:"Temario completo y filtro de nivel",f3:"Interfaz en 6 idiomas",f4:"Los 26 cursos, 130 unidades",f5:"Lecciones de IA para cada unidad",f6:"Explicaciones en tu idioma",f7:"Corrección de textos con IA",f8:"Todo lo de Scholar",f9:"Rutas para IELTS, TOEFL y C2",f10:"Comentarios sobre ensayos largos",f11:"Certificados de finalización",choose:"Elegir",pay_note:"Los pagos no están conectados en esta vista previa. No se cobra nada.",foot:"Las lecciones se imparten en inglés. Las explicaciones están disponibles en tu idioma.",right:"Correcto.",wrong:"No del todo."},
+ur:{nav_courses:"کورسز",nav_tutor:"اے آئی استاد",nav_plans:"پلانز",eyebrow:"اعلیٰ انگریزی · B2 سے C2 تک",h1_pre:"اعلیٰ انگریزی،",h1_mark:"A سے Z تک",hero_p:"26 تفصیلی کورسز، حروفِ تہجی کے ہر حرف کے لیے ایک۔ گرامر، ذخیرۂ الفاظ، تلفظ، تحریر اور امتحانات کی تیاری، ویسے ہی جیسے تعلیم یافتہ اہلِ زبان واقعی زبان استعمال کرتے ہیں۔",cta_start:"کورسز دیکھیں",cta_plans:"پلانز دیکھیں",s_courses:"کورسز",s_units:"یونٹس",s_langs:"انٹرفیس زبانیں",idx_title:"A سے Z تک فہرست",idx_sub:"ایک حرف چنیں۔ ہر حرف ایک مکمل کورس کھولتا ہے۔",all:"تمام سطحیں",units:"یونٹس",hours:"گھنٹے",open:"کھلا",ai:"اے آئی",check:"خود کو جانچیں",explain:"یہ سبق میری زبان میں سمجھائیں",ai_wait:"لکھا جا رہا ہے…",ai_off:"اے آئی استاد تب کام کرتا ہے جب یہ صفحہ Claude میں کھلا ہو۔",ai_busy:"استاد مصروف ہے۔ ایک منٹ بعد کوشش کریں۔",ai_err:"کچھ غلط ہو گیا۔ دوبارہ کوشش کریں۔",tutor_title:"آپ کا اے آئی استاد",tutor_sub:"کوئی جملہ، پیراگراف یا ایک لفظ چسپاں کریں۔ وضاحت آپ کی زبان میں ملے گی۔",m_correct:"میری تحریر درست کریں",m_word:"لفظ کی وضاحت",m_translate:"باریکیوں کے ساتھ ترجمہ",tutor_ph:"یہاں انگریزی لکھیں یا چسپاں کریں",send:"استاد سے پوچھیں",empty:"پہلے کچھ لکھیں۔",plans_title:"پلانز",plans_sub:"مفت شروع کریں۔ پوری فہرست کے لیے سبسکرائب کریں۔",monthly:"ماہانہ",yearly:"سالانہ، تقریباً 35٪ بچت",per:"فی مہینہ",billed:"سالانہ ادائیگی",free:"مفت",f1:"6 کھلے اسباق",f2:"مکمل نصاب اور سطح کا فلٹر",f3:"6 زبانوں میں انٹرفیس",f4:"تمام 26 کورسز، 130 یونٹس",f5:"ہر یونٹ کے لیے اے آئی اسباق",f6:"آپ کی زبان میں وضاحت",f7:"اے آئی سے تحریر کی اصلاح",f8:"Scholar کی ہر سہولت",f9:"IELTS، TOEFL اور C2 امتحانی ٹریک",f10:"طویل مضامین پر رائے",f11:"تکمیل کے سرٹیفکیٹ",choose:"منتخب کریں",pay_note:"اس پیش نظارہ میں ادائیگی منسلک نہیں ہے۔ کوئی رقم نہیں کاٹی جاتی۔",foot:"اسباق انگریزی میں پڑھائے جاتے ہیں۔ وضاحت آپ کی زبان میں دستیاب ہے۔",right:"درست۔",wrong:"یہ درست نہیں۔"},
+hi:{nav_courses:"कोर्स",nav_tutor:"एआई ट्यूटर",nav_plans:"प्लान",eyebrow:"उन्नत अंग्रेज़ी · CEFR B2 से C2",h1_pre:"उन्नत अंग्रेज़ी,",h1_mark:"A से Z तक",hero_p:"26 विस्तृत कोर्स, वर्णमाला के हर अक्षर के लिए एक। व्याकरण, शब्दावली, उच्चारण, लेखन और परीक्षा की तैयारी, ठीक वैसे जैसे शिक्षित वक्ता भाषा का सचमुच प्रयोग करते हैं।",cta_start:"कोर्स देखें",cta_plans:"प्लान देखें",s_courses:"कोर्स",s_units:"यूनिट",s_langs:"इंटरफ़ेस भाषाएँ",idx_title:"A से Z तक सूची",idx_sub:"एक अक्षर चुनें। हर अक्षर एक पूरा कोर्स खोलता है।",all:"सभी स्तर",units:"यूनिट",hours:"घंटे",open:"खुला",ai:"एआई",check:"खुद को परखें",explain:"यह पाठ मेरी भाषा में समझाएँ",ai_wait:"लिखा जा रहा है…",ai_off:"एआई ट्यूटर तब काम करता है जब यह पेज Claude में खुला हो।",ai_busy:"ट्यूटर व्यस्त है। एक मिनट बाद कोशिश करें।",ai_err:"कुछ गड़बड़ हुई। फिर कोशिश करें।",tutor_title:"आपका एआई ट्यूटर",tutor_sub:"कोई वाक्य, अनुच्छेद या एक शब्द चिपकाएँ। व्याख्या आपकी भाषा में मिलेगी।",m_correct:"मेरा लेखन सुधारें",m_word:"शब्द समझाएँ",m_translate:"बारीकियों के साथ अनुवाद",tutor_ph:"यहाँ अंग्रेज़ी लिखें या चिपकाएँ",send:"ट्यूटर से पूछें",empty:"पहले कुछ लिखें।",plans_title:"प्लान",plans_sub:"मुफ़्त शुरू करें। पूरी सूची के लिए सदस्यता लें।",monthly:"मासिक",yearly:"वार्षिक, लगभग 35% बचत",per:"प्रति माह",billed:"वार्षिक बिलिंग",free:"मुफ़्त",f1:"6 खुले पाठ",f2:"पूरा पाठ्यक्रम और स्तर फ़िल्टर",f3:"6 भाषाओं में इंटरफ़ेस",f4:"सभी 26 कोर्स, 130 यूनिट",f5:"हर यूनिट के लिए एआई पाठ",f6:"आपकी भाषा में व्याख्या",f7:"एआई से लेखन सुधार",f8:"Scholar की हर सुविधा",f9:"IELTS, TOEFL और C2 परीक्षा ट्रैक",f10:"लंबे निबंधों पर प्रतिक्रिया",f11:"पूर्णता प्रमाणपत्र",choose:"चुनें",pay_note:"इस प्रीव्यू में भुगतान जुड़ा नहीं है। कोई शुल्क नहीं लिया जाता।",foot:"पाठ अंग्रेज़ी में पढ़ाए जाते हैं। व्याख्या आपकी भाषा में उपलब्ध है।",right:"सही।",wrong:"यह सही नहीं है।"}
+};
+
+// [letter, title, level, hours, blurb, units]
+const COURSES=[
+["A","Articles & Determiners","B2–C1",12,"The smallest words cause the most persistent errors. Master a, the and the zero article in every context.",["Generic reference: a, the or nothing","Articles with abstract nouns","Geographical and institutional names","Quantifiers: few, a few, little, a little","Determiner order and fixed phrases"]],
+["B","British & American English","B2",14,"Spelling, vocabulary, grammar and sound differences, and how to stay consistent in one standard.",["Spelling systems: -our/-or, -ise/-ize","Everyday vocabulary splits","Grammar differences: have got, gotten, shall","Vowels, r-sounds and stress","Choosing a standard and keeping to it"]],
+["C","Collocations","C1",18,"Words that belong together. The difference between correct English and natural English.",["Strong adverb and adjective pairs","Verb and noun: make, do, take, run","Academic collocations","Collocations of degree and intensity","Avoiding translated collocations"]],
+["D","Discourse Markers","C1",12,"The signposts that hold long speech and writing together.",["Adding and contrasting: moreover, nevertheless","Spoken markers: well, actually, mind you","Signposting a long argument","Concession: admittedly, granted, even so","Markers of stance and attitude"]],
+["E","Etymology & Word Roots","C1",16,"Learn where words come from and unlock thousands you have never met.",["Latin roots in formal vocabulary","Greek roots in science and medicine","Old English and Norse core words","French layers: beef, justice, parliament","Prefixes and suffixes that build meaning"]],
+["F","Figurative Language","C1–C2",14,"Metaphor, irony and understatement as English speakers use them every day.",["Metaphor in everyday speech","Conceptual metaphors: time is money","Simile, analogy and extended comparison","Irony, understatement and litotes","Euphemism and loaded language"]],
+["G","Grammar: Advanced Structures","C1",24,"Inversion, clefts, fronting and participle clauses for precise, emphatic sentences.",["Negative inversion","Cleft sentences: it-clefts and wh-clefts","Fronting and emphasis","Participle clauses","Ellipsis and substitution"]],
+["H","Hedging & Academic Caution","C1",10,"Say exactly as much as your evidence allows, and no more.",["Why academics hedge","Modal verbs of caution","Reporting verbs: suggest, indicate, claim","Adverbs and approximators","Hedging without sounding weak"]],
+["I","Idioms in Real Use","B2–C1",18,"The idioms people still say, where they fit and where they sound forced.",["Idioms native speakers still use","Business and workplace idioms","Binomials: odds and ends, by and large","Proverbs and their shortened forms","When not to use an idiom"]],
+["J","Jargon, Register & Tone","C1",12,"Move between formal, neutral and informal English with control.",["Formal, neutral and informal registers","Plain English and legal language","Corporate jargon and how to translate it","Politeness, distance and directness","Shifting register within one text"]],
+["K","Key Academic Vocabulary","B2–C1",20,"The high-value words of lectures, journals and reports.",["The Academic Word List in context","Verbs of analysis: assess, derive, infer","Describing data, trends and proportion","Cause, effect and correlation","Word families and derivation"]],
+["L","Linking & Connected Speech","B2–C1",12,"Why fast English sounds different from the dictionary, and how to follow it.",["Consonant-to-vowel linking","Linking and intrusive r, w and y","Assimilation and elision","Weak forms and the schwa","Understanding fast natural speech"]],
+["M","Modality","C1",14,"Certainty, obligation, permission and regret through modal verbs.",["Degrees of certainty: must, should, might","Obligation and necessity","Past modals: must have, needn't have","Semi-modals: be bound to, be supposed to","Modality in polite requests"]],
+["N","Nominalisation","C1–C2",10,"Turn actions into things: the engine of formal and academic prose.",["From verbs to nouns","Packing information into noun phrases","Nominalisation in academic prose","When nominalisation goes wrong","Unpacking dense texts"]],
+["O","Oratory & Presentations","C1",12,"Speak to a room clearly, memorably and under pressure.",["Structuring a talk that listeners follow","Openings and closings","The rule of three and repetition","Handling questions","Pausing, pace and emphasis"]],
+["P","Phrasal Verbs","B2–C1",22,"Systematic study of particles, so that new phrasal verbs explain themselves.",["Particles and their meanings: up, off, out","Separable and inseparable verbs","Three-part verbs: put up with","Formal equivalents: put off, postpone","Phrasal nouns and adjectives"]],
+["Q","Questions, Tags & Indirectness","B2",10,"Ask precisely and politely, from indirect questions to tags.",["Indirect questions and word order","Question tags and intonation","Negative questions","Echo and reply questions","Rhetorical questions"]],
+["R","Rhetoric & Persuasion","C2",16,"Classical tools of argument applied to modern English.",["Ethos, pathos and logos","Building an argument","Anticipating objections","Logical fallacies","Analysing famous speeches"]],
+["S","Subjunctive & Unreal Forms","C1–C2",12,"Demands, wishes and hypotheses: the grammar of what is not fact.",["The mandative subjunctive","Were-subjunctive and unreal conditions","Wish, if only, it's time","Mixed conditionals","Formal fixed expressions"]],
+["T","Tense, Aspect & Time","B2–C1",18,"A full map of how English places events in time.",["Perfect aspect across all tenses","Progressive meaning and stative verbs","Future forms and their shades","Narrative tenses","Time, tense and reported speech"]],
+["U","Usage & Style","C2",14,"The judgement calls of careful writers.",["Disputed usage: who and whom, fewer and less","Concision: cutting dead words","Parallel structure","Punctuation for meaning","Developing a personal style"]],
+["V","Vocabulary at C2","C2",24,"Precision vocabulary: near-synonyms, connotation and rare but useful words.",["Near-synonyms and shades of meaning","Low-frequency verbs","Adjectives of evaluation","Connotation: slim, thin, skinny","Words that are often confused"]],
+["W","Writing: Essays & Research","C1–C2",26,"From thesis statement to final proofread.",["Thesis statements and outlines","Paragraph unity and topic sentences","Cohesion and flow","Citing, quoting and paraphrasing","Editing and proofreading"]],
+["X","eXam Preparation","B2–C2",30,"Focused tracks for IELTS, TOEFL iBT and Cambridge C2 Proficiency.",["IELTS Academic Writing Task 2","TOEFL iBT integrated tasks","Cambridge C2 Proficiency: Use of English","Speaking tests: fluency and range","Timed reading strategies"]],
+["Y","Your Accent: Stress & Intonation","B2–C1",14,"Rhythm and melody matter more than individual sounds.",["Word stress patterns","Sentence stress and rhythm","Intonation and meaning","Contrastive stress","Regional accents of English"]],
+["Z","Zeugma to Anaphora: Literary Devices","C2",12,"Read and write with the devices of great English prose.",["Anaphora and parallelism","Zeugma and syllepsis","Chiasmus and antithesis","Alliteration, assonance and rhythm","Close reading of a passage"]]
+];
+
+// Open lessons for unit 1 of six courses
+const LESSONS={
+A:{intro:"English has three ways to talk about a whole class of things. All three are correct, but each carries a different tone.",
+ pts:[["Zero article with plural or uncountable nouns","This is the neutral, everyday choice for general statements.",["Tigers are solitary animals.","Sugar dissolves in water."]],
+      ["The with a singular noun","Formal and scientific. It treats the class as a single type, and is common for species, inventions and instruments.",["The tiger is a solitary animal.","The smartphone has changed how we read."]],
+      ["A or an with a singular noun","This picks any one typical member, so it suits definitions. It fails when the statement is only true of the whole class.",["A tiger hunts alone.","✗ A tiger is in danger of extinction.  ✓ The tiger is in danger of extinction."]]],
+ quiz:[["___ computer has transformed modern science.",["A","The","(no article)"],1,"An invention seen as a type takes the with a singular noun."],
+       ["Which sentence is not natural?",["The dodo is extinct.","Dodos are extinct.","A dodo is extinct."],2,"Extinct describes the species, never one individual, so a dodo cannot be used."],
+       ["___ patience is a virtue.",["The","A","(no article)"],2,"Abstract uncountable nouns used generally take no article."]]},
+C:{intro:"A collocation is a pair of words that fluent speakers expect to hear together. The choice is conventional, so logic alone will not predict it.",
+ pts:[["Convention decides the adverb","Many adverbs mean roughly “very”, yet each keeps its own partners.",["She was bitterly disappointed.","It is highly unlikely.  ✗ strongly unlikely"]],
+      ["Extreme adjectives need absolute adverbs","Adjectives that already mean “very X” reject very. Use absolutely, utterly or completely.",["I was absolutely furious.  ✗ very furious","We were utterly exhausted."]],
+      ["Adverbs keep to a field of meaning","Deeply goes with feelings, highly with probability and opinion, heavily with dependence and criticism.",["We are deeply grateful.","The economy is heavily dependent on oil."]]],
+ quiz:[["She was ___ disappointed by the verdict.",["strongly","bitterly","highly"],1,"Bitterly collocates with negative emotions: bitterly disappointed, bitterly resentful."],
+       ["The results are ___ unlikely to be repeated.",["highly","deeply","heavily"],0,"Highly is the standard partner of likely, unlikely and probable."],
+       ["Which phrase is natural?",["very freezing","slightly freezing","absolutely freezing"],2,"Freezing is an extreme adjective, so it takes an absolute adverb."]]},
+G:{intro:"When a negative or restrictive expression opens a sentence, the subject and auxiliary swap places, exactly as in a question. The effect is formal and emphatic.",
+ pts:[["Negative adverbs: never, rarely, seldom","If there is no auxiliary, add do, does or did.",["Never have I seen such courage.","Rarely does the committee agree."]],
+      ["Hardly … when, no sooner … than","Both describe one event following immediately after another, usually with the past perfect.",["No sooner had we sat down than the alarm rang.","Hardly had she spoken when the room fell silent."]],
+      ["Only and not until","The inversion happens in the main clause, not in the clause that follows only or not until.",["Only when the results arrived did we understand.","Not until 1928 did all women in Britain gain the vote."]]],
+ quiz:[["Seldom ___ such a clear result.",["we see","do we see","we do see"],1,"After seldom, add do and invert: do we see."],
+       ["No sooner had he left ___ the phone rang.",["when","that","than"],2,"No sooner pairs with than. Hardly and scarcely pair with when."],
+       ["Only after the meeting ___ the mistake.",["did she realise","she realised","realised she"],0,"Only plus a time expression triggers inversion in the main clause."]]},
+H:{intro:"A hedge limits a claim to what the evidence supports. In academic English an unhedged claim reads as careless, not confident.",
+ pts:[["From absolute to supportable","Compare a claim that one study could never prove with one that it could.",["✗ Coffee prevents heart disease.","✓ Coffee may reduce the risk of heart disease."]],
+      ["Three everyday tools","Modal verbs (may, might, could), cautious reporting verbs (suggest, indicate, appear) and qualifiers (in most cases, to some extent).",["The data suggest a link between the two.","This appears to be the main cause."]],
+      ["One hedge per claim","Stacked hedges sound evasive. Choose the single hedge that matches your evidence.",["✗ It may possibly perhaps suggest a trend.","✓ The findings suggest a trend."]]],
+ quiz:[["Which sentence is hedged appropriately?",["Social media causes anxiety.","Social media use appears to be associated with higher anxiety.","Social media maybe possibly causes anxiety."],1,"One hedge (appears) and a careful relation (associated with) match what such studies can show."],
+       ["Which reporting verb is the most cautious?",["prove","demonstrate","suggest"],2,"Suggest presents a finding as evidence, not as certainty."],
+       ["The results ___ that further study is needed.",["guarantee","indicate","prove"],1,"Indicate is a standard cautious reporting verb."]]},
+N:{intro:"Nominalisation turns a verb or an adjective into a noun, so that an action can be discussed as a thing. It is the main reason formal English sounds formal.",
+ pts:[["From clause to noun phrase","Two clauses become one, and the event becomes the subject.",["Prices rose sharply, and this worried investors.","The sharp rise in prices worried investors."]],
+      ["Changes come in sets","Verb becomes noun, adverb becomes adjective, and the subject becomes a possessive or an of-phrase.",["The government decided quickly.","the government's quick decision"]],
+      ["Use it, but do not hide the actor","Too many nominalisations bury who did what.",["✗ The implementation of the reduction of costs was carried out.","✓ The firm cut costs."]]],
+ quiz:[["Nominalise: “They failed to respond.”",["their fail to respond","their failure to respond","their failing respond"],1,"Fail becomes failure, and they becomes their."],
+       ["Nominalise: “The committee rejected the plan.”",["the committee's rejection of the plan","the committee rejection the plan","the rejecting plan of the committee"],0,"The subject becomes a possessive and the object follows of."],
+       ["Which is clearer in everyday writing?",["A decision to leave was arrived at by us.","We decided to leave.","Our arrival at a leaving decision occurred."],1,"When the actor matters, a plain verb is clearer than a nominalisation."]]},
+S:{intro:"After words of demand or recommendation, formal English uses the base form of the verb for every person. This is the mandative subjunctive.",
+ pts:[["Base form after insist, recommend, demand, essential, vital","There is no -s in the third person, and be stays as be.",["The board insisted that he resign.","It is essential that every student be present."]],
+      ["The negative uses not, without do","Place not directly before the base form.",["They recommended that she not travel alone.","We ask that visitors not touch the exhibits."]],
+      ["The British alternative with should","Both forms are correct. The plain subjunctive is standard in American English and common in formal British English.",["They recommended that she should not travel alone.","The judge ordered that the files should be released."]]],
+ quiz:[["The doctor recommended that he ___ more.",["rests","rest","rested"],1,"Base form for every person: that he rest."],
+       ["It is vital that the report ___ finished by Friday.",["be","was","being"],0,"The subjunctive of be is be."],
+       ["They asked that we ___ late.",["don't arrive","aren't arriving","not arrive"],2,"The negative subjunctive is not plus the base form."]]}
+};
+
+const PLANS=[["Explorer",0,0,["f1","f2","f3"]],["Scholar",14,9,["f4","f5","f6","f7"]],["Mastery",29,19,["f8","f9","f10","f11"]]];
+const $=s=>document.querySelector(s);
+function h(tag,props,...kids){const e=document.createElement(tag);for(const k in props||{}){if(k==="on")for(const ev in props.on)e.addEventListener(ev,props.on[ev]);else if(k==="cls")e.className=props[k];else e.setAttribute(k,props[k]);}for(const c of kids)if(c!=null)e.append(c);return e;}
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+
+let lang=store("parlance-lang");if(!LANGS[lang])lang="en";
+let cur="A",unit=0,level="",mode="correct",yearly=true;
+const t=k=>(T[lang]&&T[lang][k])||T.en[k];
+
+const samplePromise=(async()=>{try{return window.claude&&window.claude.use?await window.claude.use("sample"):null}catch(e){return null}})();
+const ctrls=new WeakMap();
+async function runAI(el,prompt){
+  ctrls.get(el)?.abort();const c=new AbortController();ctrls.set(el,c);
+  el.textContent=t("ai_wait");
+  try{
+    const s=await samplePromise;
+    if(!s){el.textContent=t("ai_off");return}
+    const r=await s(prompt,{signal:c.signal,onText:({text})=>{if(!c.signal.aborted)el.textContent=text}});
+    if(!c.signal.aborted)el.textContent=r.text;
+  }catch(e){
+    if(c.signal.aborted)return;
+    el.textContent=e&&e.code==="rate_limited"?t("ai_busy"):e&&e.code==="not_granted"?t("ai_off"):t("ai_err");
+  }
+}
+const L=()=>LANGS[lang][2];
+const STYLE=" Write all explanations in "+"%L%"+". Keep every English example sentence in English. Use plain text only, with no markdown symbols such as # or *.";
+const style=()=>STYLE.replace("%L%",L());
+
+function renderFilters(){
+  const f=$("#filters");f.replaceChildren();
+  for(const [v,label] of [["",t("all")],["B2","B2"],["C1","C1"],["C2","C2"]])
+    f.append(h("button",{cls:"chip",type:"button","aria-pressed":String(level===v),on:{click(){level=v;renderFilters();renderAZ()}}},label));
+}
+function renderAZ(){
+  const az=$("#az");az.replaceChildren();
+  for(const c of COURSES){
+    const b=h("button",{type:"button",title:c[1],"aria-label":c[0]+": "+c[1],"aria-pressed":String(c[0]===cur),on:{click(){cur=c[0];unit=0;renderAZ();renderCourse();renderLesson(true)}}},h("b",null,c[0]),h("span",null,c[2]));
+    if(level&&!c[2].includes(level))b.classList.add("dim");
+    az.append(b);
+  }
+}
+function course(){return COURSES.find(c=>c[0]===cur)}
+function renderCourse(){
+  const c=course(),box=$("#courseInfo");box.replaceChildren();
+  box.append(h("h3",null,c[0]+" · "+c[1]),
+    h("div",{cls:"meta"},h("span",{cls:"pill lvl"},"CEFR "+c[2]),h("span",{cls:"pill"},c[3]+" "+t("hours")),h("span",{cls:"pill"},"5 "+t("units"))),
+    h("p",{cls:"muted"},c[4]));
+  const ul=h("ol",{cls:"units"});
+  c[5].forEach((u,i)=>{
+    const open=i===0&&LESSONS[c[0]];
+    ul.append(h("li",null,h("button",{type:"button","aria-current":String(i===unit),on:{click(){unit=i;renderCourse();renderLesson(true)}}},h("span",{cls:"t"},u),h("span",{cls:"tag"+(open?" open":"")},open?t("open"):t("ai")))));
+  });
+  box.append(ul);
+}
+function renderLesson(go){
+  const c=course(),box=$("#lesson"),title=c[5][unit],les=unit===0?LESSONS[c[0]]:null;
+  box.replaceChildren();
+  const body=h("div",{lang:"en",dir:"ltr"},h("p",{cls:"eyebrow"},c[1]+" · "+(unit+1)+"/5"),h("h3",null,title));
+  box.append(body);
+  if(les){
+    body.append(h("p",null,les.intro));
+    for(const p of les.pts)body.append(h("div",{cls:"pt"},h("h4",null,p[0]),h("p",null,p[1]),h("ul",null,...p[2].map(x=>h("li",null,x)))));
+    const quiz=h("div",{cls:"quiz"},h("h4",null,t("check")));
+    les.quiz.forEach(q=>{
+      const fb=h("p",{cls:"fb",role:"status"});
+      const opts=h("div",{cls:"opts"},...q[1].map((o,i)=>h("button",{type:"button",on:{click(ev){
+        opts.querySelectorAll("button").forEach((b,j)=>{b.disabled=true;if(j===q[2])b.classList.add("ok")});
+        if(i!==q[2])ev.currentTarget.classList.add("no");
+        fb.textContent=(i===q[2]?t("right"):t("wrong"))+" "+q[3];
+      }}},o)));
+      quiz.append(h("div",{cls:"q"},h("p",null,h("b",null,q[0])),opts,fb));
+    });
+    body.append(quiz);
+    if(lang!=="en"){
+      const out=h("div",{cls:"ai-out",dir:"auto"});
+      const text=[title,les.intro,...les.pts.map(p=>p[0]+". "+p[1]+" Examples: "+p[2].join(" | "))].join("\n");
+      box.append(h("div",{style:"margin-top:18px"},h("button",{cls:"btn ghost",type:"button",on:{click(){runAI(out,"You are an expert English teacher. Explain the following English lesson to an advanced learner whose language is "+L()+". Explain each rule clearly and say why each example is right or wrong."+style()+"\n\nLesson:\n"+text)}}},t("explain"))),out);
+    }
+  }else{
+    const out=h("div",{cls:"ai-out",dir:"auto"});
+    box.append(out);
+    const prompt="You are an expert English teacher writing for learners at CEFR "+c[2]+". Write a detailed lesson for the unit \""+title+"\" from the course \""+c[1]+"\". Structure: a short introduction; three key points, each with a clear explanation and two example sentences; a section on common mistakes; then three practice questions followed by their answers."+style();
+    if(go)runAI(out,prompt);
+    else box.append(h("div",null,h("button",{cls:"btn",type:"button",on:{click(ev){ev.currentTarget.remove();runAI(out,prompt)}}},t("open"))));
+  }
+}
+function renderModes(){
+  const m=$("#modes");m.replaceChildren();
+  for(const k of ["correct","word","translate"])
+    m.append(h("button",{cls:"chip",type:"button","aria-pressed":String(mode===k),on:{click(){mode=k;renderModes()}}},t("m_"+k)));
+}
+$("#tutorGo").addEventListener("click",()=>{
+  const txt=$("#tutorIn").value.trim(),out=$("#tutorOut");
+  if(!txt){out.textContent=t("empty");return}
+  const P={
+    correct:"You are an expert English tutor for advanced learners. Correct the text below. Give the corrected version first. Then list each change with a one-line reason. Finish with one suggestion that would make it sound more natural.",
+    word:"Explain the English word or phrase below as an advanced learner's dictionary would: IPA pronunciation, part of speech, meanings, register, three common collocations, two example sentences, a short note on its origin, and its closest equivalent in "+L()+".",
+    translate:lang==="en"?"Paraphrase the English text below at three registers: formal, neutral and informal. Then explain what changes between them.":"Translate the English text below into "+L()+". Then explain the nuances: tone, register, any idioms, and one alternative translation where the meaning could shift."
+  }[mode];
+  runAI(out,P+style()+"\n\nText:\n"+txt);
+});
+function renderPlans(){
+  const b=$("#billing");b.replaceChildren(
+    h("button",{type:"button","aria-pressed":String(!yearly),on:{click(){yearly=false;renderPlans()}}},t("monthly")),
+    h("button",{type:"button","aria-pressed":String(yearly),on:{click(){yearly=true;renderPlans()}}},t("yearly")));
+  const g=$("#planGrid");g.replaceChildren();
+  PLANS.forEach((p,i)=>{
+    const price=yearly?p[2]:p[1];
+    g.append(h("div",{cls:"panel plan"+(i===1?" best":"")},
+      h("div",{cls:"name",dir:"ltr"},p[0]),
+      h("div",{cls:"price"},price?h("b",{dir:"ltr"},"$"+price):h("b",null,t("free")),price?h("span",{cls:"muted"}," "+t("per")+(yearly?" · "+t("billed"):"")):null),
+      h("ul",null,...p[3].map(f=>h("li",null,t(f)))),
+      h("button",{cls:"btn"+(i===1?"":" ghost"),type:"button",on:{click(){$("#paynote").textContent=p[0]+": "+t("pay_note")}}},t("choose")+" "+p[0])));
+  });
+}
+function applyLang(){
+  const d=document.documentElement;d.lang=lang;d.dir=LANGS[lang][1];
+  document.querySelectorAll("[data-i18n]").forEach(e=>e.textContent=t(e.dataset.i18n));
+  document.querySelectorAll("[data-i18n-ph]").forEach(e=>e.placeholder=t(e.dataset.i18nPh));
+  $("#paynote").textContent="";
+  renderFilters();renderAZ();renderCourse();renderLesson(false);renderModes();renderPlans();
+}
+const sel=$("#lang");
+for(const k in LANGS)sel.append(h("option",{value:k},LANGS[k][0]));
+sel.value=lang;
+sel.addEventListener("change",()=>{lang=sel.value;store("parlance-lang",lang);applyLang()});
+applyLang();
+</script>
+</body>
+</html>

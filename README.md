@@ -23,3 +23,7 @@ To open enrollment, put each plan's payment link in its `checkout` field in `ass
 ## Nuclear engineering guide
 
 `nuclear-engineering-guide.html` is a standalone page: a free advanced nuclear engineering reference guide, marked as a draft for study only. It does not use the course data files.
+
+## Apps
+
+`apps/index.html` lists every site and app, and the home page links to it. Each app is a single self-contained `index.html` in its own folder: `ai-in-nuclear`, `aloud`, `calculator`, `calendar`, `civil`, `fulcrum`, `jabr`, `junction`, `neutrai`, `neutrai-academy`, `neutrai-academy-app`, `neutrai-physics`, `parlance`, `phasor`, `qafila`, `suhail`, `tangent`. They were copied from their Claude artifact versions; the AI tutor and saved-account features in some of them need Claude and stay switched off here. To add an app, put it in a new folder and add a row to `GROUPS` in `apps/index.html`.

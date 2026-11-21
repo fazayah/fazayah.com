@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hisab Calculator</title>
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: the calculator is the hero. A printing-calculator paper tape sits beside the keys; every other tool is a quiet worksheet. */
+:root{
+  --bg:#edf0f6; --surface:#ffffff; --surface-2:#e1e7f1; --ink:#121a2f; --muted:#56617e; --line:#cbd3e2;
+  --accent:#f4502a; --accent-ink:#ffffff; --fn:#0b7480; --s3:#6a4df0; --tape:#fffdf6;
+  --display:"Bricolage Grotesque","IBM Plex Sans Arabic","IBM Plex Sans Devanagari",system-ui,sans-serif;
+  --body:"IBM Plex Sans","IBM Plex Sans Arabic","IBM Plex Sans Devanagari",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b1020; --surface:#141b30; --surface-2:#1f2a45; --ink:#eef1f9; --muted:#98a3c0; --line:#2c3757;
+    --accent:#ff6a45; --accent-ink:#1a0d08; --fn:#56d3db; --s3:#a593ff; --tape:#19213a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0b1020; --surface:#141b30; --surface-2:#1f2a45; --ink:#eef1f9; --muted:#98a3c0; --line:#2c3757;
+  --accent:#ff6a45; --accent-ink:#1a0d08; --fn:#56d3db; --s3:#a593ff; --tape:#19213a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px 56px}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:20px 0 12px}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:40px;height:40px;border-radius:11px;background:var(--accent);display:grid;place-items:center;flex:none}
+.mark i{display:block;width:18px;height:4px;border-radius:2px;background:var(--accent-ink);box-shadow:0 8px 0 var(--accent-ink);transform:translateY(-4px)}
+h1{font-family:var(--display);font-weight:700;font-size:1.75rem;line-height:1;margin:0;letter-spacing:-.02em}
+.tag{margin:4px 0 0;color:var(--muted);font-size:.875rem}
+.langbox{display:flex;align-items:center;gap:8px;font-size:.875rem;color:var(--muted)}
+select,input,textarea,button{font:inherit;color:inherit}
+select,input[type=text],input[type=date],textarea{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;min-width:0}
+.langbox select{width:auto}
+:focus-visible{outline:3px solid var(--fn);outline-offset:2px}
+nav{overflow-x:auto;margin:0 -16px;padding:4px 16px 12px}
+nav ul{display:flex;gap:6px;list-style:none;margin:0;padding:0;width:max-content}
+nav a{display:block;padding:8px 14px;border-radius:999px;text-decoration:none;color:var(--muted);font-weight:500;font-size:.9375rem;border:1px solid transparent;white-space:nowrap}
+nav a:hover{border-color:var(--line);color:var(--ink)}
+nav a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+section[data-view]{display:none}
+section[data-view].on{display:block}
+h2{font-family:var(--display);font-weight:700;font-size:1.375rem;letter-spacing:-.01em;margin:8px 0 4px;text-wrap:balance}
+h3{font-family:var(--display);font-weight:500;font-size:1.0625rem;margin:0 0 10px;text-wrap:balance}
+.sub{color:var(--muted);margin:0 0 16px;max-width:65ch;font-size:.9375rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.fields{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));margin-bottom:12px}
+label{display:grid;gap:4px;font-size:.8125rem;color:var(--muted);font-weight:500}
+.ltr{direction:ltr;text-align:left}
+input.ltr,textarea.ltr{font-family:var(--mono);font-size:.9375rem}
+.out{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0;font-size:.9375rem}
+.out dt{color:var(--muted)}
+.out dd{margin:0;font-family:var(--mono);font-variant-numeric:tabular-nums;direction:ltr;text-align:end;overflow-wrap:anywhere}
+.big{font-family:var(--mono);font-size:1.5rem;font-weight:500;direction:ltr;overflow-wrap:anywhere;margin:4px 0 0}
+.btn{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:9px 14px;cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+/* calculator */
+.calc{display:grid;gap:16px;grid-template-columns:minmax(0,440px) minmax(0,1fr);align-items:start}
+@media (max-width:760px){.calc{grid-template-columns:minmax(0,1fr)}}
+.machine{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:14px;display:grid;gap:10px}
+.screen{background:var(--tape);border:1px solid var(--line);border-radius:14px;padding:12px 14px;direction:ltr;min-height:112px;display:grid;align-content:end;gap:2px}
+.flags{display:flex;gap:8px;font-family:var(--mono);font-size:.6875rem;color:var(--muted);letter-spacing:.06em;min-height:16px}
+.flags b{color:var(--fn);font-weight:500}
+#expr{font-family:var(--mono);font-size:1.75rem;font-weight:500;text-align:right;white-space:nowrap;overflow-x:auto;scrollbar-width:none;min-height:2.6rem;line-height:2.6rem}
+#expr::-webkit-scrollbar{display:none}
+#live{font-family:var(--mono);font-size:1rem;color:var(--muted);text-align:right;min-height:1.5rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#live.bad{color:var(--accent)}
+.keys{display:grid;gap:7px;direction:ltr}
+.keys.sci{grid-template-columns:repeat(5,1fr)}
+.keys.main{grid-template-columns:repeat(4,1fr)}
+.k{border:1px solid var(--line);background:var(--bg);border-radius:12px;min-height:50px;cursor:pointer;font-family:var(--mono);font-size:1.125rem;font-weight:500;padding:0;transition:transform .06s}
+.keys.sci .k{min-height:42px;font-size:.875rem;background:var(--surface-2);color:var(--fn)}
+.k:active{transform:scale(.95)}
+.k.op{background:var(--surface-2)}
+.k.eq{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-size:1.375rem}
+.k.on{background:var(--fn);color:var(--surface);border-color:transparent}
+@media (prefers-reduced-motion:reduce){.k{transition:none}}
+.tapecard{background:var(--tape);border:1px solid var(--line);border-radius:16px;padding:14px 16px;position:relative}
+.tapecard::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;border-bottom:2px dashed var(--line)}
+.tapehead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+#tape{list-style:none;margin:0;padding:0;direction:ltr;max-height:520px;overflow-y:auto}
+#tape li{border-top:1px dashed var(--line)}
+#tape button{all:unset;box-sizing:border-box;display:block;width:100%;padding:8px 0;cursor:pointer;text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+#tape button:focus-visible{outline:3px solid var(--fn)}
+#tape .e{display:block;color:var(--muted);font-size:.8125rem;overflow-wrap:anywhere}
+#tape .r{display:block;font-size:1.125rem;font-weight:500;overflow-wrap:anywhere}
+#tape .x{font-family:var(--body);font-size:.6875rem;color:var(--fn);border:1px solid var(--fn);border-radius:999px;padding:0 6px;margin-right:6px;vertical-align:middle}
+
+/* graph */
+.plot{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface)}
+canvas{display:block;width:100%;height:340px;touch-action:none;cursor:grab}
+.fx{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:8px;direction:ltr;font-family:var(--mono);font-size:.875rem}
+.fx span{display:inline-flex;align-items:center;gap:6px}
+.fx span::before{content:"";width:12px;height:12px;border-radius:3px;background:var(--c)}
+
+/* matrix */
+.mx{display:grid;gap:6px;direction:ltr}
+.mx input{text-align:center;padding:8px 4px;font-family:var(--mono)}
+pre{font-family:var(--mono);font-size:.875rem;margin:0;direction:ltr;text-align:left;overflow-x:auto;white-space:pre}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:.875rem;direction:ltr}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:500}
+
+/* pricing */
+.plans{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));align-items:stretch}
+.plan{display:grid;gap:10px;align-content:start}
+.plan.hot{border:2px solid var(--accent)}
+.price{font-family:var(--display);font-weight:700;font-size:2.25rem;line-height:1;direction:ltr;unicode-bidi:isolate}
+.per{color:var(--muted);font-size:.875rem}
+.plan ul{margin:0;padding-inline-start:18px;display:grid;gap:4px;font-size:.9375rem}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface);margin-bottom:16px}
+.seg button{border:0;background:none;padding:6px 16px;border-radius:999px;cursor:pointer;font-weight:500;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+#toast{min-height:1.5rem;margin-top:12px;color:var(--fn);font-weight:500}
+
+/* manual */
+.man{display:grid;gap:14px;max-width:70ch}
+.man p{margin:0 0 8px}
+.man ol{counter-reset:m;list-style:none;padding:0;margin:0;display:grid;gap:14px}
+.man li{counter-increment:m}
+.man h3::before{content:counter(m) ". ";color:var(--accent);font-family:var(--mono)}
+code{font-family:var(--mono);font-size:.875rem;background:var(--surface-2);border-radius:6px;padding:6px 8px;display:block;direction:ltr;text-align:left;overflow-x:auto;white-space:pre-wrap;margin:0 0 8px}
+[hidden]{display:none!important}
+.pb{font-family:var(--mono);font-size:.625rem;letter-spacing:.06em;margin-inline-start:6px;padding:1px 6px;border-radius:999px;border:1px solid currentColor;vertical-align:middle;font-weight:500}
+.lockcard{max-width:560px;margin-top:8px;display:grid;gap:12px}
+footer{margin-top:32px;color:var(--muted);font-size:.8125rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand">
+    <div class="mark" aria-hidden="true"><i></i></div>
+    <div><h1>Hisab</h1><p class="tag" data-i18n="tag"></p></div>
+  </div>
+  <label class="langbox" for="lang" style="display:flex"><span data-i18n="lang"></span>
+    <select id="lang">
+      <option value="en">English</option><option value="ar">العربية</option><option value="fr">Français</option>
+      <option value="es">Español</option><option value="ur">اردو</option><option value="hi">हिन्दी</option><option value="tr">Türkçe</option><option value="zh">中文</option>
+    </select>
+  </label>
+</header>
+<nav aria-label="Tools"><ul id="nav"></ul></nav>
+
+<main>
+<div class="card lockcard" id="lock" hidden><span class="per" data-i18n="pro_tool"></span><h2 style="margin:0"><span id="lockT"></span><b class="pb">PRO</b></h2><p class="sub" style="margin:0" data-i18n="lock_msg"></p><div class="row"><button type="button" class="btn pri" id="unlockBtn" data-i18n="unlock"></button><a class="btn" href="#pricing" style="text-decoration:none" data-i18n="see_plans"></a></div></div>
+<section data-view="calculator">
+  <div class="calc">
+    <div class="machine">
+      <div class="screen">
+        <div class="flags"><b id="fDeg">DEG</b><b id="f2nd"></b><span id="fMem"></span></div>
+        <div id="expr" aria-live="polite"></div>
+        <div id="live"></div>
+      </div>
+      <div class="keys sci" id="sci"></div>
+      <div class="keys main" id="mainkeys"></div>
+    </div>
+    <div class="tapecard">
+      <div class="tapehead"><h3 style="margin:0" data-i18n="tape"></h3>
+        <div class="row"><button class="btn" id="copyBtn" type="button" data-i18n="copy"></button><button class="btn" id="clearTape" type="button" data-i18n="clear"></button></div></div>
+      <ol id="tape"></ol>
+    </div>
+  </div>
+</section>
+
+<section data-view="graph">
+  <h2 data-i18n="g_title"></h2><p class="sub" data-i18n="g_hint"></p>
+  <div class="grid g2">
+    <div class="card grid" style="align-content:start">
+      <div class="fx"><span style="--c:var(--accent)">f(x) =</span><input class="ltr" type="text" id="f1" value="sin(x)·x" autocapitalize="off" spellcheck="false"></div>
+      <div class="fx"><span style="--c:var(--fn)">g(x) =</span><input class="ltr" type="text" id="f2" value="x^2/4 − 3" autocapitalize="off" spellcheck="false"></div>
+      <div class="fx"><span style="--c:var(--s3)">h(x) =</span><input class="ltr" type="text" id="f3" value="" autocapitalize="off" spellcheck="false"></div>
+      <div class="row"><button class="btn" id="zin" type="button" data-i18n="zin"></button><button class="btn" id="zout" type="button" data-i18n="zout"></button><button class="btn" id="zreset" type="button" data-i18n="reset"></button></div>
+    </div>
+    <div><div class="plot"><canvas id="cv" role="img" aria-label="Graph"></canvas></div><p class="big" id="trace" style="font-size:.875rem;margin-top:8px"></p></div>
+  </div>
+</section>
+
+<section data-view="convert">
+  <h2 data-i18n="conv"></h2>
+  <div class="card" style="max-width:560px;margin-top:12px">
+    <div class="fields"><label><span data-i18n="category"></span><select id="ccat"></select></label></div>
+    <div class="fields">
+      <label><span data-i18n="from"></span><input class="ltr" type="text" inputmode="decimal" id="cval" value="1"></label>
+      <label><span>&nbsp;</span><select id="cfrom" class="ltr"></select></label>
+    </div>
+    <div class="row" style="margin-bottom:12px"><button class="btn" id="cswap" type="button" data-i18n="swap"></button></div>
+    <div class="fields"><label><span data-i18n="to"></span><select id="cto" class="ltr"></select></label></div>
+    <p class="big" id="cout"></p>
+  </div>
+</section>
+
+<section data-view="everyday">
+  <h2 data-i18n="daily"></h2>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card"><h3 data-i18n="pct"></h3>
+      <div class="fields"><label>A<input class="ltr" type="text" inputmode="decimal" id="pa" value="15"></label><label>B<input class="ltr" type="text" inputmode="decimal" id="pb" value="240"></label></div>
+      <dl class="out" id="pout"></dl></div>
+    <div class="card"><h3 data-i18n="dates"></h3>
+      <div class="fields"><label><span data-i18n="d_start"></span><input type="date" id="ds"></label><label><span data-i18n="d_end"></span><input type="date" id="de"></label><label><span data-i18n="d_add"></span><input class="ltr" type="text" inputmode="numeric" id="dn" value="90"></label></div>
+      <dl class="out" id="dout"></dl></div>
+  </div>
+</section>
+
+<section data-view="solve">
+  <h2 data-i18n="solve"></h2>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card"><h3 data-i18n="q_title"></h3>
+      <div class="fields"><label>a<input class="ltr" type="text" inputmode="decimal" id="qa" value="1"></label><label>b<input class="ltr" type="text" inputmode="decimal" id="qb" value="-3"></label><label>c<input class="ltr" type="text" inputmode="decimal" id="qc" value="2"></label></div>
+      <dl class="out"><dt data-i18n="roots"></dt><dd id="qout"></dd></dl></div>
+    <div class="card"><h3 data-i18n="r_title"></h3>
+      <div class="fields"><label>f(x)<input class="ltr" type="text" id="rf" value="x^3 − 2x − 5" autocapitalize="off" spellcheck="false"></label><label><span data-i18n="guess"></span><input class="ltr" type="text" inputmode="decimal" id="rg" value="2"></label></div>
+      <dl class="out"><dt>x</dt><dd id="rout"></dd></dl></div>
+    <div class="card"><h3 data-i18n="d_title"></h3>
+      <div class="fields"><label>f(x)<input class="ltr" type="text" id="df" value="x^2·sin(x)" autocapitalize="off" spellcheck="false"></label><label><span data-i18n="at"></span><input class="ltr" type="text" inputmode="decimal" id="dx" value="1"></label></div>
+      <dl class="out"><dt>f′(x)</dt><dd id="dout"></dd></dl></div>
+    <div class="card"><h3 data-i18n="i_title"></h3>
+      <div class="fields"><label>f(x)<input class="ltr" type="text" id="if" value="e^(−x^2)" autocapitalize="off" spellcheck="false"></label><label><span data-i18n="lower"></span><input class="ltr" type="text" inputmode="decimal" id="ia" value="0"></label><label><span data-i18n="upper"></span><input class="ltr" type="text" inputmode="decimal" id="ib" value="1"></label></div>
+      <dl class="out"><dt>∫ f(x) dx</dt><dd id="iout"></dd></dl></div>
+  </div>
+</section>
+
+<section data-view="statistics">
+  <h2 data-i18n="stats"></h2>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card"><h3 data-i18n="s_title"></h3>
+      <label><span data-i18n="s_hint"></span><textarea class="ltr" id="sdata" rows="6">12, 15, 15, 18, 21, 24, 30</textarea></label></div>
+    <div class="card"><dl class="out" id="sout"></dl></div>
+    <div class="card"><h3 data-i18n="reg"></h3>
+      <label><span data-i18n="reg_hint"></span><textarea class="ltr" id="rdata" rows="5">1, 2.1
+2, 3.9
+3, 6.2
+4, 7.8
+5, 10.1</textarea></label>
+      <dl class="out" id="regout" style="margin-top:12px"></dl></div>
+  </div>
+</section>
+
+<section data-view="matrix">
+  <h2 data-i18n="matrix"></h2>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card">
+      <div class="fields"><label><span data-i18n="size"></span><select id="msize"><option value="2">2 × 2</option><option value="3" selected>3 × 3</option></select></label></div>
+      <h3 data-i18n="ma"></h3><div class="mx" id="mA"></div>
+      <h3 style="margin-top:14px" data-i18n="vb"></h3><div class="mx" id="mB"></div>
+    </div>
+    <div class="card grid" style="align-content:start">
+      <dl class="out"><dt data-i18n="det"></dt><dd id="mdet"></dd></dl>
+      <div><h3 data-i18n="sol"></h3><pre id="msol"></pre></div>
+      <div><h3 data-i18n="inv"></h3><pre id="minv"></pre></div>
+      <div><h3 data-i18n="transp"></h3><pre id="mtr"></pre></div>
+    </div>
+  </div>
+</section>
+
+<section data-view="finance">
+  <h2 data-i18n="fin"></h2>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card"><h3 data-i18n="loan"></h3>
+      <div class="fields"><label><span data-i18n="amount"></span><input class="ltr" type="text" inputmode="decimal" id="la" value="250000"></label><label><span data-i18n="rate"></span><input class="ltr" type="text" inputmode="decimal" id="lr" value="5.5"></label><label><span data-i18n="years"></span><input class="ltr" type="text" inputmode="decimal" id="ly" value="25"></label></div>
+      <dl class="out" id="lout"></dl></div>
+    <div class="card"><h3 data-i18n="comp"></h3>
+      <div class="fields"><label><span data-i18n="principal"></span><input class="ltr" type="text" inputmode="decimal" id="ca" value="10000"></label><label><span data-i18n="rate"></span><input class="ltr" type="text" inputmode="decimal" id="cr" value="7"></label><label><span data-i18n="years"></span><input class="ltr" type="text" inputmode="decimal" id="cy" value="10"></label><label><span data-i18n="peryear"></span><input class="ltr" type="text" inputmode="numeric" id="cn" value="12"></label></div>
+      <dl class="out" id="cmpout"></dl></div>
+  </div>
+</section>
+
+<section data-view="programmer">
+  <h2 data-i18n="prog"></h2>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card"><h3 data-i18n="bases"></h3>
+      <div class="grid" style="gap:10px">
+        <label><span data-i18n="dec"></span><input class="ltr" type="text" id="b10" data-base="10" value="255" autocapitalize="off" spellcheck="false"></label>
+        <label><span data-i18n="hex"></span><input class="ltr" type="text" id="b16" data-base="16" autocapitalize="off" spellcheck="false"></label>
+        <label><span data-i18n="oct"></span><input class="ltr" type="text" id="b8" data-base="8" autocapitalize="off" spellcheck="false"></label>
+        <label><span data-i18n="bin"></span><input class="ltr" type="text" id="b2" data-base="2" autocapitalize="off" spellcheck="false"></label>
+      </div></div>
+    <div class="card"><h3 data-i18n="bit"></h3><p class="sub" data-i18n="bit_hint"></p>
+      <div class="fields"><label>A<input class="ltr" type="text" inputmode="numeric" id="ba" value="12"></label><label>B<input class="ltr" type="text" inputmode="numeric" id="bb" value="10"></label></div>
+      <div class="scroll"><table id="bout"></table></div></div>
+  </div>
+</section>
+
+<section data-view="pricing">
+  <h2 data-i18n="plans"></h2><p class="sub" data-i18n="plans_sub"></p>
+  <div class="seg" role="group"><button type="button" id="billM" aria-pressed="true" data-i18n="bill_m"></button><button type="button" id="billY" aria-pressed="false" data-i18n="bill_y"></button></div>
+  <div class="plans" id="plans"></div>
+  <p id="toast" role="status" aria-live="polite"></p>
+</section>
+
+<section data-view="manual">
+  <h2 data-i18n="manual"></h2><p class="sub" data-i18n="man_sub"></p>
+  <div class="man"><ol id="man"></ol></div>
+</section>
+</main>
+<footer><span data-i18n="foot"></span></footer>
+</div>
+
+<script id="core">
+/* DOM-free math core and dictionaries */
+var Core=(function(){
+  function normDigits(s){return String(s).replace(/[٠-٩]/g,function(d){return d.charCodeAt(0)-1632}).replace(/[۰-۹]/g,function(d){return d.charCodeAt(0)-1776}).replace(/[०-९]/g,function(d){return d.charCodeAt(0)-2406}).replace(/٫/g,'.')}
+  function gamma(z){if(z<0.5)return Math.PI/(Math.sin(Math.PI*z)*gamma(1-z));z-=1;var c=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7],x=c[0];for(var i=1;i<9;i++)x+=c[i]/(z+i);var t=z+7.5;return Math.sqrt(2*Math.PI)*Math.pow(t,z+0.5)*Math.exp(-t)*x}
+  function fact(n){if(Number.isInteger(n)){if(n<0)return NaN;if(n>170)return Infinity;var r=1;for(var i=2;i<=n;i++)r*=i;return r}return gamma(n+1)}
+  function gcd(a,b){a=Math.abs(Math.round(a));b=Math.abs(Math.round(b));while(b){var t=b;b=a%b;a=t}return a}
+  var D=Math.PI/180;
+  var F={
+    sin:[1,function(e,a){return Math.sin(e.deg?a*D:a)}],cos:[1,function(e,a){return Math.cos(e.deg?a*D:a)}],
+    tan:[1,function(e,a){return Math.tan(e.deg?a*D:a)}],
+    asin:[1,function(e,a){var v=Math.asin(a);return e.deg?v/D:v}],acos:[1,function(e,a){var v=Math.acos(a);return e.deg?v/D:v}],
+    atan:[1,function(e,a){var v=Math.atan(a);return e.deg?v/D:v}],
+    sinh:[1,function(e,a){return Math.sinh(a)}],cosh:[1,function(e,a){return Math.cosh(a)}],tanh:[1,function(e,a){return Math.tanh(a)}],
+    ln:[1,function(e,a){return Math.log(a)}],log:[1,function(e,a){return Math.log10(a)}],log2:[1,function(e,a){return Math.log2(a)}],
+    logb:[2,function(e,a,b){return Math.log(a)/Math.log(b)}],exp:[1,function(e,a){return Math.exp(a)}],
+    sqrt:[1,function(e,a){return Math.sqrt(a)}],cbrt:[1,function(e,a){return Math.cbrt(a)}],
+    root:[2,function(e,a,n){return a<0&&Math.abs(n%2)===1?-Math.pow(-a,1/n):Math.pow(a,1/n)}],
+    abs:[1,function(e,a){return Math.abs(a)}],floor:[1,function(e,a){return Math.floor(a)}],ceil:[1,function(e,a){return Math.ceil(a)}],
+    round:[1,function(e,a){return Math.round(a)}],sign:[1,function(e,a){return Math.sign(a)}],
+    min:[-1,function(e){return Math.min.apply(null,[].slice.call(arguments,1))}],max:[-1,function(e){return Math.max.apply(null,[].slice.call(arguments,1))}],
+    mod:[2,function(e,a,b){return a-b*Math.floor(a/b)}],gcd:[2,function(e,a,b){return gcd(a,b)}],
+    lcm:[2,function(e,a,b){var g=gcd(a,b);return g?Math.abs(Math.round(a)*Math.round(b))/g:0}],
+    ncr:[2,function(e,n,r){return Math.round(fact(n)/(fact(r)*fact(n-r)))}],npr:[2,function(e,n,r){return Math.round(fact(n)/fact(n-r))}]
+  };
+  var C={pi:Math.PI,e:Math.E,tau:2*Math.PI,phi:(1+Math.sqrt(5))/2};
+  var NAMES=Object.keys(F).concat(Object.keys(C),['x','ans']).sort(function(a,b){return b.length-a.length});
+  function lex(src){
+    var s=normDigits(src).replace(/\s+/g,'').replace(/[×·]/g,'*').replace(/÷/g,'/').replace(/[−–]/g,'-').replace(/π/g,'(pi)');
+    var t=[],i=0,m;
+    while(i<s.length){
+      var r=s.slice(i);
+      if((m=/^(\d+\.?\d*|\.\d+)(E[+-]?\d+)?/.exec(r))){t.push({t:'num',v:parseFloat(m[0])});i+=m[0].length;continue}
+      if((m=/^[A-Za-z]+\d?/.exec(r))){
+        var w=m[0].toLowerCase(),ok=true;
+        if(w==='log2'){t.push({t:'id',v:'log2'});i+=4;continue}
+        w=w.replace(/\d$/,'');var used=0;
+        while(w.length){var hit=null;for(var k=0;k<NAMES.length;k++){if(w.indexOf(NAMES[k])===0){hit=NAMES[k];break}}
+          if(!hit){ok=false;break}t.push({t:'id',v:hit});w=w.slice(hit.length);used+=hit.length}
+        if(!ok)throw new Error('name');i+=used;continue}
+      if('+-*/^()!%,√'.indexOf(s[i])>=0){t.push({t:'op',v:s[i]});i++;continue}
+      throw new Error('char')
+    }
+    return t
+  }
+  function compile(src){
+    var t=lex(src),p=0;
+    function isOp(v){return p<t.length&&t[p].t==='op'&&t[p].v===v}
+    function expr(){var a=term();while(isOp('+')||isOp('-')){(function(o,l,b){a=o==='+'?function(e){return l(e)+b(e)}:function(e){return l(e)-b(e)}})(t[p++].v,a,term())}return a}
+    function term(){var a=unary();for(;;){
+      if(isOp('*')||isOp('/')){(function(o,l,b){a=o==='*'?function(e){return l(e)*b(e)}:function(e){return l(e)/b(e)}})(t[p++].v,a,unary())}
+      else if(p<t.length&&(t[p].t==='num'||t[p].t==='id'||isOp('(')||isOp('√'))){(function(l,b){a=function(e){return l(e)*b(e)}})(a,power())}
+      else return a}}
+    function unary(){if(isOp('-')){p++;var a=unary();return function(e){return -a(e)}}if(isOp('+')){p++;return unary()}return power()}
+    function power(){var a=postfix();if(isOp('^')){p++;var b=unary();return function(e){return Math.pow(a(e),b(e))}}return a}
+    function postfix(){var a=primary();for(;;){
+      if(isOp('!')){p++;(function(l){a=function(e){return fact(l(e))}})(a)}
+      else if(isOp('%')){p++;(function(l){a=function(e){return l(e)/100}})(a)}
+      else return a}}
+    function close(){if(isOp(')'))p++;else if(p<t.length)throw new Error('paren')}
+    function primary(){
+      var k=t[p++];if(!k)throw new Error('end');
+      if(k.t==='num'){var v=k.v;return function(){return v}}
+      if(k.t==='op'&&k.v==='('){var a=expr();close();return a}
+      if(k.t==='op'&&k.v==='√'){var q=unary();return function(e){return Math.sqrt(q(e))}}
+      if(k.t==='id'){
+        if(F[k.v]){
+          if(!isOp('('))throw new Error('call');p++;
+          var args=[expr()];while(isOp(',')){p++;args.push(expr())}close();
+          var f=F[k.v];if(f[0]>0&&args.length!==f[0])throw new Error('arity');
+          return function(e){var xs=[e];for(var i=0;i<args.length;i++)xs.push(args[i](e));return f[1].apply(null,xs)}
+        }
+        if(k.v==='x')return function(e){return e.x};
+        if(k.v==='ans')return function(e){return e.ans};
+        var c=C[k.v];return function(){return c}
+      }
+      throw new Error('token')
+    }
+    if(!t.length)throw new Error('empty');
+    var root=expr();if(p<t.length)throw new Error('extra');return root
+  }
+  function evaluate(src,env){return compile(src)(env||{deg:false,x:0,ans:0})}
+  function fmt(v,digits){
+    if(typeof v!=='number'||isNaN(v))return 'NaN';if(!isFinite(v))return v>0?'∞':'-∞';if(v===0)return '0';
+    var a=Math.abs(v),d=digits||12;
+    if(a>=1e15||a<1e-6){var s=v.toExponential(d-3);var parts=s.split('e');var man=parts[0].indexOf('.')>=0?parts[0].replace(/\.?0+$/,''):parts[0];return man+'E'+parts[1].replace('+','')}
+    return String(parseFloat(v.toPrecision(d)))
+  }
+  function frac(v){if(!isFinite(v)||Number.isInteger(v)||Math.abs(v)>1e6)return null;var x=Math.abs(v),h1=1,h0=0,k1=0,k0=1,b=x;for(var i=0;i<24;i++){var a=Math.floor(b),h2=a*h1+h0,k2=a*k1+k0;if(k2>10000)break;h0=h1;h1=h2;k0=k1;k1=k2;if(Math.abs(x-h1/k1)<1e-13*Math.max(1,x))return (v<0?'-':'')+h1+'/'+k1;b=1/(b-a);if(!isFinite(b))break}return null}
+  function num(s){var v=normDigits(s).replace(/[−–]/g,'-').replace(/,/g,'').trim();if(v==='')return NaN;return Number(v)}
+  function quadratic(a,b,c){
+    if(a===0){if(b===0)return c===0?{k:'any'}:{k:'none'};return {k:'real',r:[-c/b]}}
+    var d=b*b-4*a*c;
+    if(d>=0){var q=-0.5*(b+(b>=0?1:-1)*Math.sqrt(d));var r1=q/a,r2=q!==0?c/q:r1;return {k:'real',r:r1===r2?[r1]:[Math.min(r1,r2),Math.max(r1,r2)]}}
+    return {k:'complex',re:-b/(2*a),im:Math.sqrt(-d)/(2*Math.abs(a))}
+  }
+  function deriv(f,x){var h=1e-5*(1+Math.abs(x));return (f(x-2*h)-8*f(x-h)+8*f(x+h)-f(x+2*h))/(12*h)}
+  function integrate(f,a,b){var n=2000,h=(b-a)/n,s=f(a)+f(b);for(var i=1;i<n;i++)s+=f(a+i*h)*(i%2?4:2);return s*h/3}
+  function findRoot(f,g){
+    var x=g;
+    for(var i=0;i<80;i++){var y=f(x);if(!isFinite(y))break;if(Math.abs(y)<1e-12)return x;var d=deriv(f,x);if(!isFinite(d)||d===0)break;var nx=x-y/d;if(!isFinite(nx))break;if(Math.abs(nx-x)<1e-13*(1+Math.abs(x))){x=nx;break}x=nx}
+    if(isFinite(x)&&Math.abs(f(x))<1e-8)return x;
+    var R=[1,10,100,1000];
+    for(var r=0;r<R.length;r++){var n=800,best=null;
+      for(var j=0;j<n;j++){var a=g-R[r]+2*R[r]*j/n,b=g-R[r]+2*R[r]*(j+1)/n,fa=f(a),fb=f(b);
+        if(isFinite(fa)&&isFinite(fb)&&fa*fb<=0){var mid=(a+b)/2;if(best===null||Math.abs(mid-g)<Math.abs(best[2]-g))best=[a,b,mid]}}
+      if(best){var lo=best[0],hi=best[1],flo=f(lo);for(var k=0;k<100;k++){var m=(lo+hi)/2,fm=f(m);if(flo*fm<=0)hi=m;else{lo=m;flo=fm}}
+        var rt=(lo+hi)/2;if(Math.abs(f(rt))<1e-6)return rt}}
+    return NaN
+  }
+  function stats(xs){
+    var n=xs.length;if(!n)return null;var s=xs.slice().sort(function(a,b){return a-b}),sum=0;for(var i=0;i<n;i++)sum+=s[i];
+    var mean=sum/n,ss=0;for(i=0;i<n;i++)ss+=(s[i]-mean)*(s[i]-mean);
+    var med=n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2,cnt={},top=0;
+    for(i=0;i<n;i++){cnt[s[i]]=(cnt[s[i]]||0)+1;if(cnt[s[i]]>top)top=cnt[s[i]]}
+    var mode=[];if(top>1)for(i=0;i<n;i++)if(cnt[s[i]]===top&&mode.indexOf(s[i])<0)mode.push(s[i]);
+    return {count:n,sum:sum,mean:mean,median:med,mode:mode,min:s[0],max:s[n-1],range:s[n-1]-s[0],variance:n>1?ss/(n-1):NaN,sds:n>1?Math.sqrt(ss/(n-1)):NaN,sdp:Math.sqrt(ss/n)}
+  }
+  function regress(P){var n=P.length;if(n<2)return null;var sx=0,sy=0,sxx=0,sxy=0,syy=0;for(var i=0;i<n;i++){var x=P[i][0],y=P[i][1];sx+=x;sy+=y;sxx+=x*x;sxy+=x*y;syy+=y*y}var d=n*sxx-sx*sx;if(d===0)return null;var m=(n*sxy-sx*sy)/d,den=Math.sqrt(d*(n*syy-sy*sy));return {n:n,slope:m,icept:(sy-m*sx)/n,r:den?(n*sxy-sx*sy)/den:NaN}}
+  function det(M){var n=M.length,A=M.map(function(r){return r.slice()}),d=1;
+    for(var c=0;c<n;c++){var p=c;for(var r=c+1;r<n;r++)if(Math.abs(A[r][c])>Math.abs(A[p][c]))p=r;
+      if(Math.abs(A[p][c])<1e-14)return 0;if(p!==c){var t=A[p];A[p]=A[c];A[c]=t;d=-d}d*=A[c][c];
+      for(r=c+1;r<n;r++){var f=A[r][c]/A[c][c];for(var k=c;k<n;k++)A[r][k]-=f*A[c][k]}}
+    return d}
+  function inverse(M){var n=M.length,A=M.map(function(r,i){return r.concat(r.map(function(_,j){return i===j?1:0}))});
+    for(var c=0;c<n;c++){var p=c;for(var r=c+1;r<n;r++)if(Math.abs(A[r][c])>Math.abs(A[p][c]))p=r;
+      if(Math.abs(A[p][c])<1e-14)return null;var t=A[p];A[p]=A[c];A[c]=t;var d=A[c][c];
+      for(var k=0;k<2*n;k++)A[c][k]/=d;
+      for(r=0;r<n;r++)if(r!==c){var f=A[r][c];for(k=0;k<2*n;k++)A[r][k]-=f*A[c][k]}}
+    return A.map(function(r){return r.slice(n)})}
+  function parseBig(s,base){s=normDigits(s).replace(/[\s_]/g,'').toLowerCase();var neg=false;if(s[0]==='-'){neg=true;s=s.slice(1)}if(!s)return null;
+    var v=0n,B=BigInt(base);for(var i=0;i<s.length;i++){var d=parseInt(s[i],36);if(isNaN(d)||d>=base)return null;v=v*B+BigInt(d)}return neg?-v:v}
+  return {regress:regress,frac:frac,normDigits:normDigits,compile:compile,evaluate:evaluate,fmt:fmt,num:num,quadratic:quadratic,deriv:deriv,integrate:integrate,findRoot:findRoot,stats:stats,det:det,inverse:inverse,parseBig:parseBig}
+})();
+
+var UNITS={
+  length:{m:1,km:1000,cm:.01,mm:.001,'µm':1e-6,nm:1e-9,mi:1609.344,yd:.9144,ft:.3048,'in':.0254,nmi:1852},
+  mass:{kg:1,g:.001,mg:1e-6,t:1000,lb:.45359237,oz:.028349523125,st:6.35029318},
+  temp:{'°C':1,'°F':1,K:1},
+  area:{'m²':1,'km²':1e6,'cm²':1e-4,ha:1e4,acre:4046.8564224,'ft²':.09290304,'in²':.00064516,'mi²':2589988.110336},
+  volume:{L:1,mL:.001,'m³':1000,'gal (US)':3.785411784,'qt (US)':.946352946,'pt (US)':.473176473,'cup (US)':.2365882365,'fl oz (US)':.0295735295625,'gal (UK)':4.54609,'ft³':28.316846592},
+  speed:{'m/s':1,'km/h':1/3.6,mph:.44704,kn:1852/3600,'ft/s':.3048},
+  time:{s:1,ms:.001,min:60,h:3600,d:86400,wk:604800,'yr (365 d)':31536000},
+  data:{B:1,bit:.125,kB:1e3,MB:1e6,GB:1e9,TB:1e12,KiB:1024,MiB:1048576,GiB:1073741824},
+  energy:{J:1,kJ:1e3,cal:4.184,kcal:4184,Wh:3600,kWh:3.6e6,eV:1.602176634e-19,BTU:1055.05585262},
+  pressure:{Pa:1,kPa:1e3,bar:1e5,atm:101325,psi:6894.757293168,mmHg:133.322387415},
+  angle:{'°':1,rad:180/Math.PI,grad:.9,turn:360}
+};
+function convert(cat,v,a,b){
+  if(cat==='temp'){var k=a==='°C'?v+273.15:a==='°F'?(v-32)*5/9+273.15:v;return b==='°C'?k-273.15:b==='°F'?(k-273.15)*9/5+32:k}
+  return v*UNITS[cat][a]/UNITS[cat][b]
+}
+
+var T={
+en:{tag:"Scientific, graphing and engineering calculator in eight languages",lang:"Language",
+calc:"Calculator",graph:"Graph",conv:"Convert",solve:"Solve",stats:"Statistics",matrix:"Matrix",fin:"Finance",prog:"Programmer",price:"Pricing",manual:"Manual",
+tape:"Tape",clear:"Clear tape",example:"example",err:"Check the expression",copy:"Copy result",copied:"Copied",
+g_title:"Plot functions of x",g_hint:"Drag to move the plot. Angles are in radians.",zin:"Zoom in",zout:"Zoom out",reset:"Reset view",
+category:"Category",from:"From",to:"To",swap:"Swap units",
+c_length:"Length",c_mass:"Mass",c_temp:"Temperature",c_area:"Area",c_volume:"Volume",c_speed:"Speed",c_time:"Time",c_data:"Data",c_energy:"Energy",c_pressure:"Pressure",c_angle:"Angle",
+q_title:"Quadratic equation",roots:"Roots",r_title:"Find a root of f(x) = 0",guess:"Start near x",d_title:"Derivative at a point",at:"At x",i_title:"Definite integral",lower:"Lower limit",upper:"Upper limit",noroot:"No root found near this value",anyx:"Every x is a solution",nosol:"No solution",badf:"Check the function",
+s_title:"Data set",s_hint:"Separate numbers with commas, spaces or new lines.",count:"Count",sum:"Sum",mean:"Mean",median:"Median",mode:"Mode",min:"Minimum",max:"Maximum",range:"Range",variance:"Sample variance",sds:"Sample standard deviation",sdp:"Population standard deviation",
+size:"Size",ma:"Matrix A",vb:"Vector b",det:"Determinant",transp:"Transpose",inv:"Inverse",sol:"Solution of A·x = b",singular:"Matrix is singular, so it has no inverse",
+loan:"Loan payment",amount:"Amount",rate:"Yearly rate (%)",years:"Years",monthly:"Monthly payment",total:"Total paid",interest:"Total interest",comp:"Compound growth",principal:"Starting amount",peryear:"Times compounded per year",future:"Future value",gain:"Growth",
+bases:"Number bases",bin:"Binary",oct:"Octal",dec:"Decimal",hex:"Hexadecimal",bit:"Bitwise operations",bit_hint:"Enter A and B as decimal whole numbers.",
+plans:"Plans",plans_sub:"Proposed prices. Checkout is not connected yet, so Pro can be unlocked at no cost in this preview.",bill_m:"Monthly",bill_y:"Yearly",per_m:"per month",per_y:"per year",free:"Free",pro:"Pro",team:"Classroom",
+f1:"Scientific calculator with tape",f2:"Unit converter with 11 categories",f3:"Eight languages",p1:"Everything in Free",p2:"Graphing, solver, matrix and statistics",p3:"Finance and programmer tools",p4:"Tape history synced across devices",c1:"Everything in Pro",c2:"30 student seats",c3:"Priority support",
+cta_free:"Start calculating",cta_wait:"Join the waitlist",wait_msg:"Checkout is not connected yet. Nothing was charged.",
+man_sub:"How to use every tool, in order.",h_start:"Getting started",h_expr:"Writing expressions",h_keys:"Keyboard",
+m_start:"Pick a tool from the bar at the top. Choose your language from the menu beside the name. Arabic and Urdu turn the page right-to-left; numbers and formulas always read left to right.",
+m_calc:"Tap the keys or type on a keyboard. The small line under your expression shows the answer while you type. Press = to print it on the tape. 2nd switches keys to their second function, so sin becomes sin⁻¹ and ln becomes eˣ. DEG / RAD sets the angle unit. M+, M−, MR and MC work on memory, and Ans holds the last answer. Tap any tape line to reuse its result.",
+m_expr_a:"Write formulas the way you would on paper. A number beside a bracket or a letter multiplies.",m_expr_b:"Functions",m_expr_c:"Constants, and E for powers of ten",
+m_graph:"Enter up to three functions of x. Drag the plot to move it and use the zoom buttons to change the scale. Leave a line empty to hide it. Graphs always use radians. Tap the plot to read values at that x.",
+m_conv:"Choose a category, type a value and pick the two units. The answer updates as you type. Swap units reverses the direction.",
+m_solve:"Quadratic: enter a, b and c for ax² + bx + c = 0. Complex roots are shown with i. Root finder: enter f(x) and a starting value to get the nearest root. Derivatives and integrals are computed numerically, so expect about 8 correct digits. Angles here are in radians.",
+m_stats:"Type or paste your numbers. Count, mean, median, mode, spread and both standard deviations update at once.",
+m_matrix:"Choose 2 × 2 or 3 × 3 and fill matrix A. You get the determinant, transpose and inverse. Fill vector b to solve the system A·x = b.",
+m_fin:"Loan payment gives the fixed monthly payment for an amount, yearly rate and term. Compound growth shows what a starting amount becomes. These are estimates, not financial advice.",
+m_prog:"Type in any of the four boxes and the other bases update. Negative and very large whole numbers work. Bitwise results for A and B appear in the table.",
+m_keys:"Enter or = calculates, Backspace deletes, Escape clears. Use ^ for powers, * to multiply and / to divide.",
+daily:"Everyday",pct:"Percentages",pct_of:"A% of B",pct_is:"A as a percent of B",pct_chg:"Change from A to B",dates:"Dates",d_start:"Start date",d_end:"End date",d_days:"Days between",d_add:"Days to add",d_res:"Start date plus days",m_daily:"Percentages: enter A and B to get A% of B, A as a percent of B, and the change from A to B. Dates: pick two dates to count the days between them, or add a number of days to the start date.",
+reg:"Linear regression",reg_hint:"One x, y pair per line.",fit:"Best-fit line",slope:"Slope",icept:"Intercept",corr:"Correlation r",m_reg:"Linear regression: enter one x, y pair per line to get the best-fit straight line and how closely the points follow it.",
+pro_tool:"Pro tool",lock_msg:"Tools marked Pro open once Pro is unlocked. Checkout is not connected yet, so unlocking costs nothing in this preview.",unlock:"Unlock Pro preview",relock:"Lock Pro again",see_plans:"See plans",pro_on:"Pro preview is on. Every tool is open.",
+foot:"Hisab preview. Results use double-precision arithmetic, about 15 significant digits."},
+
+ar:{tag:"آلة حاسبة علمية وهندسية مع رسم بياني بثماني لغات",lang:"اللغة",
+calc:"الحاسبة",graph:"الرسم البياني",conv:"التحويل",solve:"الحل",stats:"الإحصاء",matrix:"المصفوفات",fin:"المالية",prog:"المبرمج",price:"الأسعار",manual:"الدليل",
+tape:"الشريط",clear:"مسح الشريط",example:"مثال",err:"تحقق من العبارة",copy:"نسخ النتيجة",copied:"تم النسخ",
+g_title:"ارسم دوال في x",g_hint:"اسحب لتحريك الرسم. الزوايا بالراديان.",zin:"تكبير",zout:"تصغير",reset:"إعادة العرض",
+category:"الفئة",from:"من",to:"إلى",swap:"تبديل الوحدتين",
+c_length:"الطول",c_mass:"الكتلة",c_temp:"درجة الحرارة",c_area:"المساحة",c_volume:"الحجم",c_speed:"السرعة",c_time:"الزمن",c_data:"البيانات",c_energy:"الطاقة",c_pressure:"الضغط",c_angle:"الزاوية",
+q_title:"معادلة من الدرجة الثانية",roots:"الجذور",r_title:"أوجد جذرًا للمعادلة f(x) = 0",guess:"ابدأ قرب x",d_title:"المشتقة عند نقطة",at:"عند x",i_title:"التكامل المحدد",lower:"الحد الأدنى",upper:"الحد الأعلى",noroot:"لم يُعثر على جذر قرب هذه القيمة",anyx:"كل قيمة لـ x حل",nosol:"لا يوجد حل",badf:"تحقق من الدالة",
+s_title:"مجموعة البيانات",s_hint:"افصل بين الأرقام بفواصل أو مسافات أو أسطر جديدة.",count:"العدد",sum:"المجموع",mean:"المتوسط",median:"الوسيط",mode:"المنوال",min:"أصغر قيمة",max:"أكبر قيمة",range:"المدى",variance:"تباين العينة",sds:"الانحراف المعياري للعينة",sdp:"الانحراف المعياري للمجتمع",
+size:"الأبعاد",ma:"المصفوفة A",vb:"المتجه b",det:"المحدد",transp:"المنقول",inv:"المعكوس",sol:"حل النظام A·x = b",singular:"المصفوفة منفردة، فلا معكوس لها",
+loan:"قسط القرض",amount:"المبلغ",rate:"المعدل السنوي (%)",years:"السنوات",monthly:"القسط الشهري",total:"إجمالي المدفوع",interest:"إجمالي الفائدة",comp:"النمو المركب",principal:"المبلغ الابتدائي",peryear:"مرات التركيب في السنة",future:"القيمة المستقبلية",gain:"النمو",
+bases:"أنظمة العد",bin:"ثنائي",oct:"ثماني",dec:"عشري",hex:"ست عشري",bit:"العمليات على البتات",bit_hint:"أدخل A و B كعددين صحيحين عشريين.",
+plans:"الخطط",plans_sub:"أسعار مقترحة. الدفع غير مفعّل بعد، لذا يمكن فتح برو مجانًا في هذه النسخة التجريبية.",bill_m:"شهري",bill_y:"سنوي",per_m:"شهريًا",per_y:"سنويًا",free:"مجاني",pro:"برو",team:"الفصل الدراسي",
+f1:"حاسبة علمية مع شريط",f2:"محوّل وحدات في 11 فئة",f3:"ثماني لغات",p1:"كل ما في المجاني",p2:"الرسم البياني والحل والمصفوفات والإحصاء",p3:"أدوات المالية والمبرمج",p4:"مزامنة سجل الشريط بين الأجهزة",c1:"كل ما في برو",c2:"30 مقعدًا للطلاب",c3:"دعم ذو أولوية",
+cta_free:"ابدأ الحساب",cta_wait:"انضم إلى قائمة الانتظار",wait_msg:"الدفع غير مفعّل بعد. لم يُخصم أي مبلغ.",
+man_sub:"طريقة استخدام كل أداة بالترتيب.",h_start:"البداية",h_expr:"كتابة العبارات",h_keys:"لوحة المفاتيح",
+m_start:"اختر أداة من الشريط العلوي. اختر لغتك من القائمة بجانب الاسم. العربية والأردية تجعلان الصفحة من اليمين إلى اليسار، أما الأرقام والصيغ فتُقرأ دائمًا من اليسار إلى اليمين.",
+m_calc:"اضغط المفاتيح أو اكتب بلوحة المفاتيح. السطر الصغير تحت العبارة يعرض الناتج أثناء الكتابة. اضغط = لطباعته على الشريط. مفتاح 2nd يبدّل المفاتيح إلى وظيفتها الثانية، فيصبح sin هو sin⁻¹ ويصبح ln هو eˣ. مفتاح DEG / RAD يحدد وحدة الزاوية. المفاتيح M+ و M− و MR و MC تعمل على الذاكرة، و Ans يحفظ آخر ناتج. اضغط أي سطر في الشريط لإعادة استخدام ناتجه.",
+m_expr_a:"اكتب الصيغ كما تكتبها على الورق. العدد المجاور لقوس أو حرف يعني الضرب.",m_expr_b:"الدوال",m_expr_c:"الثوابت، والحرف E لقوى العشرة",
+m_graph:"أدخل حتى ثلاث دوال في x. اسحب الرسم لتحريكه واستخدم زرّي التكبير والتصغير لتغيير المقياس. اترك السطر فارغًا لإخفائه. الرسم يستخدم الراديان دائمًا. اضغط على الرسم لقراءة القيم عند تلك النقطة.",
+m_conv:"اختر فئة واكتب قيمة ثم اختر الوحدتين. الناتج يتحدث أثناء الكتابة. زر تبديل الوحدتين يعكس الاتجاه.",
+m_solve:"المعادلة التربيعية: أدخل a و b و c للمعادلة ax² + bx + c = 0. الجذور المركبة تُعرض بالرمز i. إيجاد الجذر: أدخل f(x) وقيمة ابتدائية لتحصل على أقرب جذر. المشتقات والتكاملات تُحسب عدديًا، فتوقع نحو 8 أرقام صحيحة. الزوايا هنا بالراديان.",
+m_stats:"اكتب أرقامك أو الصقها. العدد والمتوسط والوسيط والمنوال والتشتت والانحرافان المعياريان تتحدث فورًا.",
+m_matrix:"اختر 2 × 2 أو 3 × 3 واملأ المصفوفة A. تحصل على المحدد والمنقول والمعكوس. املأ المتجه b لحل النظام A·x = b.",
+m_fin:"قسط القرض يعطي القسط الشهري الثابت لمبلغ ومعدل سنوي ومدة. النمو المركب يوضح ما يصير إليه المبلغ الابتدائي. هذه تقديرات وليست نصيحة مالية.",
+m_prog:"اكتب في أي من الخانات الأربع فتتحدث بقية الأنظمة. الأعداد الصحيحة السالبة والكبيرة جدًا مدعومة. نتائج عمليات البتات على A و B تظهر في الجدول.",
+m_keys:"Enter أو = للحساب، Backspace للحذف، Escape للمسح. استخدم ^ للأس و * للضرب و / للقسمة.",
+daily:"حسابات يومية",pct:"النسب المئوية",pct_of:"A% من B",pct_is:"A كنسبة مئوية من B",pct_chg:"التغير من A إلى B",dates:"التواريخ",d_start:"تاريخ البداية",d_end:"تاريخ النهاية",d_days:"الأيام بينهما",d_add:"أيام تُضاف",d_res:"تاريخ البداية مع الأيام",m_daily:"النسب المئوية: أدخل A و B لتحصل على A% من B، و A كنسبة مئوية من B، والتغير من A إلى B. التواريخ: اختر تاريخين لحساب الأيام بينهما، أو أضف عددًا من الأيام إلى تاريخ البداية.",
+reg:"الانحدار الخطي",reg_hint:"زوج x, y واحد في كل سطر.",fit:"خط أفضل مطابقة",slope:"الميل",icept:"المقطع",corr:"معامل الارتباط r",m_reg:"الانحدار الخطي: أدخل زوج x, y في كل سطر لتحصل على أفضل خط مستقيم ومدى قرب النقاط منه.",
+pro_tool:"أداة برو",lock_msg:"الأدوات التي تحمل علامة برو تُفتح بعد تفعيل برو. الدفع غير مفعّل بعد، لذا التفعيل مجاني في هذه النسخة التجريبية.",unlock:"فتح برو تجريبيًا",relock:"قفل برو من جديد",see_plans:"عرض الخطط",pro_on:"برو التجريبي مفعّل. كل الأدوات مفتوحة.",
+foot:"نسخة تجريبية من حساب. النتائج بدقة مضاعفة، نحو 15 رقمًا معنويًا."},
+
+fr:{tag:"Calculatrice scientifique, graphique et d'ingénierie en huit langues",lang:"Langue",
+calc:"Calculatrice",graph:"Graphique",conv:"Convertir",solve:"Résoudre",stats:"Statistiques",matrix:"Matrices",fin:"Finance",prog:"Programmeur",price:"Tarifs",manual:"Manuel",
+tape:"Ruban",clear:"Effacer le ruban",example:"exemple",err:"Vérifiez l'expression",copy:"Copier le résultat",copied:"Copié",
+g_title:"Tracer des fonctions de x",g_hint:"Faites glisser pour déplacer le tracé. Les angles sont en radians.",zin:"Zoom avant",zout:"Zoom arrière",reset:"Réinitialiser la vue",
+category:"Catégorie",from:"De",to:"Vers",swap:"Inverser les unités",
+c_length:"Longueur",c_mass:"Masse",c_temp:"Température",c_area:"Surface",c_volume:"Volume",c_speed:"Vitesse",c_time:"Temps",c_data:"Données",c_energy:"Énergie",c_pressure:"Pression",c_angle:"Angle",
+q_title:"Équation du second degré",roots:"Racines",r_title:"Trouver une racine de f(x) = 0",guess:"Partir près de x",d_title:"Dérivée en un point",at:"En x",i_title:"Intégrale définie",lower:"Borne inférieure",upper:"Borne supérieure",noroot:"Aucune racine trouvée près de cette valeur",anyx:"Tout x est solution",nosol:"Aucune solution",badf:"Vérifiez la fonction",
+s_title:"Série de données",s_hint:"Séparez les nombres par des virgules, des espaces ou des retours à la ligne.",count:"Effectif",sum:"Somme",mean:"Moyenne",median:"Médiane",mode:"Mode",min:"Minimum",max:"Maximum",range:"Étendue",variance:"Variance d'échantillon",sds:"Écart-type d'échantillon",sdp:"Écart-type de population",
+size:"Taille",ma:"Matrice A",vb:"Vecteur b",det:"Déterminant",transp:"Transposée",inv:"Inverse",sol:"Solution de A·x = b",singular:"La matrice est singulière et n'a pas d'inverse",
+loan:"Mensualité de prêt",amount:"Montant",rate:"Taux annuel (%)",years:"Années",monthly:"Mensualité",total:"Total payé",interest:"Total des intérêts",comp:"Croissance composée",principal:"Montant de départ",peryear:"Capitalisations par an",future:"Valeur future",gain:"Croissance",
+bases:"Bases numériques",bin:"Binaire",oct:"Octal",dec:"Décimal",hex:"Hexadécimal",bit:"Opérations bit à bit",bit_hint:"Saisissez A et B comme entiers décimaux.",
+plans:"Formules",plans_sub:"Prix proposés. Le paiement n'est pas encore connecté : Pro se débloque donc sans frais dans cet aperçu.",bill_m:"Mensuel",bill_y:"Annuel",per_m:"par mois",per_y:"par an",free:"Gratuit",pro:"Pro",team:"Classe",
+f1:"Calculatrice scientifique avec ruban",f2:"Convertisseur d'unités, 11 catégories",f3:"Huit langues",p1:"Tout le plan Gratuit",p2:"Graphiques, résolution, matrices et statistiques",p3:"Outils finance et programmeur",p4:"Historique du ruban synchronisé entre appareils",c1:"Tout le plan Pro",c2:"30 places élèves",c3:"Assistance prioritaire",
+cta_free:"Commencer à calculer",cta_wait:"Rejoindre la liste d'attente",wait_msg:"Le paiement n'est pas encore connecté. Rien n'a été débité.",
+man_sub:"Comment utiliser chaque outil, dans l'ordre.",h_start:"Premiers pas",h_expr:"Écrire des expressions",h_keys:"Clavier",
+m_start:"Choisissez un outil dans la barre du haut. Choisissez votre langue dans le menu à côté du nom. L'arabe et l'ourdou passent la page de droite à gauche ; les nombres et les formules se lisent toujours de gauche à droite.",
+m_calc:"Touchez les touches ou tapez au clavier. La petite ligne sous l'expression affiche le résultat pendant la saisie. Appuyez sur = pour l'imprimer sur le ruban. 2nd bascule les touches sur leur seconde fonction : sin devient sin⁻¹ et ln devient eˣ. DEG / RAD règle l'unité d'angle. M+, M−, MR et MC agissent sur la mémoire et Ans garde le dernier résultat. Touchez une ligne du ruban pour réutiliser son résultat.",
+m_expr_a:"Écrivez les formules comme sur le papier. Un nombre accolé à une parenthèse ou à une lettre multiplie.",m_expr_b:"Fonctions",m_expr_c:"Constantes, et E pour les puissances de dix",
+m_graph:"Saisissez jusqu'à trois fonctions de x. Faites glisser le tracé pour le déplacer et utilisez les boutons de zoom pour changer l'échelle. Laissez une ligne vide pour la masquer. Les graphiques utilisent toujours les radians. Touchez le tracé pour lire les valeurs en ce point.",
+m_conv:"Choisissez une catégorie, saisissez une valeur et sélectionnez les deux unités. Le résultat se met à jour pendant la saisie. Inverser les unités change le sens.",
+m_solve:"Second degré : saisissez a, b et c pour ax² + bx + c = 0. Les racines complexes sont notées avec i. Recherche de racine : saisissez f(x) et une valeur de départ pour obtenir la racine la plus proche. Dérivées et intégrales sont calculées numériquement : comptez environ 8 chiffres exacts. Les angles sont ici en radians.",
+m_stats:"Saisissez ou collez vos nombres. Effectif, moyenne, médiane, mode, dispersion et les deux écarts-types se mettent à jour aussitôt.",
+m_matrix:"Choisissez 2 × 2 ou 3 × 3 et remplissez la matrice A. Vous obtenez le déterminant, la transposée et l'inverse. Remplissez le vecteur b pour résoudre le système A·x = b.",
+m_fin:"Mensualité de prêt donne le paiement mensuel fixe pour un montant, un taux annuel et une durée. Croissance composée montre ce que devient un montant de départ. Ce sont des estimations, pas des conseils financiers.",
+m_prog:"Saisissez dans l'une des quatre cases et les autres bases se mettent à jour. Les entiers négatifs et très grands sont acceptés. Les résultats bit à bit pour A et B s'affichent dans le tableau.",
+m_keys:"Entrée ou = calcule, Retour arrière supprime, Échap efface. Utilisez ^ pour les puissances, * pour multiplier et / pour diviser.",
+daily:"Quotidien",pct:"Pourcentages",pct_of:"A % de B",pct_is:"A en pourcentage de B",pct_chg:"Variation de A à B",dates:"Dates",d_start:"Date de début",d_end:"Date de fin",d_days:"Jours d'écart",d_add:"Jours à ajouter",d_res:"Date de début plus les jours",m_daily:"Pourcentages : saisissez A et B pour obtenir A % de B, A en pourcentage de B et la variation de A à B. Dates : choisissez deux dates pour compter les jours qui les séparent, ou ajoutez un nombre de jours à la date de début.",
+reg:"Régression linéaire",reg_hint:"Une paire x, y par ligne.",fit:"Droite d'ajustement",slope:"Pente",icept:"Ordonnée à l'origine",corr:"Corrélation r",m_reg:"Régression linéaire : saisissez une paire x, y par ligne pour obtenir la droite d'ajustement et savoir à quel point les points la suivent.",
+pro_tool:"Outil Pro",lock_msg:"Les outils marqués Pro s'ouvrent une fois Pro débloqué. Le paiement n'est pas encore connecté : le déblocage ne coûte rien dans cet aperçu.",unlock:"Débloquer l'aperçu Pro",relock:"Verrouiller Pro à nouveau",see_plans:"Voir les formules",pro_on:"L'aperçu Pro est activé. Tous les outils sont ouverts.",
+foot:"Aperçu de Hisab. Les résultats utilisent la double précision, soit environ 15 chiffres significatifs."},
+
+es:{tag:"Calculadora científica, gráfica y de ingeniería en ocho idiomas",lang:"Idioma",
+calc:"Calculadora",graph:"Gráfica",conv:"Convertir",solve:"Resolver",stats:"Estadística",matrix:"Matrices",fin:"Finanzas",prog:"Programador",price:"Precios",manual:"Manual",
+tape:"Cinta",clear:"Borrar cinta",example:"ejemplo",err:"Revisa la expresión",copy:"Copiar resultado",copied:"Copiado",
+g_title:"Graficar funciones de x",g_hint:"Arrastra para mover la gráfica. Los ángulos están en radianes.",zin:"Acercar",zout:"Alejar",reset:"Restablecer vista",
+category:"Categoría",from:"De",to:"A",swap:"Intercambiar unidades",
+c_length:"Longitud",c_mass:"Masa",c_temp:"Temperatura",c_area:"Área",c_volume:"Volumen",c_speed:"Velocidad",c_time:"Tiempo",c_data:"Datos",c_energy:"Energía",c_pressure:"Presión",c_angle:"Ángulo",
+q_title:"Ecuación cuadrática",roots:"Raíces",r_title:"Hallar una raíz de f(x) = 0",guess:"Empezar cerca de x",d_title:"Derivada en un punto",at:"En x",i_title:"Integral definida",lower:"Límite inferior",upper:"Límite superior",noroot:"No se encontró ninguna raíz cerca de este valor",anyx:"Todo x es solución",nosol:"Sin solución",badf:"Revisa la función",
+s_title:"Conjunto de datos",s_hint:"Separa los números con comas, espacios o saltos de línea.",count:"Cantidad",sum:"Suma",mean:"Media",median:"Mediana",mode:"Moda",min:"Mínimo",max:"Máximo",range:"Rango",variance:"Varianza muestral",sds:"Desviación estándar muestral",sdp:"Desviación estándar poblacional",
+size:"Tamaño",ma:"Matriz A",vb:"Vector b",det:"Determinante",transp:"Transpuesta",inv:"Inversa",sol:"Solución de A·x = b",singular:"La matriz es singular y no tiene inversa",
+loan:"Cuota de préstamo",amount:"Importe",rate:"Tasa anual (%)",years:"Años",monthly:"Cuota mensual",total:"Total pagado",interest:"Intereses totales",comp:"Crecimiento compuesto",principal:"Importe inicial",peryear:"Capitalizaciones por año",future:"Valor futuro",gain:"Crecimiento",
+bases:"Bases numéricas",bin:"Binario",oct:"Octal",dec:"Decimal",hex:"Hexadecimal",bit:"Operaciones bit a bit",bit_hint:"Introduce A y B como enteros decimales.",
+plans:"Planes",plans_sub:"Precios propuestos. El pago aún no está conectado, así que Pro se puede desbloquear sin coste en esta vista previa.",bill_m:"Mensual",bill_y:"Anual",per_m:"al mes",per_y:"al año",free:"Gratis",pro:"Pro",team:"Aula",
+f1:"Calculadora científica con cinta",f2:"Conversor de unidades con 11 categorías",f3:"Ocho idiomas",p1:"Todo lo del plan Gratis",p2:"Gráficas, resolución, matrices y estadística",p3:"Herramientas de finanzas y programador",p4:"Historial de la cinta sincronizado entre dispositivos",c1:"Todo lo del plan Pro",c2:"30 plazas para estudiantes",c3:"Soporte prioritario",
+cta_free:"Empezar a calcular",cta_wait:"Unirse a la lista de espera",wait_msg:"El pago aún no está conectado. No se cobró nada.",
+man_sub:"Cómo usar cada herramienta, en orden.",h_start:"Primeros pasos",h_expr:"Escribir expresiones",h_keys:"Teclado",
+m_start:"Elige una herramienta en la barra superior. Elige tu idioma en el menú junto al nombre. El árabe y el urdu ponen la página de derecha a izquierda; los números y las fórmulas siempre se leen de izquierda a derecha.",
+m_calc:"Toca las teclas o escribe con un teclado. La línea pequeña bajo la expresión muestra el resultado mientras escribes. Pulsa = para imprimirlo en la cinta. 2nd cambia las teclas a su segunda función: sin pasa a sin⁻¹ y ln pasa a eˣ. DEG / RAD fija la unidad de ángulo. M+, M−, MR y MC trabajan con la memoria, y Ans guarda el último resultado. Toca cualquier línea de la cinta para reutilizar su resultado.",
+m_expr_a:"Escribe las fórmulas como en papel. Un número junto a un paréntesis o una letra multiplica.",m_expr_b:"Funciones",m_expr_c:"Constantes, y E para potencias de diez",
+m_graph:"Introduce hasta tres funciones de x. Arrastra la gráfica para moverla y usa los botones de zoom para cambiar la escala. Deja una línea vacía para ocultarla. Las gráficas siempre usan radianes. Toca la gráfica para leer los valores en ese punto.",
+m_conv:"Elige una categoría, escribe un valor y selecciona las dos unidades. El resultado se actualiza mientras escribes. Intercambiar unidades invierte el sentido.",
+m_solve:"Cuadrática: introduce a, b y c para ax² + bx + c = 0. Las raíces complejas se muestran con i. Buscador de raíces: introduce f(x) y un valor inicial para obtener la raíz más cercana. Las derivadas e integrales se calculan numéricamente, con unos 8 dígitos correctos. Aquí los ángulos están en radianes.",
+m_stats:"Escribe o pega tus números. Cantidad, media, mediana, moda, dispersión y ambas desviaciones estándar se actualizan al instante.",
+m_matrix:"Elige 2 × 2 o 3 × 3 y rellena la matriz A. Obtienes el determinante, la transpuesta y la inversa. Rellena el vector b para resolver el sistema A·x = b.",
+m_fin:"Cuota de préstamo da el pago mensual fijo para un importe, una tasa anual y un plazo. Crecimiento compuesto muestra en qué se convierte un importe inicial. Son estimaciones, no asesoría financiera.",
+m_prog:"Escribe en cualquiera de las cuatro casillas y las demás bases se actualizan. Admite enteros negativos y muy grandes. Los resultados bit a bit de A y B aparecen en la tabla.",
+m_keys:"Intro o = calcula, Retroceso borra, Escape limpia. Usa ^ para potencias, * para multiplicar y / para dividir.",
+daily:"Cotidiano",pct:"Porcentajes",pct_of:"A % de B",pct_is:"A como porcentaje de B",pct_chg:"Cambio de A a B",dates:"Fechas",d_start:"Fecha de inicio",d_end:"Fecha final",d_days:"Días entre ambas",d_add:"Días que sumar",d_res:"Fecha de inicio más los días",m_daily:"Porcentajes: introduce A y B para obtener el A % de B, A como porcentaje de B y el cambio de A a B. Fechas: elige dos fechas para contar los días entre ellas, o suma un número de días a la fecha de inicio.",
+reg:"Regresión lineal",reg_hint:"Un par x, y por línea.",fit:"Recta de mejor ajuste",slope:"Pendiente",icept:"Ordenada en el origen",corr:"Correlación r",m_reg:"Regresión lineal: introduce un par x, y por línea para obtener la recta de mejor ajuste y cuánto se acercan los puntos a ella.",
+pro_tool:"Herramienta Pro",lock_msg:"Las herramientas marcadas como Pro se abren al desbloquear Pro. El pago aún no está conectado, así que desbloquear no cuesta nada en esta vista previa.",unlock:"Desbloquear vista previa de Pro",relock:"Volver a bloquear Pro",see_plans:"Ver planes",pro_on:"La vista previa de Pro está activa. Todas las herramientas están abiertas.",
+foot:"Vista previa de Hisab. Los resultados usan doble precisión, unos 15 dígitos significativos."},
+
+ur:{tag:"آٹھ زبانوں میں سائنسی، گرافنگ اور انجینئرنگ کیلکولیٹر",lang:"زبان",
+calc:"کیلکولیٹر",graph:"گراف",conv:"تبدیلی",solve:"حل",stats:"شماریات",matrix:"میٹرکس",fin:"مالیات",prog:"پروگرامر",price:"قیمتیں",manual:"رہنما",
+tape:"ٹیپ",clear:"ٹیپ صاف کریں",example:"مثال",err:"عبارت چیک کریں",copy:"نتیجہ کاپی کریں",copied:"کاپی ہو گیا",
+g_title:"x کے فنکشن پلاٹ کریں",g_hint:"گراف ہلانے کے لیے گھسیٹیں۔ زاویے ریڈین میں ہیں۔",zin:"بڑا کریں",zout:"چھوٹا کریں",reset:"منظر بحال کریں",
+category:"زمرہ",from:"سے",to:"میں",swap:"اکائیاں بدلیں",
+c_length:"لمبائی",c_mass:"کمیت",c_temp:"درجہ حرارت",c_area:"رقبہ",c_volume:"حجم",c_speed:"رفتار",c_time:"وقت",c_data:"ڈیٹا",c_energy:"توانائی",c_pressure:"دباؤ",c_angle:"زاویہ",
+q_title:"دو درجی مساوات",roots:"جذور",r_title:"f(x) = 0 کا جذر تلاش کریں",guess:"x کے قریب سے شروع کریں",d_title:"کسی نقطے پر مشتق",at:"x پر",i_title:"معین تکمل",lower:"زیریں حد",upper:"بالائی حد",noroot:"اس قدر کے قریب کوئی جذر نہیں ملا",anyx:"x کی ہر قدر حل ہے",nosol:"کوئی حل نہیں",badf:"فنکشن چیک کریں",
+s_title:"ڈیٹا سیٹ",s_hint:"اعداد کو کوما، خالی جگہ یا نئی سطر سے الگ کریں۔",count:"تعداد",sum:"مجموعہ",mean:"اوسط",median:"وسطانیہ",mode:"عادہ",min:"کم سے کم",max:"زیادہ سے زیادہ",range:"وسعت",variance:"نمونے کا تغیر",sds:"نمونے کا معیاری انحراف",sdp:"آبادی کا معیاری انحراف",
+size:"سائز",ma:"میٹرکس A",vb:"ویکٹر b",det:"مقطع",transp:"ٹرانسپوز",inv:"معکوس",sol:"A·x = b کا حل",singular:"میٹرکس منفرد ہے، اس لیے اس کا معکوس نہیں",
+loan:"قرض کی قسط",amount:"رقم",rate:"سالانہ شرح (%)",years:"سال",monthly:"ماہانہ قسط",total:"کل ادائیگی",interest:"کل سود",comp:"مرکب اضافہ",principal:"ابتدائی رقم",peryear:"سال میں مرکب ہونے کی تعداد",future:"مستقبل کی قدر",gain:"اضافہ",
+bases:"عددی اساس",bin:"بائنری",oct:"آکٹل",dec:"اعشاری",hex:"ہیکسا ڈیسیمل",bit:"بِٹ وائز عملیات",bit_hint:"A اور B اعشاری صحیح اعداد کے طور پر درج کریں۔",
+plans:"پلان",plans_sub:"مجوزہ قیمتیں۔ ادائیگی ابھی منسلک نہیں، اس لیے اس پیش نظارہ میں پرو بلا قیمت کھولا جا سکتا ہے۔",bill_m:"ماہانہ",bill_y:"سالانہ",per_m:"فی مہینہ",per_y:"فی سال",free:"مفت",pro:"پرو",team:"کلاس روم",
+f1:"ٹیپ کے ساتھ سائنسی کیلکولیٹر",f2:"11 زمروں کا یونٹ کنورٹر",f3:"آٹھ زبانیں",p1:"مفت پلان کی ہر چیز",p2:"گراف، حل، میٹرکس اور شماریات",p3:"مالیات اور پروگرامر ٹولز",p4:"تمام آلات پر ٹیپ کی سرگزشت کی ہم آہنگی",c1:"پرو پلان کی ہر چیز",c2:"طلبہ کے لیے 30 نشستیں",c3:"ترجیحی معاونت",
+cta_free:"حساب شروع کریں",cta_wait:"ویٹ لسٹ میں شامل ہوں",wait_msg:"ادائیگی ابھی منسلک نہیں۔ کوئی رقم نہیں کاٹی گئی۔",
+man_sub:"ہر ٹول کے استعمال کا طریقہ، ترتیب وار۔",h_start:"آغاز",h_expr:"عبارتیں لکھنا",h_keys:"کی بورڈ",
+m_start:"اوپر کی پٹی سے کوئی ٹول چنیں۔ نام کے ساتھ والے مینو سے اپنی زبان منتخب کریں۔ عربی اور اردو میں صفحہ دائیں سے بائیں ہو جاتا ہے، جبکہ اعداد اور فارمولے ہمیشہ بائیں سے دائیں پڑھے جاتے ہیں۔",
+m_calc:"بٹن دبائیں یا کی بورڈ سے لکھیں۔ عبارت کے نیچے چھوٹی سطر لکھتے وقت جواب دکھاتی ہے۔ اسے ٹیپ پر چھاپنے کے لیے = دبائیں۔ 2nd بٹنوں کو ان کے دوسرے کام پر لے جاتا ہے، یعنی sin سے sin⁻¹ اور ln سے eˣ بن جاتا ہے۔ DEG / RAD زاویے کی اکائی مقرر کرتا ہے۔ M+، M−، MR اور MC میموری پر کام کرتے ہیں اور Ans آخری جواب رکھتا ہے۔ ٹیپ کی کسی سطر کو دبا کر اس کا نتیجہ دوبارہ استعمال کریں۔",
+m_expr_a:"فارمولے ویسے ہی لکھیں جیسے کاغذ پر لکھتے ہیں۔ قوس یا حرف کے ساتھ لکھا عدد ضرب ہوتا ہے۔",m_expr_b:"فنکشن",m_expr_c:"مستقلات، اور دس کی طاقتوں کے لیے E",
+m_graph:"x کے زیادہ سے زیادہ تین فنکشن درج کریں۔ گراف ہلانے کے لیے گھسیٹیں اور پیمانہ بدلنے کے لیے زوم بٹن استعمال کریں۔ کسی سطر کو چھپانے کے لیے اسے خالی چھوڑ دیں۔ گراف ہمیشہ ریڈین استعمال کرتے ہیں۔ کسی نقطے کی قدریں پڑھنے کے لیے گراف پر دبائیں۔",
+m_conv:"زمرہ چنیں، قدر لکھیں اور دونوں اکائیاں منتخب کریں۔ جواب لکھتے ہی بدل جاتا ہے۔ اکائیاں بدلیں کا بٹن سمت الٹ دیتا ہے۔",
+m_solve:"دو درجی: ax² + bx + c = 0 کے لیے a، b اور c درج کریں۔ مختلط جذور i کے ساتھ دکھائے جاتے ہیں۔ جذر تلاش: قریب ترین جذر کے لیے f(x) اور ابتدائی قدر درج کریں۔ مشتق اور تکمل عددی طور پر نکالے جاتے ہیں، اس لیے تقریباً 8 درست ہندسے ملتے ہیں۔ یہاں زاویے ریڈین میں ہیں۔",
+m_stats:"اپنے اعداد لکھیں یا پیسٹ کریں۔ تعداد، اوسط، وسطانیہ، عادہ، پھیلاؤ اور دونوں معیاری انحراف فوراً بدل جاتے ہیں۔",
+m_matrix:"2 × 2 یا 3 × 3 چنیں اور میٹرکس A بھریں۔ آپ کو مقطع، ٹرانسپوز اور معکوس ملتا ہے۔ نظام A·x = b حل کرنے کے لیے ویکٹر b بھریں۔",
+m_fin:"قرض کی قسط رقم، سالانہ شرح اور مدت کے لیے مقررہ ماہانہ قسط بتاتی ہے۔ مرکب اضافہ دکھاتا ہے کہ ابتدائی رقم کتنی ہو جاتی ہے۔ یہ تخمینے ہیں، مالی مشورہ نہیں۔",
+m_prog:"چاروں خانوں میں سے کسی میں لکھیں تو باقی اساس خود بدل جاتی ہیں۔ منفی اور بہت بڑے صحیح اعداد بھی چلتے ہیں۔ A اور B کے بِٹ وائز نتائج جدول میں آتے ہیں۔",
+m_keys:"Enter یا = حساب کرتا ہے، Backspace مٹاتا ہے، Escape سب صاف کرتا ہے۔ طاقت کے لیے ^، ضرب کے لیے * اور تقسیم کے لیے / استعمال کریں۔",
+daily:"روزمرہ",pct:"فیصد",pct_of:"B کا A فیصد",pct_is:"A، B کا کتنے فیصد ہے",pct_chg:"A سے B تک تبدیلی",dates:"تاریخیں",d_start:"آغاز کی تاریخ",d_end:"اختتام کی تاریخ",d_days:"درمیانی دن",d_add:"شامل کرنے کے دن",d_res:"آغاز کی تاریخ جمع دن",m_daily:"فیصد: A اور B درج کریں تو B کا A فیصد، A بطور B کا فیصد، اور A سے B تک تبدیلی ملتی ہے۔ تاریخیں: دو تاریخیں چنیں تو درمیانی دن گنے جاتے ہیں، یا آغاز کی تاریخ میں دنوں کی تعداد جمع کریں۔",
+reg:"خطی رجعت",reg_hint:"ہر سطر میں ایک x, y جوڑا۔",fit:"بہترین موزوں خط",slope:"ڈھلوان",icept:"مقطع",corr:"ارتباط r",m_reg:"خطی رجعت: ہر سطر میں ایک x, y جوڑا درج کریں تو بہترین موزوں سیدھا خط اور نقاط کی اس سے قربت ملتی ہے۔",
+pro_tool:"پرو ٹول",lock_msg:"پرو کے نشان والے ٹولز پرو کھولنے کے بعد چلتے ہیں۔ ادائیگی ابھی منسلک نہیں، اس لیے اس پیش نظارہ میں کھولنا مفت ہے۔",unlock:"پرو پیش نظارہ کھولیں",relock:"پرو دوبارہ بند کریں",see_plans:"پلان دیکھیں",pro_on:"پرو پیش نظارہ فعال ہے۔ تمام ٹولز کھلے ہیں۔",
+foot:"حساب کا پیش نظارہ۔ نتائج ڈبل پریسیژن حساب پر مبنی ہیں، تقریباً 15 بامعنی ہندسے۔"},
+
+hi:{tag:"आठ भाषाओं में वैज्ञानिक, ग्राफ़िंग और इंजीनियरिंग कैलकुलेटर",lang:"भाषा",
+calc:"कैलकुलेटर",graph:"ग्राफ़",conv:"रूपांतरण",solve:"हल",stats:"सांख्यिकी",matrix:"मैट्रिक्स",fin:"वित्त",prog:"प्रोग्रामर",price:"मूल्य",manual:"मार्गदर्शिका",
+tape:"टेप",clear:"टेप साफ़ करें",example:"उदाहरण",err:"व्यंजक जाँचें",copy:"परिणाम कॉपी करें",copied:"कॉपी हो गया",
+g_title:"x के फलन आलेखित करें",g_hint:"ग्राफ़ खिसकाने के लिए खींचें। कोण रेडियन में हैं।",zin:"ज़ूम इन",zout:"ज़ूम आउट",reset:"दृश्य रीसेट करें",
+category:"श्रेणी",from:"से",to:"में",swap:"इकाइयाँ बदलें",
+c_length:"लंबाई",c_mass:"द्रव्यमान",c_temp:"तापमान",c_area:"क्षेत्रफल",c_volume:"आयतन",c_speed:"गति",c_time:"समय",c_data:"डेटा",c_energy:"ऊर्जा",c_pressure:"दाब",c_angle:"कोण",
+q_title:"द्विघात समीकरण",roots:"मूल",r_title:"f(x) = 0 का मूल खोजें",guess:"x के पास से शुरू करें",d_title:"किसी बिंदु पर अवकलज",at:"x पर",i_title:"निश्चित समाकल",lower:"निचली सीमा",upper:"ऊपरी सीमा",noroot:"इस मान के पास कोई मूल नहीं मिला",anyx:"x का हर मान हल है",nosol:"कोई हल नहीं",badf:"फलन जाँचें",
+s_title:"डेटा सेट",s_hint:"संख्याओं को अल्पविराम, खाली जगह या नई पंक्ति से अलग करें।",count:"गिनती",sum:"योग",mean:"माध्य",median:"माध्यिका",mode:"बहुलक",min:"न्यूनतम",max:"अधिकतम",range:"परास",variance:"प्रतिदर्श प्रसरण",sds:"प्रतिदर्श मानक विचलन",sdp:"समष्टि मानक विचलन",
+size:"आकार",ma:"मैट्रिक्स A",vb:"सदिश b",det:"सारणिक",transp:"परिवर्त",inv:"व्युत्क्रम",sol:"A·x = b का हल",singular:"मैट्रिक्स अव्युत्क्रमणीय है, इसलिए इसका व्युत्क्रम नहीं है",
+loan:"ऋण की किस्त",amount:"राशि",rate:"वार्षिक दर (%)",years:"वर्ष",monthly:"मासिक किस्त",total:"कुल भुगतान",interest:"कुल ब्याज",comp:"चक्रवृद्धि वृद्धि",principal:"आरंभिक राशि",peryear:"प्रति वर्ष चक्रवृद्धि की संख्या",future:"भविष्य का मूल्य",gain:"वृद्धि",
+bases:"संख्या आधार",bin:"बाइनरी",oct:"ऑक्टल",dec:"दशमलव",hex:"हेक्साडेसिमल",bit:"बिटवाइज़ संक्रियाएँ",bit_hint:"A और B को दशमलव पूर्णांकों के रूप में लिखें।",
+plans:"योजनाएँ",plans_sub:"प्रस्तावित मूल्य। भुगतान अभी जुड़ा नहीं है, इसलिए इस पूर्वावलोकन में प्रो बिना शुल्क खोला जा सकता है।",bill_m:"मासिक",bill_y:"वार्षिक",per_m:"प्रति माह",per_y:"प्रति वर्ष",free:"निःशुल्क",pro:"प्रो",team:"कक्षा",
+f1:"टेप के साथ वैज्ञानिक कैलकुलेटर",f2:"11 श्रेणियों वाला इकाई परिवर्तक",f3:"आठ भाषाएँ",p1:"निःशुल्क योजना की हर सुविधा",p2:"ग्राफ़, हल, मैट्रिक्स और सांख्यिकी",p3:"वित्त और प्रोग्रामर टूल",p4:"सभी उपकरणों पर टेप इतिहास का सिंक",c1:"प्रो योजना की हर सुविधा",c2:"30 छात्र सीटें",c3:"प्राथमिकता सहायता",
+cta_free:"गणना शुरू करें",cta_wait:"प्रतीक्षा सूची में जुड़ें",wait_msg:"भुगतान अभी जुड़ा नहीं है। कोई शुल्क नहीं लिया गया।",
+man_sub:"हर टूल का उपयोग कैसे करें, क्रम से।",h_start:"शुरुआत",h_expr:"व्यंजक लिखना",h_keys:"कीबोर्ड",
+m_start:"ऊपर की पट्टी से कोई टूल चुनें। नाम के पास वाले मेनू से अपनी भाषा चुनें। अरबी और उर्दू में पृष्ठ दाएँ से बाएँ हो जाता है; संख्याएँ और सूत्र हमेशा बाएँ से दाएँ पढ़े जाते हैं।",
+m_calc:"बटन दबाएँ या कीबोर्ड से लिखें। व्यंजक के नीचे की छोटी पंक्ति लिखते समय उत्तर दिखाती है। उसे टेप पर छापने के लिए = दबाएँ। 2nd बटनों को उनके दूसरे काम पर ले जाता है, यानी sin से sin⁻¹ और ln से eˣ बन जाता है। DEG / RAD कोण की इकाई तय करता है। M+, M−, MR और MC मेमोरी पर काम करते हैं और Ans पिछला उत्तर रखता है। टेप की किसी पंक्ति को दबाकर उसका परिणाम फिर से इस्तेमाल करें।",
+m_expr_a:"सूत्र वैसे ही लिखें जैसे काग़ज़ पर लिखते हैं। कोष्ठक या अक्षर के साथ लिखी संख्या गुणा होती है।",m_expr_b:"फलन",m_expr_c:"स्थिरांक, और दस की घातों के लिए E",
+m_graph:"x के अधिकतम तीन फलन लिखें। ग्राफ़ खिसकाने के लिए खींचें और पैमाना बदलने के लिए ज़ूम बटन इस्तेमाल करें। किसी पंक्ति को छिपाने के लिए उसे खाली छोड़ दें। ग्राफ़ हमेशा रेडियन का उपयोग करते हैं। उस बिंदु के मान पढ़ने के लिए ग्राफ़ पर दबाएँ।",
+m_conv:"श्रेणी चुनें, मान लिखें और दोनों इकाइयाँ चुनें। उत्तर लिखते ही बदल जाता है। इकाइयाँ बदलें बटन दिशा उलट देता है।",
+m_solve:"द्विघात: ax² + bx + c = 0 के लिए a, b और c लिखें। सम्मिश्र मूल i के साथ दिखाए जाते हैं। मूल खोज: निकटतम मूल पाने के लिए f(x) और आरंभिक मान लिखें। अवकलज और समाकल संख्यात्मक रूप से निकाले जाते हैं, इसलिए लगभग 8 सही अंक मिलते हैं। यहाँ कोण रेडियन में हैं।",
+m_stats:"अपनी संख्याएँ लिखें या पेस्ट करें। गिनती, माध्य, माध्यिका, बहुलक, फैलाव और दोनों मानक विचलन तुरंत बदल जाते हैं।",
+m_matrix:"2 × 2 या 3 × 3 चुनें और मैट्रिक्स A भरें। आपको सारणिक, परिवर्त और व्युत्क्रम मिलता है। निकाय A·x = b हल करने के लिए सदिश b भरें।",
+m_fin:"ऋण की किस्त राशि, वार्षिक दर और अवधि के लिए निश्चित मासिक किस्त बताती है। चक्रवृद्धि वृद्धि दिखाती है कि आरंभिक राशि कितनी हो जाती है। ये अनुमान हैं, वित्तीय सलाह नहीं।",
+m_prog:"चारों खानों में से किसी में लिखें और बाकी आधार अपने आप बदल जाते हैं। ऋणात्मक और बहुत बड़े पूर्णांक भी चलते हैं। A और B के बिटवाइज़ परिणाम तालिका में दिखते हैं।",
+m_keys:"Enter या = गणना करता है, Backspace मिटाता है, Escape सब साफ़ करता है। घात के लिए ^, गुणा के लिए * और भाग के लिए / इस्तेमाल करें।",
+daily:"रोज़मर्रा",pct:"प्रतिशत",pct_of:"B का A प्रतिशत",pct_is:"A, B का कितना प्रतिशत है",pct_chg:"A से B तक बदलाव",dates:"तारीख़ें",d_start:"आरंभ तिथि",d_end:"समाप्ति तिथि",d_days:"बीच के दिन",d_add:"जोड़ने के दिन",d_res:"आरंभ तिथि में दिन जोड़कर",m_daily:"प्रतिशत: A और B लिखें तो B का A प्रतिशत, A का B में प्रतिशत और A से B तक बदलाव मिलता है। तारीख़ें: दो तारीख़ें चुनें तो बीच के दिन गिने जाते हैं, या आरंभ तिथि में दिनों की संख्या जोड़ें।",
+reg:"रैखिक समाश्रयण",reg_hint:"हर पंक्ति में एक x, y जोड़ा।",fit:"सर्वोत्तम फ़िट रेखा",slope:"ढाल",icept:"अंतःखंड",corr:"सहसंबंध r",m_reg:"रैखिक समाश्रयण: हर पंक्ति में एक x, y जोड़ा लिखें तो सर्वोत्तम फ़िट सीधी रेखा और बिंदुओं की उससे निकटता मिलती है।",
+pro_tool:"प्रो टूल",lock_msg:"प्रो चिह्न वाले टूल प्रो खोलने के बाद चलते हैं। भुगतान अभी जुड़ा नहीं है, इसलिए इस पूर्वावलोकन में खोलना निःशुल्क है।",unlock:"प्रो पूर्वावलोकन खोलें",relock:"प्रो फिर से बंद करें",see_plans:"योजनाएँ देखें",pro_on:"प्रो पूर्वावलोकन चालू है। सभी टूल खुले हैं।",
+foot:"हिसाब का पूर्वावलोकन। परिणाम डबल-प्रिसिशन गणित पर आधारित हैं, लगभग 15 सार्थक अंक।"},
+
+tr:{tag:"Sekiz dilde bilimsel, grafik ve mühendislik hesap makinesi",lang:"Dil",
+calc:"Hesap makinesi",graph:"Grafik",conv:"Dönüştür",solve:"Çöz",stats:"İstatistik",matrix:"Matris",fin:"Finans",prog:"Programcı",price:"Fiyatlar",manual:"Kılavuz",
+tape:"Şerit",clear:"Şeridi temizle",example:"örnek",err:"İfadeyi kontrol edin",copy:"Sonucu kopyala",copied:"Kopyalandı",
+g_title:"x'in fonksiyonlarını çizin",g_hint:"Grafiği taşımak için sürükleyin. Açılar radyan cinsindendir.",zin:"Yakınlaştır",zout:"Uzaklaştır",reset:"Görünümü sıfırla",
+category:"Kategori",from:"Kaynak",to:"Hedef",swap:"Birimleri değiştir",
+c_length:"Uzunluk",c_mass:"Kütle",c_temp:"Sıcaklık",c_area:"Alan",c_volume:"Hacim",c_speed:"Hız",c_time:"Zaman",c_data:"Veri",c_energy:"Enerji",c_pressure:"Basınç",c_angle:"Açı",
+q_title:"İkinci dereceden denklem",roots:"Kökler",r_title:"f(x) = 0 için kök bulun",guess:"Başlangıç x değeri",d_title:"Bir noktada türev",at:"x değeri",i_title:"Belirli integral",lower:"Alt sınır",upper:"Üst sınır",noroot:"Bu değerin yakınında kök bulunamadı",anyx:"Her x bir çözümdür",nosol:"Çözüm yok",badf:"Fonksiyonu kontrol edin",
+s_title:"Veri kümesi",s_hint:"Sayıları virgül, boşluk veya yeni satırla ayırın.",count:"Adet",sum:"Toplam",mean:"Ortalama",median:"Ortanca",mode:"Mod",min:"En küçük",max:"En büyük",range:"Açıklık",variance:"Örneklem varyansı",sds:"Örneklem standart sapması",sdp:"Anakütle standart sapması",
+size:"Boyut",ma:"A matrisi",vb:"b vektörü",det:"Determinant",transp:"Devrik",inv:"Ters",sol:"A·x = b çözümü",singular:"Matris tekildir, bu yüzden tersi yoktur",
+loan:"Kredi taksidi",amount:"Tutar",rate:"Yıllık oran (%)",years:"Yıl",monthly:"Aylık taksit",total:"Toplam ödeme",interest:"Toplam faiz",comp:"Bileşik büyüme",principal:"Başlangıç tutarı",peryear:"Yıllık bileşik sayısı",future:"Gelecekteki değer",gain:"Büyüme",
+bases:"Sayı tabanları",bin:"İkili",oct:"Sekizli",dec:"Onlu",hex:"On altılı",bit:"Bit düzeyinde işlemler",bit_hint:"A ve B'yi onlu tam sayı olarak girin.",
+plans:"Planlar",plans_sub:"Önerilen fiyatlar. Ödeme henüz bağlı değil, bu yüzden Pro bu önizlemede ücretsiz açılabilir.",bill_m:"Aylık",bill_y:"Yıllık",per_m:"aylık",per_y:"yıllık",free:"Ücretsiz",pro:"Pro",team:"Sınıf",
+f1:"Şeritli bilimsel hesap makinesi",f2:"11 kategorili birim dönüştürücü",f3:"Sekiz dil",p1:"Ücretsiz plandaki her şey",p2:"Grafik, çözücü, matris ve istatistik",p3:"Finans ve programcı araçları",p4:"Cihazlar arasında eşitlenen şerit geçmişi",c1:"Pro plandaki her şey",c2:"30 öğrenci koltuğu",c3:"Öncelikli destek",
+cta_free:"Hesaplamaya başla",cta_wait:"Bekleme listesine katıl",wait_msg:"Ödeme henüz bağlı değil. Hiçbir ücret alınmadı.",
+man_sub:"Her aracın sırasıyla nasıl kullanılacağı.",h_start:"Başlarken",h_expr:"İfade yazma",h_keys:"Klavye",
+m_start:"Üstteki çubuktan bir araç seçin. Dilinizi adın yanındaki menüden seçin. Arapça ve Urduca sayfayı sağdan sola çevirir; sayılar ve formüller her zaman soldan sağa okunur.",
+m_calc:"Tuşlara dokunun veya klavyeyle yazın. İfadenin altındaki küçük satır, yazarken sonucu gösterir. Şeride yazdırmak için = tuşuna basın. 2nd tuşları ikinci işlevlerine geçirir: sin, sin⁻¹ olur ve ln, eˣ olur. DEG / RAD açı birimini belirler. M+, M−, MR ve MC bellekle çalışır, Ans ise son sonucu tutar. Sonucunu yeniden kullanmak için şeritteki bir satıra dokunun.",
+m_expr_a:"Formülleri kâğıda yazdığınız gibi yazın. Parantezin veya harfin yanındaki sayı çarpma anlamına gelir.",m_expr_b:"Fonksiyonlar",m_expr_c:"Sabitler ve onun kuvvetleri için E",
+m_graph:"x'in en fazla üç fonksiyonunu girin. Grafiği taşımak için sürükleyin, ölçeği değiştirmek için yakınlaştırma düğmelerini kullanın. Gizlemek için satırı boş bırakın. Grafikler her zaman radyan kullanır. O noktadaki değerleri okumak için grafiğe dokunun.",
+m_conv:"Bir kategori seçin, bir değer yazın ve iki birimi seçin. Sonuç yazarken güncellenir. Birimleri değiştir düğmesi yönü tersine çevirir.",
+m_solve:"İkinci derece: ax² + bx + c = 0 için a, b ve c girin. Karmaşık kökler i ile gösterilir. Kök bulucu: en yakın kökü bulmak için f(x) ve bir başlangıç değeri girin. Türev ve integraller sayısal olarak hesaplanır, yaklaşık 8 doğru basamak bekleyin. Burada açılar radyan cinsindendir.",
+m_stats:"Sayılarınızı yazın veya yapıştırın. Adet, ortalama, ortanca, mod, yayılım ve her iki standart sapma anında güncellenir.",
+m_matrix:"2 × 2 veya 3 × 3 seçin ve A matrisini doldurun. Determinant, devrik ve ters matris gösterilir. A·x = b sistemini çözmek için b vektörünü doldurun.",
+m_fin:"Kredi taksidi; tutar, yıllık oran ve vade için sabit aylık ödemeyi verir. Bileşik büyüme, başlangıç tutarının neye dönüşeceğini gösterir. Bunlar tahmindir, finansal tavsiye değildir.",
+m_prog:"Dört kutudan herhangi birine yazın, diğer tabanlar güncellenir. Negatif ve çok büyük tam sayılar desteklenir. A ve B için bit düzeyindeki sonuçlar tabloda görünür.",
+m_keys:"Enter veya = hesaplar, Backspace siler, Escape temizler. Üs için ^, çarpma için * ve bölme için / kullanın.",
+daily:"Günlük",pct:"Yüzdeler",pct_of:"B'nin %A'sı",pct_is:"A, B'nin yüzde kaçı",pct_chg:"A'dan B'ye değişim",dates:"Tarihler",d_start:"Başlangıç tarihi",d_end:"Bitiş tarihi",d_days:"Aradaki gün sayısı",d_add:"Eklenecek gün",d_res:"Başlangıç tarihi artı gün",m_daily:"Yüzdeler: B'nin %A'sını, A'nın B'ye oranını yüzde olarak ve A'dan B'ye değişimi görmek için A ve B girin. Tarihler: aradaki günleri saymak için iki tarih seçin veya başlangıç tarihine gün ekleyin.",
+reg:"Doğrusal regresyon",reg_hint:"Her satıra bir x, y çifti.",fit:"En uygun doğru",slope:"Eğim",icept:"Kesişim",corr:"Korelasyon r",m_reg:"Doğrusal regresyon: en uygun doğruyu ve noktaların ona ne kadar yakın olduğunu görmek için her satıra bir x, y çifti girin.",
+pro_tool:"Pro aracı",lock_msg:"Pro işaretli araçlar, Pro açıldıktan sonra kullanılabilir. Ödeme henüz bağlı değil, bu yüzden bu önizlemede açmak ücretsizdir.",unlock:"Pro önizlemesini aç",relock:"Pro'yu yeniden kilitle",see_plans:"Planları gör",pro_on:"Pro önizlemesi açık. Tüm araçlar kullanılabilir.",
+foot:"Hisab önizlemesi. Sonuçlar çift duyarlıklı aritmetik kullanır, yaklaşık 15 anlamlı basamak."},
+
+zh:{tag:"支持八种语言的科学、绘图与工程计算器",lang:"语言",
+calc:"计算器",graph:"图像",conv:"换算",solve:"求解",stats:"统计",matrix:"矩阵",fin:"金融",prog:"程序员",price:"价格",manual:"使用手册",
+tape:"纸带",clear:"清空纸带",example:"示例",err:"请检查表达式",copy:"复制结果",copied:"已复制",
+g_title:"绘制 x 的函数",g_hint:"拖动可移动图像。角度以弧度为单位。",zin:"放大",zout:"缩小",reset:"重置视图",
+category:"类别",from:"从",to:"到",swap:"交换单位",
+c_length:"长度",c_mass:"质量",c_temp:"温度",c_area:"面积",c_volume:"体积",c_speed:"速度",c_time:"时间",c_data:"数据",c_energy:"能量",c_pressure:"压强",c_angle:"角度",
+q_title:"一元二次方程",roots:"根",r_title:"求 f(x) = 0 的根",guess:"起始 x 值",d_title:"某点的导数",at:"x 的值",i_title:"定积分",lower:"下限",upper:"上限",noroot:"在该值附近未找到根",anyx:"任意 x 都是解",nosol:"无解",badf:"请检查函数",
+s_title:"数据集",s_hint:"用逗号、空格或换行分隔数字。",count:"个数",sum:"总和",mean:"平均值",median:"中位数",mode:"众数",min:"最小值",max:"最大值",range:"极差",variance:"样本方差",sds:"样本标准差",sdp:"总体标准差",
+size:"阶数",ma:"矩阵 A",vb:"向量 b",det:"行列式",transp:"转置",inv:"逆矩阵",sol:"A·x = b 的解",singular:"矩阵是奇异的，没有逆矩阵",
+loan:"贷款月供",amount:"金额",rate:"年利率 (%)",years:"年数",monthly:"每月还款",total:"还款总额",interest:"利息总额",comp:"复利增长",principal:"初始金额",peryear:"每年复利次数",future:"终值",gain:"增长额",
+bases:"进制",bin:"二进制",oct:"八进制",dec:"十进制",hex:"十六进制",bit:"位运算",bit_hint:"以十进制整数输入 A 和 B。",
+plans:"套餐",plans_sub:"以下为拟定价格。尚未接入支付，因此在此预览版中可免费解锁专业版。",bill_m:"按月",bill_y:"按年",per_m:"每月",per_y:"每年",free:"免费版",pro:"专业版",team:"课堂版",
+f1:"带纸带的科学计算器",f2:"11 类单位换算",f3:"八种语言",p1:"包含免费版全部功能",p2:"图像、求解、矩阵与统计",p3:"金融与程序员工具",p4:"纸带历史跨设备同步",c1:"包含专业版全部功能",c2:"30 个学生席位",c3:"优先支持",
+cta_free:"开始计算",cta_wait:"加入候补名单",wait_msg:"尚未接入支付，未收取任何费用。",
+man_sub:"按顺序说明每个工具的用法。",h_start:"入门",h_expr:"书写表达式",h_keys:"键盘",
+m_start:"在顶部栏中选择工具。在名称旁的菜单中选择语言。阿拉伯语和乌尔都语会让页面从右向左排列；数字和公式始终从左向右阅读。",
+m_calc:"点按按键或用键盘输入。表达式下方的小字会在输入时显示结果。按 = 将结果打印到纸带上。2nd 把按键切换到第二功能：sin 变为 sin⁻¹，ln 变为 eˣ。DEG / RAD 设置角度单位。M+、M−、MR 和 MC 用于存储器，Ans 保存上一次的结果。点按纸带上的任意一行即可再次使用其结果。",
+m_expr_a:"像在纸上一样书写公式。数字紧挨括号或字母表示相乘。",m_expr_b:"函数",m_expr_c:"常数，以及表示 10 的幂的 E",
+m_graph:"最多输入三个关于 x 的函数。拖动图像可移动，用缩放按钮改变比例。留空即可隐藏该行。图像始终使用弧度。点按图像可读取该点的数值。",
+m_conv:"选择类别，输入数值并选择两个单位。结果会随输入更新。“交换单位”可反转方向。",
+m_solve:"二次方程：为 ax² + bx + c = 0 输入 a、b 和 c。复数根用 i 表示。求根：输入 f(x) 和起始值，得到最近的根。导数和积分为数值计算，约有 8 位准确数字。此处角度以弧度为单位。",
+m_stats:"输入或粘贴数字。个数、平均值、中位数、众数、离散程度和两种标准差会立即更新。",
+m_matrix:"选择 2 × 2 或 3 × 3 并填写矩阵 A，即可得到行列式、转置和逆矩阵。填写向量 b 可求解方程组 A·x = b。",
+m_fin:"贷款月供根据金额、年利率和期限给出固定的每月还款额。复利增长显示初始金额最终的数额。这些仅为估算，不构成理财建议。",
+m_prog:"在四个输入框中的任意一个输入，其余进制会同步更新。支持负数和非常大的整数。A 和 B 的位运算结果显示在表格中。",
+m_keys:"Enter 或 = 计算，Backspace 删除，Escape 清空。用 ^ 表示乘方，* 表示乘，/ 表示除。",
+daily:"日常",pct:"百分比",pct_of:"B 的 A%",pct_is:"A 占 B 的百分比",pct_chg:"从 A 到 B 的变化",dates:"日期",d_start:"开始日期",d_end:"结束日期",d_days:"相隔天数",d_add:"增加的天数",d_res:"开始日期加上天数",m_daily:"百分比：输入 A 和 B，得到 B 的 A%、A 占 B 的百分比以及从 A 到 B 的变化。日期：选择两个日期计算相隔天数，或在开始日期上增加若干天。",
+reg:"线性回归",reg_hint:"每行一组 x, y。",fit:"最佳拟合直线",slope:"斜率",icept:"截距",corr:"相关系数 r",m_reg:"线性回归：每行输入一组 x, y，得到最佳拟合直线以及各点与它的贴合程度。",
+pro_tool:"专业版工具",lock_msg:"带有专业版标记的工具需解锁专业版后使用。尚未接入支付，因此在此预览版中解锁不收费。",unlock:"解锁专业版预览",relock:"重新锁定专业版",see_plans:"查看套餐",pro_on:"专业版预览已开启。所有工具均可使用。",
+foot:"Hisab 预览版。结果采用双精度运算，约 15 位有效数字。"}
+};
+</script>
+
+<script>
+(function(){
+var $=function(s){return document.querySelector(s)},$$=function(s){return [].slice.call(document.querySelectorAll(s))};
+var store={get:function(k){try{return JSON.parse(localStorage.getItem('hisab.'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('hisab.'+k,JSON.stringify(v))}catch(e){}}};
+var lang=store.get('lang');if(!T[lang])lang='en';
+function t(k){return (T[lang]&&T[lang][k])||T.en[k]||k}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var fmt=Core.fmt,num=Core.num;
+function money(v){return isFinite(v)?v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'—'}
+function rows(el,list){el.innerHTML=list.map(function(r){return '<dt>'+esc(r[0])+'</dt><dd>'+esc(r[1])+'</dd>'}).join('')}
+
+/* ---------- navigation ---------- */
+var VIEWS=[['calculator','calc'],['graph','graph'],['convert','conv'],['everyday','daily'],['solve','solve'],['statistics','stats'],['matrix','matrix'],['finance','fin'],['programmer','prog'],['pricing','price'],['manual','manual']];
+var PRO={graph:1,solve:1,statistics:1,matrix:1,finance:1,programmer:1},pro=store.get('pro')===true;
+$('#nav').innerHTML=VIEWS.map(function(v){return '<li><a href="#'+v[0]+'"><span data-i18n="'+v[1]+'"></span>'+(PRO[v[0]]?'<b class="pb">PRO</b>':'')+'</a></li>'}).join('');
+var current='calculator';
+function route(){
+  var h=location.hash.replace('#','');if(!VIEWS.some(function(v){return v[0]===h}))h='calculator';current=h;
+  var locked=!!PRO[h]&&!pro;$$('section[data-view]').forEach(function(s){s.classList.toggle('on',s.dataset.view===h&&!locked)});$('#lock').hidden=!locked;$('#lockT').textContent=t(VIEWS.filter(function(v){return v[0]===h})[0][1]);
+  $$('#nav a').forEach(function(a){if(a.getAttribute('href')==='#'+h){a.setAttribute('aria-current','page');if(a.scrollIntoView)a.scrollIntoView({block:'nearest',inline:'center'})}else a.removeAttribute('aria-current')});
+  if(h==='graph')draw();
+}
+window.addEventListener('hashchange',route);
+function setPro(v){pro=v;store.set('pro',v);route();pricing()}
+$('#unlockBtn').addEventListener('click',function(){setPro(true)});
+
+/* ---------- calculator ---------- */
+var S={expr:'',ans:0,mem:0,deg:true,second:false,just:false,tape:store.get('tape')||null,seed:false};
+if(!S.tape){S.seed=true;S.tape=[{e:'sin(30)+√(16)',r:'4.5',x:1},{e:'2^10÷(3!+2)',r:'128',x:1}]}
+var SCI=[{a:'2nd',l:'2nd'},{a:'deg',l:'DEG'},{i:'sin(',l:'sin',i2:'asin(',l2:'sin⁻¹'},{i:'cos(',l:'cos',i2:'acos(',l2:'cos⁻¹'},{i:'tan(',l:'tan',i2:'atan(',l2:'tan⁻¹'},
+ {i:'^',l:'xʸ',i2:'^(1÷',l2:'ʸ√x'},{i:'√(',l:'√',i2:'cbrt(',l2:'∛'},{i:'^2',l:'x²',i2:'^3',l2:'x³'},{i:'ln(',l:'ln',i2:'e^(',l2:'eˣ'},{i:'log(',l:'log',i2:'10^(',l2:'10ˣ'},
+ {i:'π',l:'π',i2:'e',l2:'e'},{i:'(',l:'('},{i:')',l:')'},{i:'!',l:'n!',i2:'abs(',l2:'|x|'},{i:'%',l:'%',i2:',',l2:','},
+ {a:'mc',l:'MC'},{a:'mr',l:'MR'},{a:'m+',l:'M+'},{a:'m-',l:'M−'},{i:'Ans',l:'Ans'}];
+var MAIN=[{a:'ac',l:'AC',c:'op'},{a:'del',l:'⌫',c:'op'},{i:'E',l:'EXP',c:'op'},{i:'÷',l:'÷',c:'op'},
+ {i:'7',l:'7'},{i:'8',l:'8'},{i:'9',l:'9'},{i:'×',l:'×',c:'op'},{i:'4',l:'4'},{i:'5',l:'5'},{i:'6',l:'6'},{i:'−',l:'−',c:'op'},
+ {i:'1',l:'1'},{i:'2',l:'2'},{i:'3',l:'3'},{i:'+',l:'+',c:'op'},{i:'0',l:'0'},{i:'.',l:'.'},{i:'^(−1)',l:'x⁻¹',c:'op'},{a:'eq',l:'=',c:'eq'}];
+function keyHtml(list){return list.map(function(k,n){return '<button type="button" class="k '+(k.c||'')+'" data-n="'+n+'">'+k.l+'</button>'}).join('')}
+$('#sci').innerHTML=keyHtml(SCI);$('#mainkeys').innerHTML=keyHtml(MAIN);
+function env(){return {deg:S.deg,ans:S.ans,x:0}}
+function paint(){
+  var ex=$('#expr');ex.textContent=S.expr||'0';ex.scrollLeft=ex.scrollWidth;
+  var live=$('#live');live.className='';
+  if(S.expr&&!S.just){try{var v=Core.evaluate(S.expr,env());var fr=Core.frac(v);live.textContent=isNaN(v)?'':'= '+fmt(v)+(fr?'   ('+fr+')':'')}catch(e){live.textContent=''}}else{var fj=S.just?Core.frac(S.ans):null;live.textContent=fj?'= '+fj:''}
+  $('#fDeg').textContent=S.deg?'DEG':'RAD';$('#f2nd').textContent=S.second?'2nd':'';$('#fMem').textContent=S.mem?'M = '+fmt(S.mem):'';
+  $$('#sci .k').forEach(function(b){var k=SCI[b.dataset.n];if(k.a==='deg')b.textContent=S.deg?'DEG':'RAD';else if(k.a==='2nd')b.classList.toggle('on',S.second);else if(k.l2)b.textContent=S.second?k.l2:k.l});
+}
+function paintTape(){
+  $('#tape').innerHTML=S.tape.slice().reverse().map(function(l,i){return '<li><button type="button" data-r="'+esc(l.r)+'"><span class="e">'+(l.x?'<span class="x">'+esc(t('example'))+'</span>':'')+esc(l.e)+' =</span><span class="r">'+esc(l.r)+'</span></button></li>'}).join('');
+}
+function insert(s){
+  if(S.just){S.expr=/^[+−×÷^!%]/.test(s)?'Ans'+s:s;S.just=false}else S.expr+=s;paint()
+}
+function equals(){
+  if(!S.expr)return;
+  try{var v=Core.evaluate(S.expr,env());if(isNaN(v))throw 0;var r=fmt(v);
+    if(S.seed){S.tape=[];S.seed=false}
+    S.tape.push({e:S.expr,r:r});if(S.tape.length>50)S.tape.shift();store.set('tape',S.tape);
+    S.ans=v;S.expr=r;S.just=true;paint();paintTape()
+  }catch(e){var live=$('#live');live.textContent=t('err');live.className='bad'}
+}
+function act(a){
+  if(a==='2nd'){S.second=!S.second}
+  else if(a==='deg'){S.deg=!S.deg}
+  else if(a==='ac'){S.expr='';S.just=false}
+  else if(a==='del'){if(S.just){S.expr='';S.just=false}else S.expr=S.expr.replace(/(a?[a-z]+\d?\(|Ans|√\(|\^\(−1\)|\^\(1÷|.)$/,'')}
+  else if(a==='eq'){equals();return}
+  else if(a==='mc'){S.mem=0}
+  else if(a==='mr'){insert(S.mem<0?'('+fmt(S.mem)+')':fmt(S.mem));return}
+  else if(a==='m+'||a==='m-'){try{var v=S.expr?Core.evaluate(S.expr,env()):S.ans;if(!isNaN(v))S.mem+=a==='m+'?v:-v}catch(e){}}
+  paint()
+}
+function press(k){if(k.a)act(k.a);else{insert(S.second&&k.i2?k.i2:k.i);if(S.second){S.second=false;paint()}}}
+$('#sci').addEventListener('click',function(e){var b=e.target.closest('.k');if(b)press(SCI[b.dataset.n])});
+$('#mainkeys').addEventListener('click',function(e){var b=e.target.closest('.k');if(b)press(MAIN[b.dataset.n])});
+$('#tape').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var r=b.dataset.r;insert(r[0]==='-'?'('+r+')':r)});
+$('#clearTape').addEventListener('click',function(){S.tape=[];S.seed=false;store.set('tape',[]);paintTape()});
+$('#copyBtn').addEventListener('click',function(){var b=this,txt=S.expr||'0';
+  try{navigator.clipboard.writeText(txt).then(function(){b.textContent=t('copied');setTimeout(function(){b.textContent=t('copy')},1200)},function(){})}catch(e){}});
+document.addEventListener('keydown',function(e){
+  if(current!=='calculator'||e.ctrlKey||e.metaKey||e.altKey)return;
+  var tg=e.target.tagName;if(tg==='INPUT'||tg==='TEXTAREA'||tg==='SELECT')return;
+  var k=e.key;
+  if(k==='Enter'||k==='='){e.preventDefault();equals()}
+  else if(k==='Backspace'){e.preventDefault();act('del')}
+  else if(k==='Escape'){act('ac')}
+  else if(k==='*'){insert('×')}else if(k==='/'){e.preventDefault();insert('÷')}else if(k==='-'){insert('−')}
+  else if(k.length===1&&/[0-9a-zA-Z.+^()!%,]/.test(k)){insert(k)}
+});
+
+/* ---------- graph ---------- */
+var G={cx:0,cy:0,scale:0,tx:2};
+function niceStep(u){var p=Math.pow(10,Math.floor(Math.log10(u))),f=u/p;return (f<1.5?1:f<3.5?2:f<7.5?5:10)*p}
+function draw(){
+  var cv=$('#cv'),w=cv.clientWidth,h=cv.clientHeight;if(!w)return;
+  var dpr=window.devicePixelRatio||1;cv.width=w*dpr;cv.height=h*dpr;var c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);
+  if(!G.scale)G.scale=w/16;
+  var cs=getComputedStyle(document.documentElement),col=function(n){return cs.getPropertyValue(n).trim()};
+  var X=function(x){return w/2+(x-G.cx)*G.scale},Y=function(y){return h/2-(y-G.cy)*G.scale};
+  c.fillStyle=col('--surface');c.fillRect(0,0,w,h);
+  var step=niceStep(70/G.scale),x0=G.cx-w/2/G.scale,x1=G.cx+w/2/G.scale,y0=G.cy-h/2/G.scale,y1=G.cy+h/2/G.scale;
+  c.lineWidth=1;c.strokeStyle=col('--line');c.fillStyle=col('--muted');c.font='11px "IBM Plex Mono",monospace';c.beginPath();
+  var gx,gy;
+  for(gx=Math.ceil(x0/step)*step;gx<=x1;gx+=step){c.moveTo(Math.round(X(gx))+.5,0);c.lineTo(Math.round(X(gx))+.5,h)}
+  for(gy=Math.ceil(y0/step)*step;gy<=y1;gy+=step){c.moveTo(0,Math.round(Y(gy))+.5);c.lineTo(w,Math.round(Y(gy))+.5)}
+  c.stroke();
+  c.strokeStyle=col('--muted');c.beginPath();c.moveTo(0,Math.round(Y(0))+.5);c.lineTo(w,Math.round(Y(0))+.5);c.moveTo(Math.round(X(0))+.5,0);c.lineTo(Math.round(X(0))+.5,h);c.stroke();
+  var ay=Math.min(Math.max(Y(0)+14,14),h-6),ax=Math.min(Math.max(X(0)+5,5),w-44);
+  for(gx=Math.ceil(x0/step)*step;gx<=x1;gx+=step){if(Math.abs(gx)>step/2)c.fillText(fmt(gx,6),X(gx)+3,ay)}
+  for(gy=Math.ceil(y0/step)*step;gy<=y1;gy+=step){if(Math.abs(gy)>step/2)c.fillText(fmt(gy,6),ax,Y(gy)-4)}
+  var tr=['x = '+fmt(G.tx,6)];c.save();c.setLineDash([4,4]);c.strokeStyle=col('--muted');c.lineWidth=1;c.beginPath();c.moveTo(X(G.tx),0);c.lineTo(X(G.tx),h);c.stroke();c.restore();
+  [['#f1','--accent','f'],['#f2','--fn','g'],['#f3','--s3','h']].forEach(function(p){
+    var src=$(p[0]).value.trim();if(!src)return;var f;try{f=Core.compile(src)}catch(e){return}
+    c.strokeStyle=col(p[1]);c.lineWidth=2.25;c.lineJoin='round';c.beginPath();var pen=false,py=0,e={deg:false,ans:S.ans,x:0};
+    for(var px=0;px<=w;px+=1){e.x=x0+px/G.scale;var y=f(e),sy=Y(y);
+      if(!isFinite(y)||Math.abs(sy)>1e5){pen=false;continue}
+      if(pen&&Math.abs(sy-py)>h*1.5)pen=false;
+      if(pen)c.lineTo(px,sy);else c.moveTo(px,sy);pen=true;py=sy}
+    c.stroke();
+    e.x=G.tx;var ty=f(e);tr.push(p[2]+' = '+(isFinite(ty)?fmt(ty,6):'—'));if(isFinite(ty)){c.fillStyle=col(p[1]);c.beginPath();c.arc(X(G.tx),Y(ty),5,0,7);c.fill()}});
+  $('#trace').textContent=tr.join('     ');
+}
+(function(){var cv=$('#cv'),drag=null;
+  function at(e){var r=cv.getBoundingClientRect();return G.cx+(e.clientX-r.left-r.width/2)/G.scale}
+  cv.addEventListener('pointerdown',function(e){drag={x:e.clientX,y:e.clientY};G.tx=at(e);draw();try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+  cv.addEventListener('pointermove',function(e){if(!drag){if(e.pointerType==='mouse'){G.tx=at(e);draw()}return}G.cx-=(e.clientX-drag.x)/G.scale;G.cy+=(e.clientY-drag.y)/G.scale;drag={x:e.clientX,y:e.clientY};draw()});
+  ['pointerup','pointercancel'].forEach(function(n){cv.addEventListener(n,function(){drag=null})});
+  cv.addEventListener('wheel',function(e){e.preventDefault();G.scale*=e.deltaY<0?1.15:1/1.15;draw()},{passive:false});
+  $('#zin').addEventListener('click',function(){G.scale*=1.4;draw()});
+  $('#zout').addEventListener('click',function(){G.scale/=1.4;draw()});
+  $('#zreset').addEventListener('click',function(){G.cx=0;G.cy=0;G.scale=0;G.tx=2;draw()});
+  ['#f1','#f2','#f3'].forEach(function(s){$(s).addEventListener('input',draw)});
+  window.addEventListener('resize',function(){if(current==='graph')draw()});
+  try{new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw)}catch(e){}
+})();
+
+/* ---------- converter ---------- */
+var cat='length';
+function fillCats(){$('#ccat').innerHTML=Object.keys(UNITS).map(function(k){return '<option value="'+k+'"'+(k===cat?' selected':'')+'>'+esc(t('c_'+k))+'</option>'}).join('')}
+function fillUnits(){var u=Object.keys(UNITS[cat]),o=u.map(function(k){return '<option>'+esc(k)+'</option>'}).join('');$('#cfrom').innerHTML=o;$('#cto').innerHTML=o;$('#cto').selectedIndex=Math.min(1,u.length-1);conv()}
+function conv(){var v=num($('#cval').value),a=$('#cfrom').value,b=$('#cto').value;$('#cout').textContent=isNaN(v)?'—':fmt(convert(cat,v,a,b),10)+' '+b}
+$('#ccat').addEventListener('change',function(){cat=this.value;fillUnits()});
+['#cval','#cfrom','#cto'].forEach(function(s){$(s).addEventListener('input',conv)});
+$('#cswap').addEventListener('click',function(){var a=$('#cfrom').selectedIndex;$('#cfrom').selectedIndex=$('#cto').selectedIndex;$('#cto').selectedIndex=a;conv()});
+
+/* ---------- everyday ---------- */
+(function(){var n=new Date(),iso=function(d){return d.toISOString().slice(0,10)},s=new Date(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate()));$('#ds').value=iso(s);$('#de').value=iso(new Date(s.getTime()+90*864e5))})();
+function daily(){
+  var a=num($('#pa').value),b=num($('#pb').value),f=function(v,u){return isFinite(v)?fmt(v,10)+(u||''):'—'},chg=(b-a)/Math.abs(a)*100;
+  rows($('#pout'),[[t('pct_of'),f(a*b/100)],[t('pct_is'),f(a/b*100,' %')],[t('pct_chg'),isFinite(chg)?(chg>0?'+':'')+fmt(chg,10)+' %':'—']]);
+  var s=Date.parse($('#ds').value+'T00:00:00Z'),e=Date.parse($('#de').value+'T00:00:00Z'),k=num($('#dn').value),r=s+Math.round(k)*864e5;
+  rows($('#dout'),[[t('d_days'),isNaN(s)||isNaN(e)?'—':String(Math.round((e-s)/864e5))],[t('d_res'),isNaN(r)||Math.abs(r)>8e15?'—':new Date(r).toISOString().slice(0,10)]]);
+}
+['pa','pb','ds','de','dn'].forEach(function(id){$('#'+id).addEventListener('input',daily)});
+
+/* ---------- solver ---------- */
+function fn(src){var f=Core.compile(src),e={deg:false,ans:S.ans,x:0};return function(x){e.x=x;return f(e)}}
+function solve(){
+  var a=num($('#qa').value),b=num($('#qb').value),c=num($('#qc').value),o=$('#qout');
+  if([a,b,c].some(isNaN))o.textContent='—';else{var q=Core.quadratic(a,b,c);
+    o.textContent=q.k==='any'?t('anyx'):q.k==='none'?t('nosol'):q.k==='real'?q.r.map(function(v){return 'x = '+fmt(v,10)}).join('   '):'x = '+fmt(q.re,10)+' ± '+fmt(q.im,10)+'i'}
+  try{var r=Core.findRoot(fn($('#rf').value),num($('#rg').value)||0);$('#rout').textContent=isNaN(r)?t('noroot'):fmt(r,10)}catch(e){$('#rout').textContent=t('badf')}
+  try{var d=Core.deriv(fn($('#df').value),num($('#dx').value));$('#dout').textContent=isNaN(d)?'—':fmt(d,8)}catch(e){$('#dout').textContent=t('badf')}
+  try{var i=Core.integrate(fn($('#if').value),num($('#ia').value),num($('#ib').value));$('#iout').textContent=isNaN(i)?'—':fmt(i,8)}catch(e){$('#iout').textContent=t('badf')}
+}
+['qa','qb','qc','rf','rg','df','dx','if','ia','ib'].forEach(function(id){$('#'+id).addEventListener('input',solve)});
+
+/* ---------- statistics ---------- */
+function stats(){
+  var xs=Core.normDigits($('#sdata').value).replace(/[−–]/g,'-').split(/[\s,;،]+/).filter(Boolean).map(Number).filter(function(v){return !isNaN(v)});
+  var s=Core.stats(xs),f=function(v){return isNaN(v)?'—':fmt(v,10)};
+  if(!s){rows($('#sout'),[[t('count'),'0']]);return}
+  rows($('#sout'),[[t('count'),String(s.count)],[t('sum'),f(s.sum)],[t('mean'),f(s.mean)],[t('median'),f(s.median)],[t('mode'),s.mode.length?s.mode.map(f).join(', '):'—'],[t('min'),f(s.min)],[t('max'),f(s.max)],[t('range'),f(s.range)],[t('variance'),f(s.variance)],[t('sds'),f(s.sds)],[t('sdp'),f(s.sdp)]]);
+}
+$('#sdata').addEventListener('input',stats);
+function reg(){
+  var P=Core.normDigits($('#rdata').value).replace(/[−–]/g,'-').split(/\n+/).map(function(l){return l.split(/[\s,;،]+/).filter(Boolean).map(Number)}).filter(function(a){return a.length>=2&&!isNaN(a[0])&&!isNaN(a[1])});
+  var r=Core.regress(P);if(!r){rows($('#regout'),[[t('fit'),'—']]);return}
+  rows($('#regout'),[[t('fit'),'y = '+fmt(r.slope,6)+'x '+(r.icept<0?'− ':'+ ')+fmt(Math.abs(r.icept),6)],[t('slope'),fmt(r.slope,8)],[t('icept'),fmt(r.icept,8)],[t('corr'),isNaN(r.r)?'—':fmt(r.r,6)],['R²',isNaN(r.r)?'—':fmt(r.r*r,6)]]);
+}
+$('#rdata').addEventListener('input',reg);
+
+/* ---------- matrix ---------- */
+var MA=[[2,1,-1],[-3,-1,2],[-2,1,2]],MB=[8,-11,-3];
+function buildMatrix(){
+  var n=+$('#msize').value,a='',b='';
+  for(var i=0;i<n;i++){for(var j=0;j<n;j++)a+='<input type="text" inputmode="decimal" id="a'+i+j+'" aria-label="A '+(i+1)+','+(j+1)+'" value="'+MA[i][j]+'">';b+='<input type="text" inputmode="decimal" id="b'+i+'" aria-label="b '+(i+1)+'" value="'+MB[i]+'">'}
+  $('#mA').style.gridTemplateColumns='repeat('+n+',1fr)';$('#mA').innerHTML=a;$('#mB').style.gridTemplateColumns='repeat('+n+',1fr)';$('#mB').innerHTML=b;matrix()
+}
+function show(M){var s=M.map(function(r){return r.map(function(v){return fmt(v,6)})}),w=0;s.forEach(function(r){r.forEach(function(v){w=Math.max(w,v.length)})});
+  return s.map(function(r){return r.map(function(v){return (new Array(w-v.length+1).join(' '))+v}).join('   ')}).join('\n')}
+function matrix(){
+  var n=+$('#msize').value,A=[],b=[],bad=false;
+  for(var i=0;i<n;i++){A.push([]);for(var j=0;j<n;j++){var v=num($('#a'+i+j).value);if(isNaN(v))bad=true;else MA[i][j]=v;A[i].push(v)}var bv=num($('#b'+i).value);if(!isNaN(bv))MB[i]=bv;b.push(bv)}
+  if(bad){$('#mdet').textContent='—';$('#minv').textContent=$('#mtr').textContent=$('#msol').textContent='—';return}
+  $('#mdet').textContent=fmt(Core.det(A),10);
+  $('#mtr').textContent=show(A[0].map(function(_,j){return A.map(function(r){return r[j]})}));
+  var inv=Core.inverse(A);
+  if(!inv){$('#minv').textContent=t('singular');$('#msol').textContent='—';return}
+  $('#minv').textContent=show(inv);
+  $('#msol').textContent=b.some(isNaN)?'—':inv.map(function(r,i){var s=0;for(var k=0;k<n;k++)s+=r[k]*b[k];return 'x'+'₁₂₃'[i]+' = '+fmt(s,8)}).join('\n');
+}
+$('#msize').addEventListener('change',buildMatrix);
+$('#mA').addEventListener('input',matrix);$('#mB').addEventListener('input',matrix);
+
+/* ---------- finance ---------- */
+function finance(){
+  var P=num($('#la').value),r=num($('#lr').value)/1200,n=num($('#ly').value)*12,pay=r===0?P/n:P*r/(1-Math.pow(1+r,-n));
+  rows($('#lout'),[[t('monthly'),money(pay)],[t('total'),money(pay*n)],[t('interest'),money(pay*n-P)]]);
+  var A=num($('#ca').value),cr=num($('#cr').value)/100,y=num($('#cy').value),m=num($('#cn').value),fv=A*Math.pow(1+cr/m,m*y);
+  rows($('#cmpout'),[[t('future'),money(fv)],[t('gain'),money(fv-A)]]);
+}
+['la','lr','ly','ca','cr','cy','cn'].forEach(function(id){$('#'+id).addEventListener('input',finance)});
+
+/* ---------- programmer ---------- */
+var BASES=[['b10',10],['b16',16],['b8',8],['b2',2]];
+function bstr(v,base){return (v<0n?'-':'')+(v<0n?-v:v).toString(base).toUpperCase()}
+function bases(src){var el=$('#'+src),v=Core.parseBig(el.value,+el.dataset.base);
+  BASES.forEach(function(b){if(b[0]!==src)$('#'+b[0]).value=v===null?'':bstr(v,b[1])})}
+BASES.forEach(function(b){$('#'+b[0]).addEventListener('input',function(){bases(b[0])})});
+function bits(){
+  var a=Core.parseBig($('#ba').value,10),b=Core.parseBig($('#bb').value,10),h='<tr><th></th><th>DEC</th><th>HEX</th><th>BIN</th></tr>';
+  if(a===null||b===null){$('#bout').innerHTML=h;return}
+  [['A AND B',a&b],['A OR B',a|b],['A XOR B',a^b],['NOT A',~a],['A << 1',a<<1n],['A >> 1',a>>1n]].forEach(function(r){h+='<tr><td>'+r[0]+'</td><td>'+bstr(r[1],10)+'</td><td>'+bstr(r[1],16)+'</td><td>'+bstr(r[1],2)+'</td></tr>'});
+  $('#bout').innerHTML=h;
+}
+$('#ba').addEventListener('input',bits);$('#bb').addEventListener('input',bits);
+
+/* ---------- pricing ---------- */
+var yearly=false,PLANS=[{n:'free',m:0,y:0,f:['f1','f2','f3'],cta:'cta_free'},{n:'pro',m:4.99,y:47.99,f:['p1','p2','p3','p4'],cta:'cta_wait',hot:1},{n:'team',m:29,y:279,f:['c1','c2','c3'],cta:'cta_wait'}];
+function pricing(){
+  $('#billM').setAttribute('aria-pressed',String(!yearly));$('#billY').setAttribute('aria-pressed',String(yearly));
+  $('#plans').innerHTML=PLANS.map(function(p){var v=yearly?p.y:p.m,cta=p.n==='pro'?(pro?'relock':'unlock'):p.cta;
+    return '<div class="card plan'+(p.hot?' hot':'')+'"><h3 style="margin:0">'+esc(t(p.n))+'</h3><div><span class="price">$'+(v%1?v.toFixed(2):v)+'</span> <span class="per">'+esc(t(yearly?'per_y':'per_m'))+'</span></div><ul>'+p.f.map(function(k){return '<li>'+esc(t(k))+'</li>'}).join('')+'</ul><button type="button" class="btn'+(p.hot?' pri':'')+'" data-cta="'+cta+'">'+esc(t(cta))+'</button></div>'}).join('');
+  $('#toast').textContent=pro?t('pro_on'):'';
+}
+$('#billM').addEventListener('click',function(){yearly=false;pricing()});$('#billY').addEventListener('click',function(){yearly=true;pricing()});
+$('#plans').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.cta==='cta_free'){location.hash='calculator'}else if(b.dataset.cta==='unlock'){setPro(true)}else if(b.dataset.cta==='relock'){setPro(false)}else $('#toast').textContent=t('wait_msg')});
+
+/* ---------- manual ---------- */
+var MAN=[['h_start',['m_start']],['calc',['m_calc']],
+ ['h_expr',['m_expr_a','|2(3+4)   3x   5!   20%   2^10   √(2)   sin(30)','m_expr_b','|sin cos tan asin acos atan sinh cosh tanh\nln log log2 logb(x,b) exp sqrt cbrt root(x,n)\nabs floor ceil round sign min(a,b) max(a,b)\nmod(a,b) gcd(a,b) lcm(a,b) nCr(n,r) nPr(n,r)','m_expr_c','|pi   e   tau   phi   Ans   6.02E23']],
+ ['graph',['m_graph']],['conv',['m_conv']],['daily',['m_daily']],['solve',['m_solve']],['stats',['m_stats','m_reg']],['matrix',['m_matrix']],['fin',['m_fin']],['prog',['m_prog']],['price',['lock_msg']],['h_keys',['m_keys']]];
+function manual(){$('#man').innerHTML=MAN.map(function(s){return '<li><h3>'+esc(t(s[0]))+'</h3>'+s[1].map(function(b){return b[0]==='|'?'<code>'+esc(b.slice(1))+'</code>':'<p>'+esc(t(b))+'</p>'}).join('')+'</li>'}).join('')}
+
+/* ---------- language ---------- */
+function applyLang(){
+  document.documentElement.lang=lang;document.documentElement.dir=(lang==='ar'||lang==='ur')?'rtl':'ltr';
+  $$('[data-i18n]').forEach(function(el){el.textContent=t(el.dataset.i18n)});
+  fillCats();paintTape();daily();solve();stats();reg();matrix();finance();pricing();manual();route();
+}
+$('#lang').value=lang;
+$('#lang').addEventListener('change',function(){lang=this.value;store.set('lang',lang);applyLang()});
+
+fillUnits();buildMatrix();bases('b10');bits();applyLang();paint();route();
+})();
+</script>
+</body>
+</html>

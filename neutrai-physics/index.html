@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NeutrAI Physics</title>
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a reactor-pool page. Cool paper, deep-water ink, Cherenkov blue as the single accent;
+   the binding-energy curve is the hero and the only loud element. Mobile first, one column, max 1080px. */
+:root{
+  --bg:#f2f6f9; --surface:#ffffff; --ink:#0c1c2c; --muted:#52677a; --line:#d5dfe7;
+  --accent:#0f62d6; --accent-ink:#ffffff; --accent-soft:#e3eefc; --amber:#a86400; --amber-soft:#fbf0d9;
+  --display:"Bricolage Grotesque","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --body:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#06111c; --surface:#0d1d2d; --ink:#e6f0f8; --muted:#8ea5b8; --line:#1e3347;
+    --accent:#4db8ff; --accent-ink:#04121f; --accent-soft:#0f2c45; --amber:#f2b84b; --amber-soft:#2b2210;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#06111c; --surface:#0d1d2d; --ink:#e6f0f8; --muted:#8ea5b8; --line:#1e3347;
+  --accent:#4db8ff; --accent-ink:#04121f; --accent-soft:#0f2c45; --amber:#f2b84b; --amber-soft:#2b2210;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1;letter-spacing:-.01em}
+[dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3{letter-spacing:0;line-height:1.35}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 18px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* top bar */
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:10px;height:54px}
+.brand{font-family:var(--display);font-weight:700;font-size:19px;text-decoration:none;color:var(--ink);margin-inline-end:auto;display:flex;align-items:baseline;gap:6px}
+.brand i{font-style:normal;color:var(--accent)}
+.brand small{font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:400}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px}
+.plan-chip{font-family:var(--mono);font-size:11px;color:var(--amber);background:var(--amber-soft);border-radius:4px;padding:3px 7px}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;padding-bottom:0}
+nav.tabs a{flex:1;text-align:center;white-space:nowrap;padding:10px 8px;font-size:14px;font-weight:500;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}
+nav.tabs a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent)}
+
+main{padding:26px 0 70px}
+section.view{display:none}
+section.view.on{display:block}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:11px 18px;font-weight:600;font-size:15px;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.small{padding:7px 12px;font-size:13px}
+.btn[disabled]{opacity:.5;cursor:default}
+.eyebrow{font-family:var(--mono);font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:.08em}
+[dir="rtl"] .eyebrow{letter-spacing:0;font-family:var(--body)}
+.lede{color:var(--muted);max-width:58ch}
+
+/* hero */
+.hero{display:grid;gap:22px}
+.hero h1{font-size:clamp(34px,9vw,60px);font-weight:700}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.cta{display:flex;gap:10px;flex-wrap:wrap}
+.curve{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.curve canvas{display:block;width:100%;height:230px;touch-action:pan-y}
+.curve-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px}
+.curve-head b{font-family:var(--display);font-size:15px}
+.readout{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.readout strong{color:var(--ink);font-weight:500}
+.note{font-size:12px;color:var(--muted);margin-top:8px}
+@media (min-width:820px){.hero{grid-template-columns:1fr 1.05fr;align-items:center}.curve canvas{height:290px}}
+
+.block{margin-top:44px}
+.block>h2{font-size:26px;margin-bottom:6px}
+.grid{display:grid;gap:12px;margin-top:16px}
+@media (min-width:640px){.grid.two{grid-template-columns:1fr 1fr}.grid.four{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:960px){.grid.four{grid-template-columns:repeat(4,1fr)}}
+.aud{border-inline-start:3px solid var(--accent);padding:4px 0 4px 14px;padding-inline-start:14px;text-align:start;background:none;border-top:0;border-bottom:0;border-inline-end:0}
+.aud h3{font-size:17px;margin-bottom:4px}
+.aud p{font-size:14px;color:var(--muted)}
+.feat{display:grid;gap:14px;margin-top:16px}
+.feat div{display:grid;grid-template-columns:86px 1fr;gap:12px;align-items:baseline;border-top:1px solid var(--line);padding-top:12px}
+.feat .k{font-family:var(--mono);font-size:12px;color:var(--accent)}
+.feat p{font-size:15px}
+
+/* courses */
+.filters{display:flex;gap:8px;overflow-x:auto;margin:16px 0 4px;padding-bottom:4px}
+.filters button{white-space:nowrap}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.course{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.course-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.pill{font-family:var(--mono);font-size:11px;border-radius:4px;padding:2px 7px;background:var(--accent-soft);color:var(--accent)}
+.pill.lock{background:var(--amber-soft);color:var(--amber)}
+.course h3{font-size:18px}
+.course p{font-size:14px;color:var(--muted)}
+.meta{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.course ol{margin:4px 0 0;padding-inline-start:20px;font-size:14px;display:none}
+.course.open ol{display:block}
+.course li{padding:3px 0}
+.lk{background:none;border:0;padding:0;color:var(--accent);text-align:start;text-decoration:underline;font-size:14px}
+.lesson-body{font-size:16px;line-height:1.65}
+.key{font-family:var(--mono);font-size:14px;background:var(--accent-soft);border-radius:8px;padding:10px 12px;overflow-wrap:anywhere}
+.course-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
+
+/* tutor */
+.tutor{background:var(--surface);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;margin-top:16px;overflow:hidden}
+.tutor-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--line)}
+.tutor-top label{font-size:13px;color:var(--muted)}
+[hidden]{display:none!important}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.form{display:grid;gap:12px}
+.form label{font-size:13px;color:var(--muted);display:grid;gap:4px}
+.form textarea{min-height:84px;resize:vertical}
+.form h3{font-size:18px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+select,input,textarea{min-width:0;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.quota{margin-inline-start:auto;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.log{padding:14px 12px;display:flex;flex-direction:column;gap:12px;min-height:240px;max-height:52vh;overflow-y:auto}
+.msg{max-width:88%;padding:10px 13px;border-radius:12px;font-size:15px;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.user{align-self:flex-end;background:var(--accent);color:var(--accent-ink)}
+.msg.ai{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
+.msg.sys{align-self:center;font-size:13px;color:var(--amber);background:var(--amber-soft);text-align:center}
+.suggest{display:flex;gap:8px;overflow-x:auto;padding:0 12px 10px}
+.suggest button{white-space:nowrap;font-size:13px}
+.compose{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
+.compose textarea{flex:1;resize:none;height:46px;min-width:0}
+
+/* pricing */
+.cycle{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface);margin-top:14px}
+.cycle button{border:0;background:none;border-radius:999px;padding:6px 14px;font-size:14px}
+.cycle button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.plan.best{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.plan h3{font-size:19px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.price{font-family:var(--display);font-size:36px;font-weight:700;line-height:1}
+.price small{font-family:var(--body);font-size:13px;font-weight:400;color:var(--muted)}
+.plan ul{list-style:none;margin:0;padding:0;font-size:14px;display:grid;gap:6px}
+.plan li{padding-inline-start:18px;position:relative}
+.plan li::before{content:"";position:absolute;inset-inline-start:0;top:.55em;width:8px;height:8px;border-radius:50%;border:2px solid var(--accent)}
+.plan .btn{margin-top:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+.tablebox{overflow-x:auto;margin-top:14px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+th,td{text-align:start;padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+th{font-weight:600;font-size:12px;color:var(--muted)}
+
+/* checkout */
+.veil{position:fixed;inset:0;background:rgba(3,10,18,.6);display:none;align-items:flex-end;justify-content:center;z-index:10}
+.veil.on{display:flex}
+.sheet{background:var(--surface);width:100%;max-width:460px;border-radius:16px 16px 0 0;padding:20px 18px 26px;display:grid;gap:12px;max-height:92vh;overflow-y:auto}
+@media (min-width:640px){.veil{align-items:center}.sheet{border-radius:16px}}
+.sheet h2{font-size:22px}
+.sum{display:flex;justify-content:space-between;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0;font-size:15px}
+.sheet label{font-size:13px;color:var(--muted);display:grid;gap:4px}
+.warn{font-size:13px;background:var(--amber-soft);color:var(--amber);border-radius:8px;padding:10px 12px}
+.err{font-size:13px;color:var(--amber)}
+footer{border-top:1px solid var(--line);padding:18px 0;font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.btn,.chip{transition:transform .12s}.btn:active,.chip:active{transform:scale(.97)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="bar">
+      <a class="brand" href="#home">Neutr<i>AI</i> <small data-i18n="brandSub">Physics</small></a>
+      <span class="plan-chip" id="planChip">FREE</span>
+      <button class="chip" id="langBtn" type="button" aria-label="Switch language">العربية</button>
+    </div>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#home" data-i18n="navHome">Home</a>
+      <a href="#courses" data-i18n="navCourses">Courses</a>
+      <a href="#tutor" data-i18n="navTutor">AI tutor</a>
+      <a href="#pricing" data-i18n="navPricing">Pricing</a>
+      <a href="#manage" id="manageTab" data-i18n="navManage" hidden>Manage</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- HOME -->
+  <section class="view" id="v-home">
+    <p class="warn" id="notice" style="margin-bottom:18px;font-size:15px" hidden></p>
+    <div class="hero">
+      <div style="display:grid;gap:16px">
+        <span class="eyebrow" data-i18n="heroEyebrow">Physics and nuclear physics, taught with AI</span>
+        <h1 data-i18n-html="heroTitle">From Newton's laws to the <em>neutron</em>.</h1>
+        <p class="lede" data-i18n="heroLede">Structured courses for school, university and research, with an AI tutor that explains each step at your level, in English or Arabic.</p>
+        <div class="cta">
+          <a class="btn" href="#courses" data-i18n="ctaCourses">Browse courses</a>
+          <a class="btn ghost" href="#tutor" data-i18n="ctaTutor">Ask the tutor</a>
+        </div>
+      </div>
+      <div class="curve">
+        <div class="curve-head">
+          <b data-i18n="curveTitle">Binding energy per nucleon</b>
+          <span class="readout" id="readout"></span>
+        </div>
+        <canvas id="curve" aria-label="Chart of nuclear binding energy per nucleon against mass number"></canvas>
+        <p class="note" data-i18n="curveNote">Drag across the curve. Approximate measured values for selected nuclides, in MeV. Energy is released moving toward the peak near iron and nickel: by fusion from the left, by fission from the right.</p>
+      </div>
+    </div>
+
+    <div class="block">
+      <h2 data-i18n="audTitle">Four ways in</h2>
+      <p class="lede" data-i18n="audLede">Pick where you are. Each track has its own courses and the tutor adjusts its explanations to match.</p>
+      <div class="grid four" id="audGrid"></div>
+    </div>
+
+    <div class="block">
+      <h2 data-i18n="featTitle">What the AI does</h2>
+      <div class="feat" id="featList"></div>
+    </div>
+  </section>
+
+  <!-- COURSES -->
+  <section class="view" id="v-courses">
+    <h2 style="font-size:30px" data-i18n="coursesTitle">Courses</h2>
+    <p class="lede" data-i18n="coursesLede">Courses across four tracks. Free courses open now; the rest unlock with a plan.</p>
+    <div class="filters" id="filters"></div>
+    <div class="grid two" id="courseGrid"></div>
+  </section>
+
+  <!-- TUTOR -->
+  <section class="view" id="v-tutor">
+    <h2 style="font-size:30px" data-i18n="tutorTitle">AI tutor</h2>
+    <p class="lede" data-i18n="tutorLede">Ask a physics question, paste a problem, or ask to be quizzed. Answers show the steps and the units.</p>
+    <div class="tutor">
+      <div class="tutor-top">
+        <label for="level" data-i18n="levelLabel">Explain for</label>
+        <select id="level"></select>
+        <span class="quota" id="quota"></span>
+      </div>
+      <div class="log" id="log" aria-live="polite"></div>
+      <div class="suggest" id="suggest"></div>
+      <form class="compose" id="compose">
+        <textarea id="q" aria-label="Your question"></textarea>
+        <button class="btn" id="send" type="submit" data-i18n="send">Send</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="view" id="v-pricing">
+    <h2 style="font-size:30px" data-i18n="pricingTitle">Plans</h2>
+    <p class="lede" id="priceLede"></p>
+    <div class="cycle" role="group" aria-label="Billing period">
+      <button type="button" id="cyM" aria-pressed="true" data-i18n="monthly">Monthly</button>
+      <button type="button" id="cyY" aria-pressed="false" data-i18n="yearly">Yearly</button>
+    </div>
+    <div class="grid four" id="planGrid"></div>
+    <div class="block">
+      <h2 data-i18n="cmpTitle">Compare</h2>
+      <div class="tablebox"><table id="cmp"></table></div>
+    </div>
+  </section>
+
+  <!-- MANAGE (owner and editors only) -->
+  <section class="view" id="v-manage">
+    <h2 style="font-size:30px" data-i18n="mgTitle">Manage</h2>
+    <p class="lede" data-i18n="mgLede">Only you and editors see this page. Saved changes appear for every visitor straight away.</p>
+    <div class="grid" id="adminForm"></div>
+  </section>
+</main>
+
+<footer><div class="wrap" data-i18n="foot">NeutrAI Physics prototype. Courses teach physics for education. Completion certificates are not academic degrees.</div></footer>
+
+<div class="veil" id="veil" role="dialog" aria-modal="true" aria-labelledby="coTitle">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script>
+/* ---------- text ---------- */
+const T = {
+en:{brandSub:"Physics",navHome:"Home",navCourses:"Courses",navTutor:"AI tutor",navPricing:"Pricing",navManage:"Manage",mgTitle:"Manage",mgLede:"Only you and editors see this page. Saved changes appear for every visitor straight away.",mgPrices:"Prices and trial",mgSm:"Student, monthly ($)",mgSy:"Student, yearly ($)",mgPm:"Professional, monthly ($)",mgPy:"Professional, yearly ($)",mgIm:"Institution, per seat ($)",mgTrial:"Free trial (days, 0 = none)",mgNotice:"Announcement on the home page",mgNe:"English text (leave empty for none)",mgNa:"Arabic text",mgSave:"Save prices and announcement",mgSaving:"Saving…",mgSaved:"Saved. Visitors now see these values.",mgFail:"Could not save. Check your connection and try again.",mgBadNum:"Every price must be a number, 0 or more.",mgAdd:"Add a course",mgTrack:"Track",mgPlan:"Included in plan",mgTe:"Title (English)",mgTa:"Title (Arabic)",mgDe:"Short description (English)",mgDa:"Short description (Arabic)",mgLe:"Lesson names (English), one per line",mgLa:"Lesson names (Arabic), one per line, same order",mgH:"Study hours",mgAddBtn:"Add course",mgAdded:"Course added.",mgNeedTitle:"Enter an English title for the course.",mgFull:"The course store is full. Delete a course, then add again.",mgYour:"Courses you added",mgNone:"None yet. The 14 built-in courses are edited by asking Claude.",mgDel:"Delete",mgDelSure:"Tap again to delete",days:"days",
+heroEyebrow:"Physics and nuclear physics, taught with AI",
+heroTitle:"From Newton's laws to the <em>neutron</em>.",
+heroLede:"Structured courses for school, university and research, with an AI tutor that explains each step at your level, in English or Arabic.",
+ctaCourses:"Browse courses",ctaTutor:"Ask the tutor",curveTitle:"Binding energy per nucleon",
+curveNote:"Drag across the curve. Approximate measured values for selected nuclides, in MeV. Energy is released moving toward the peak near iron and nickel: by fusion from the left, by fission from the right.",
+fusion:"fusion side",fission:"fission side",peak:"iron peak",axisX:"mass number A",
+audTitle:"Four ways in",audLede:"Pick where you are. Each track has its own courses and the tutor adjusts its explanations to match.",
+featTitle:"What the AI does",coursesTitle:"Courses",
+coursesLede:"Courses across four tracks. Free courses open now; the rest unlock with a plan.",
+all:"All",free:"Free",lessons:"lessons",hours:"h",syllabus:"Syllabus",hide:"Hide",start:"Ask tutor about this",unlock:"Unlock with",
+tutorTitle:"AI tutor",tutorLede:"Ask a physics question, paste a problem, or ask to be quizzed. Answers show the steps and the units.",
+levelLabel:"Explain for",send:"Send",placeholder:"Type your question",
+hello:"Hello. I am the NeutrAI physics tutor. What are you working on?",
+quotaFree:"{n} of 5 free questions left",quotaUnl:"Unlimited questions",
+limit:"You have used today's 5 free questions. A Student plan gives unlimited questions.",
+noAI:"The tutor needs Claude to be available for this page. Open the page in Claude and allow it to ask Claude, then try again.",
+rate:"Too many requests just now. Wait a moment and send again.",fail:"The tutor could not answer. Try sending again.",thinking:"Thinking…",
+pricingTitle:"Plans",pricingLede:"Start free. Student and Professional plans begin with a {d}-day free trial, and you can cancel any time.",pricingLede0:"Start free. Upgrade when you want every course and unlimited tutor time. Cancel any time.",trial:"{d}-day free trial",trialBtn:"Start {d}-day free trial",trialThen:"Free for {d} days, then {p}. Cancel before the trial ends and you pay nothing.",
+monthly:"Monthly",yearly:"Yearly",perMo:"/ month",perYr:"/ year",perSeat:"/ seat / month",
+current:"Current plan",choose:"Choose",contact:"Request a quote",popular:"Most chosen",cmpTitle:"Compare",
+begin:"Start course",resume:"Continue course",lessonOf:"Lesson {i} of {n}",nextLesson:"Next lesson",quizThis:"Quiz me on this",readN:"{d} of {n} read",keyRel:"Key relation",soon:"The text for this lesson is not written yet. The tutor can teach it to you now.",teach:"Teach me this lesson",coTitle:"Checkout",coPlan:"Plan",coEmail:"Email for your receipt",coPay:"Continue to secure payment",
+coWarn:"Prototype: no payment provider is connected, so no card details are requested and nothing is charged. In the live site this button opens the provider's secure card page.",
+coDemo:"Activate demo access (no payment)",coCancel:"Close",coEmailErr:"Enter a valid email address, like name@example.com.",
+coNoProv:"Payment provider not connected yet. Use demo access to preview the unlocked plan.",
+coDone:"Demo access is on. This plan is unlocked on this page until you reload.",
+coQuote:"Institution plans are quoted per school or lab. Leave your email and seat count on the live site.",
+foot:"NeutrAI Physics prototype. Courses teach physics for education. Completion certificates are not academic degrees."},
+ar:{brandSub:"الفيزياء",navHome:"الرئيسية",navCourses:"الدورات",navTutor:"المعلّم الذكي",navPricing:"الأسعار",navManage:"الإدارة",mgTitle:"الإدارة",mgLede:"هذه الصفحة تظهر لك وللمحرّرين فقط. التغييرات المحفوظة تظهر لكل الزوّار فورًا.",mgPrices:"الأسعار والتجربة",mgSm:"الطالب، شهريًا ($)",mgSy:"الطالب، سنويًا ($)",mgPm:"المحترف، شهريًا ($)",mgPy:"المحترف، سنويًا ($)",mgIm:"المؤسسات، لكل مقعد ($)",mgTrial:"التجربة المجانية (أيام، 0 = بدون)",mgNotice:"إعلان في الصفحة الرئيسية",mgNe:"النص بالإنجليزية (اتركه فارغًا لإخفائه)",mgNa:"النص بالعربية",mgSave:"حفظ الأسعار والإعلان",mgSaving:"جارٍ الحفظ…",mgSaved:"تم الحفظ. يرى الزوّار هذه القيم الآن.",mgFail:"تعذّر الحفظ. تحقق من الاتصال وحاول مجددًا.",mgBadNum:"كل سعر يجب أن يكون رقمًا، 0 أو أكثر.",mgAdd:"إضافة دورة",mgTrack:"المسار",mgPlan:"ضمن خطة",mgTe:"العنوان (بالإنجليزية)",mgTa:"العنوان (بالعربية)",mgDe:"وصف قصير (بالإنجليزية)",mgDa:"وصف قصير (بالعربية)",mgLe:"أسماء الدروس (بالإنجليزية)، كل درس في سطر",mgLa:"أسماء الدروس (بالعربية)، كل درس في سطر وبالترتيب نفسه",mgH:"ساعات الدراسة",mgAddBtn:"إضافة الدورة",mgAdded:"تمت إضافة الدورة.",mgNeedTitle:"أدخل عنوانًا إنجليزيًا للدورة.",mgFull:"مخزن الدورات ممتلئ. احذف دورة ثم أضف من جديد.",mgYour:"الدورات التي أضفتها",mgNone:"لا شيء بعد. الدورات الأربع عشرة الأساسية تُعدَّل بطلب من Claude.",mgDel:"حذف",mgDelSure:"اضغط مجددًا للحذف",days:"",
+heroEyebrow:"الفيزياء والفيزياء النووية بالذكاء الاصطناعي",
+heroTitle:"من قوانين نيوتن إلى <em>النيوترون</em>.",
+heroLede:"دورات منظّمة للمدرسة والجامعة والبحث العلمي، مع معلّم ذكي يشرح كل خطوة بحسب مستواك، بالعربية أو الإنجليزية.",
+ctaCourses:"تصفّح الدورات",ctaTutor:"اسأل المعلّم",curveTitle:"طاقة الربط لكل نيوكليون",
+curveNote:"اسحب على المنحنى. قيم مقيسة تقريبية لنويدات مختارة بوحدة MeV. تتحرر الطاقة عند الاقتراب من القمة قرب الحديد والنيكل: بالاندماج من اليسار وبالانشطار من اليمين.",
+fusion:"جهة الاندماج",fission:"جهة الانشطار",peak:"قمة الحديد",axisX:"العدد الكتلي A",
+audTitle:"أربعة مسارات",audLede:"اختر مستواك. لكل مسار دوراته، والمعلّم يكيّف شرحه معه.",
+featTitle:"ماذا يفعل الذكاء الاصطناعي",coursesTitle:"الدورات",
+coursesLede:"دورات في أربعة مسارات. الدورات المجانية متاحة الآن، والبقية تُفتح بالاشتراك.",
+all:"الكل",free:"مجاني",lessons:"درسًا",hours:"س",syllabus:"المحتوى",hide:"إخفاء",start:"اسأل المعلّم عنها",unlock:"افتحها بخطة",
+tutorTitle:"المعلّم الذكي",tutorLede:"اطرح سؤالًا في الفيزياء، أو الصق مسألة، أو اطلب اختبارًا. الإجابات تعرض الخطوات والوحدات.",
+levelLabel:"اشرح لمستوى",send:"إرسال",placeholder:"اكتب سؤالك",
+hello:"مرحبًا. أنا معلّم الفيزياء في NeutrAI. على ماذا تعمل الآن؟",
+quotaFree:"بقي {n} من 5 أسئلة مجانية",quotaUnl:"أسئلة غير محدودة",
+limit:"استخدمت أسئلتك الخمسة المجانية اليوم. خطة الطالب تمنحك أسئلة غير محدودة.",
+noAI:"يحتاج المعلّم إلى توفّر Claude لهذه الصفحة. افتح الصفحة في Claude واسمح لها بسؤاله ثم حاول مجددًا.",
+rate:"طلبات كثيرة الآن. انتظر لحظة ثم أرسل مرة أخرى.",fail:"تعذّر على المعلّم الإجابة. حاول الإرسال مجددًا.",thinking:"يفكّر…",
+pricingTitle:"الخطط",pricingLede:"ابدأ مجانًا. خطتا الطالب والمحترف تبدآن بتجربة مجانية لمدة {d} {w}، ويمكنك الإلغاء في أي وقت.",pricingLede0:"ابدأ مجانًا. اشترك عندما تريد كل الدورات ووقتًا غير محدود مع المعلّم. يمكنك الإلغاء في أي وقت.",trial:"تجربة مجانية {d} {w}",trialBtn:"ابدأ التجربة المجانية {d} {w}",trialThen:"مجانًا لمدة {d} {w}، ثم {p}. ألغِ قبل انتهاء التجربة ولن تدفع شيئًا.",
+monthly:"شهري",yearly:"سنوي",perMo:"/ شهريًا",perYr:"/ سنويًا",perSeat:"/ مقعد / شهريًا",
+current:"خطتك الحالية",choose:"اختر",contact:"اطلب عرض سعر",popular:"الأكثر اختيارًا",cmpTitle:"مقارنة",
+begin:"ابدأ الدورة",resume:"تابع الدورة",lessonOf:"الدرس {i} من {n}",nextLesson:"الدرس التالي",quizThis:"اختبرني في هذا الدرس",readN:"قرأت {d} من {n}",keyRel:"العلاقة الأساسية",soon:"نص هذا الدرس لم يُكتب بعد. يستطيع المعلّم شرحه لك الآن.",teach:"اشرح لي هذا الدرس",coTitle:"إتمام الاشتراك",coPlan:"الخطة",coEmail:"البريد الإلكتروني للإيصال",coPay:"المتابعة إلى الدفع الآمن",
+coWarn:"نموذج أولي: لا يوجد مزوّد دفع مرتبط، لذلك لا تُطلب بيانات البطاقة ولا يُخصم أي مبلغ. في الموقع الفعلي يفتح هذا الزر صفحة البطاقة الآمنة لدى مزوّد الدفع.",
+coDemo:"تفعيل وصول تجريبي (بدون دفع)",coCancel:"إغلاق",coEmailErr:"أدخل بريدًا إلكترونيًا صحيحًا مثل name@example.com.",
+coNoProv:"مزوّد الدفع غير مرتبط بعد. استخدم الوصول التجريبي لمعاينة الخطة.",
+coDone:"تم تفعيل الوصول التجريبي. الخطة مفتوحة في هذه الصفحة حتى إعادة التحميل.",
+coQuote:"خطط المؤسسات تُسعَّر لكل مدرسة أو مختبر. اترك بريدك وعدد المقاعد في الموقع الفعلي.",
+foot:"نموذج أولي لـ NeutrAI للفيزياء. الدورات تعليمية. شهادات الإتمام ليست درجات أكاديمية."}
+};
+
+const TRACKS = [
+ {id:"school",en:["School","Ages 12 to 18. Motion, energy, electricity and the atom, tied to exam-style problems."],ar:["المدرسة","من 12 إلى 18 سنة. الحركة والطاقة والكهرباء والذرّة مع مسائل بنمط الاختبارات."]},
+ {id:"uni",en:["University","Core undergraduate physics through to a first course in nuclear physics."],ar:["الجامعة","أساسيات الفيزياء الجامعية حتى مقرر أول في الفيزياء النووية."]},
+ {id:"pro",en:["Research and professional","Reactor physics, transport, detection and shielding for working engineers and researchers."],ar:["البحث والمهنيون","فيزياء المفاعلات والانتقال والكشف والتدريع للمهندسين والباحثين."]},
+ {id:"curious",en:["Curious learners","No equations required. How reactors, stars and radiation actually work."],ar:["محبّو المعرفة","بلا معادلات. كيف تعمل المفاعلات والنجوم والإشعاع فعلًا."]}
+];
+const FEATS = [
+ {k:"TUTOR",en:"Explains any step of a lesson or a pasted problem, at school, university or research level.",ar:"يشرح أي خطوة من درس أو مسألة ملصقة، بمستوى المدرسة أو الجامعة أو البحث."},
+ {k:"QUIZ",en:"Writes practice questions on the topic you are studying and checks your reasoning, not only the final number.",ar:"يكتب أسئلة تدريبية في موضوعك ويراجع طريقة تفكيرك لا الناتج فقط."},
+ {k:"UNITS",en:"Keeps units and orders of magnitude visible: MeV, barns, becquerels, sieverts.",ar:"يُبقي الوحدات ومراتب المقادير ظاهرة: MeV وبارن وبيكريل وسيفرت."},
+ {k:"AR / EN",en:"Answers in Arabic or English and keeps the standard technical term beside the translation.",ar:"يجيب بالعربية أو الإنجليزية ويُبقي المصطلح العلمي المعتمد بجانب الترجمة."}
+];
+// tier: 0 free, 1 student, 2 professional
+const BASE_COURSES = [
+ {t:"school",tier:0,n:12,h:8,en:["Motion and forces","Speed, acceleration and Newton's three laws with worked problems.",["Describing motion","Newton's laws","Momentum","Circular motion"]],ar:["الحركة والقوى","السرعة والتسارع وقوانين نيوتن الثلاثة مع مسائل محلولة.",["وصف الحركة","قوانين نيوتن","كمية الحركة","الحركة الدائرية"]]},
+ {t:"school",tier:1,n:14,h:9,en:["Energy and waves","Work, power, heat, sound and light as waves.",["Work and energy","Heat transfer","Wave properties","Light and optics"]],ar:["الطاقة والموجات","الشغل والقدرة والحرارة والصوت والضوء كموجات.",["الشغل والطاقة","انتقال الحرارة","خصائص الموجات","الضوء والبصريات"]]},
+ {t:"school",tier:1,n:13,h:9,en:["Electricity and magnetism","Circuits, fields and induction from first principles.",["Charge and current","Circuits","Magnetic fields","Induction"]],ar:["الكهرباء والمغناطيسية","الدوائر والمجالات والحثّ من المبادئ الأولى.",["الشحنة والتيار","الدوائر","المجالات المغناطيسية","الحثّ"]]},
+ {t:"school",tier:0,n:10,h:6,en:["Atoms and radioactivity","Atomic structure, alpha, beta and gamma decay, half-life.",["Inside the atom","Types of decay","Half-life","Uses and safety"]],ar:["الذرّات والنشاط الإشعاعي","بنية الذرّة واضمحلال ألفا وبيتا وغاما وعمر النصف.",["داخل الذرّة","أنواع الاضمحلال","عمر النصف","الاستخدامات والأمان"]]},
+ {t:"uni",tier:1,n:24,h:30,en:["Classical mechanics","Lagrangian and Hamiltonian methods, central forces, oscillations.",["Lagrangian mechanics","Central forces","Small oscillations","Hamiltonian formalism"]],ar:["الميكانيكا الكلاسيكية","طرائق لاغرانج وهاملتون والقوى المركزية والاهتزازات.",["ميكانيكا لاغرانج","القوى المركزية","الاهتزازات الصغيرة","صياغة هاملتون"]]},
+ {t:"uni",tier:1,n:22,h:28,en:["Electromagnetism","Maxwell's equations, potentials, radiation.",["Electrostatics","Magnetostatics","Maxwell's equations","EM waves"]],ar:["الكهرومغناطيسية","معادلات ماكسويل والجهود والإشعاع.",["الكهرباء الساكنة","المغناطيسية الساكنة","معادلات ماكسويل","الموجات الكهرومغناطيسية"]]},
+ {t:"uni",tier:1,n:26,h:34,en:["Quantum mechanics","Wavefunctions, operators, the hydrogen atom, tunnelling.",["Schrödinger equation","Operators and spin","Hydrogen atom","Tunnelling and alpha decay"]],ar:["ميكانيكا الكم","الدوال الموجية والمؤثرات وذرّة الهيدروجين والنفق الكمي.",["معادلة شرودنغر","المؤثرات واللفّ","ذرّة الهيدروجين","النفق الكمي واضمحلال ألفا"]]},
+ {t:"uni",tier:1,n:20,h:26,en:["Nuclear physics I","Nuclear structure, binding energy, decay laws and reactions.",["Semi-empirical mass formula","Shell model","Decay chains","Q-values and cross sections"]],ar:["الفيزياء النووية 1","بنية النواة وطاقة الربط وقوانين الاضمحلال والتفاعلات.",["صيغة الكتلة شبه التجريبية","نموذج القشرة","سلاسل الاضمحلال","قيم Q والمقاطع العرضية"]]},
+ {t:"pro",tier:2,n:28,h:40,en:["Reactor physics","Neutron life cycle, diffusion theory, criticality and kinetics.",["Four- and six-factor formula","Diffusion equation","Point kinetics","Reactivity feedback"]],ar:["فيزياء المفاعلات","دورة حياة النيوترون ونظرية الانتشار والحرجية والحركيات.",["صيغة العوامل الأربعة والستة","معادلة الانتشار","الحركيات النقطية","التغذية الراجعة للتفاعلية"]]},
+ {t:"pro",tier:2,n:18,h:24,en:["Radiation detection and shielding","Interaction of radiation with matter, detectors, dose and attenuation.",["Photon and neutron interactions","Detector types","Dose quantities","Shielding calculations"]],ar:["كشف الإشعاع والتدريع","تفاعل الإشعاع مع المادة والكواشف والجرعة والتوهين.",["تفاعلات الفوتونات والنيوترونات","أنواع الكواشف","كميات الجرعة","حسابات التدريع"]]},
+ {t:"pro",tier:2,n:16,h:22,en:["Monte Carlo methods for transport","Random sampling, tallies and variance reduction, explained conceptually.",["Sampling and random walks","Tallies","Variance reduction","Reading results critically"]],ar:["طرائق مونت كارلو للانتقال","العيّنات العشوائية والعدّادات وتقليل التباين بشرح مفاهيمي.",["العيّنات والمسارات العشوائية","العدّادات","تقليل التباين","قراءة النتائج بنظرة نقدية"]]},
+ {t:"pro",tier:2,n:15,h:20,en:["Fusion and plasma physics","Confinement, the Lawson criterion and tokamak basics.",["Plasma fundamentals","Lawson criterion","Magnetic confinement","Fusion fuel cycles"]],ar:["الاندماج وفيزياء البلازما","الحصر ومعيار لوسون وأساسيات التوكاماك.",["أساسيات البلازما","معيار لوسون","الحصر المغناطيسي","دورات وقود الاندماج"]]},
+ {t:"curious",tier:0,n:6,h:2,en:["How a reactor works","From a uranium pellet to electricity, in plain language.",["Splitting the atom","Controlling the chain","Heat to electricity","Safety layers"]],ar:["كيف يعمل المفاعل","من قرص اليورانيوم إلى الكهرباء بلغة مبسّطة.",["شطر الذرّة","التحكم في السلسلة","من الحرارة إلى الكهرباء","طبقات الأمان"]]},
+ {t:"curious",tier:1,n:8,h:3,en:["Stars and the origin of elements","How fusion in stars built the periodic table.",["Why stars shine","The proton chain","Supernovae","Where gold comes from"]],ar:["النجوم وأصل العناصر","كيف بنى الاندماج في النجوم الجدول الدوري.",["لماذا تلمع النجوم","سلسلة البروتون","المستعرات العظمى","من أين يأتي الذهب"]]}
+];
+
+// Written lessons for the three free courses, keyed by course index: [text, key relation]
+const LESSONS = {
+ 0:[
+  {en:["Speed tells you how far something travels each second. Velocity is speed with a direction. Acceleration is how quickly velocity changes. When acceleration is constant, two relations describe the motion: v = u + a t and s = u t + ½ a t², where u is the starting velocity. A car that goes from rest to 20 m/s in 5 s accelerates at 4 m/s² and covers 50 m.","a = (v − u) / t"],
+   ar:["السرعة تخبرك بالمسافة التي يقطعها الجسم كل ثانية. السرعة المتجهة هي السرعة مع الاتجاه. التسارع هو معدل تغيّر السرعة المتجهة. عند ثبات التسارع تصف الحركةَ علاقتان: v = u + a t و s = u t + ½ a t²، حيث u السرعة الابتدائية. سيارة تنطلق من السكون إلى 20 m/s خلال 5 s تتسارع بمقدار 4 m/s² وتقطع 50 m.","a = (v − u) / t"]},
+  {en:["First law: an object keeps its velocity unless a net force acts on it. Second law: the net force equals mass times acceleration. Third law: forces come in pairs that are equal in size, opposite in direction, and act on two different objects. A 2 kg trolley pushed with a net force of 6 N accelerates at 3 m/s².","F = m a   (1 N = 1 kg·m/s²)"],
+   ar:["القانون الأول: يحافظ الجسم على سرعته المتجهة ما لم تؤثر فيه قوة محصّلة. القانون الثاني: القوة المحصّلة تساوي الكتلة مضروبة في التسارع. القانون الثالث: القوى تأتي أزواجًا متساوية في المقدار ومتعاكسة في الاتجاه وتؤثر في جسمين مختلفين. عربة كتلتها 2 kg تُدفع بقوة محصّلة 6 N تتسارع بمقدار 3 m/s².","F = m a   (1 N = 1 kg·m/s²)"]},
+  {en:["Momentum is mass times velocity. In a collision with no outside force, the total momentum before equals the total after. A force acting for a time changes momentum by F Δt, called impulse. This is why an airbag helps: the same change in momentum spread over a longer time needs a smaller force. A 0.5 kg ball moving at 4 m/s has momentum 2 kg·m/s.","p = m v      F Δt = Δp"],
+   ar:["كمية الحركة هي الكتلة مضروبة في السرعة المتجهة. في تصادم بلا قوة خارجية تتساوى كمية الحركة الكلية قبل التصادم وبعده. القوة المؤثرة لزمن معيّن تغيّر كمية الحركة بمقدار F Δt ويسمى الدفع. لهذا تفيد الوسادة الهوائية: التغيّر نفسه في كمية الحركة على زمن أطول يحتاج قوة أصغر. كرة كتلتها 0.5 kg تتحرك بسرعة 4 m/s كمية حركتها 2 kg·m/s.","p = m v      F Δt = Δp"]},
+  {en:["An object moving in a circle at steady speed is still accelerating, because its direction keeps changing. The acceleration points to the centre and equals v²/r. Something must supply the matching force: tension in a string, friction on a road, or gravity for a satellite. A 1000 kg car taking a 50 m bend at 10 m/s needs 2000 N of friction toward the centre.","a = v² / r      F = m v² / r"],
+   ar:["الجسم المتحرك في دائرة بسرعة ثابتة يتسارع مع ذلك، لأن اتجاهه يتغيّر باستمرار. يتجه التسارع نحو المركز ويساوي v²/r. ولا بد من قوة توفّره: الشدّ في خيط، أو الاحتكاك على الطريق، أو الجاذبية لقمر صناعي. سيارة كتلتها 1000 kg تسلك منعطفًا نصف قطره 50 m بسرعة 10 m/s تحتاج قوة احتكاك 2000 N نحو المركز.","a = v² / r      F = m v² / r"]}
+ ],
+ 3:[
+  {en:["An atom has a tiny, dense nucleus of protons and neutrons with electrons around it. The nucleus is roughly a hundred thousand times smaller than the atom. The atomic number Z counts protons and decides the element. The mass number A counts protons plus neutrons. Isotopes of an element share Z and differ in A. Carbon-14 has 6 protons and 8 neutrons.","A = Z + N"],
+   ar:["للذرّة نواة صغيرة كثيفة من بروتونات ونيوترونات تحيط بها الإلكترونات. النواة أصغر من الذرّة بنحو مئة ألف مرة. العدد الذرّي Z هو عدد البروتونات ويحدد العنصر. العدد الكتلي A هو عدد البروتونات والنيوترونات معًا. نظائر العنصر الواحد لها Z نفسه وتختلف في A. الكربون-14 فيه 6 بروتونات و8 نيوترونات.","A = Z + N"]},
+  {en:["Alpha decay emits a helium-4 nucleus: Z falls by 2 and A by 4. A sheet of paper stops it. Beta-minus decay turns a neutron into a proton and emits an electron: Z rises by 1 and A stays the same. A few millimetres of aluminium stops it. Gamma decay emits a high-energy photon and changes neither Z nor A. Thick lead or concrete is needed to reduce it.","²³⁸U → ²³⁴Th + ⁴He"],
+   ar:["اضمحلال ألفا يُطلق نواة هيليوم-4: ينقص Z بمقدار 2 و A بمقدار 4، وتوقفه ورقة. اضمحلال بيتا السالب يحوّل نيوترونًا إلى بروتون ويُطلق إلكترونًا: يزيد Z بمقدار 1 ويبقى A كما هو، وتوقفه بضعة مليمترات من الألمنيوم. اضمحلال غاما يُطلق فوتونًا عالي الطاقة ولا يغيّر Z ولا A، ويلزم رصاص أو خرسانة سميكة لإضعافه.","²³⁸U → ²³⁴Th + ⁴He"]},
+  {en:["The half-life is the time for half of the nuclei in a sample to decay. It is fixed for each isotope and does not depend on temperature or pressure. After three half-lives one eighth remains. Activity, measured in becquerels, is the number of decays per second and falls at the same rate. Iodine-131 has a half-life of about 8 days, so after 24 days one eighth is left.","N = N₀ × (1/2)^(t / T½)"],
+   ar:["عمر النصف هو الزمن اللازم لاضمحلال نصف الأنوية في عيّنة. هو ثابت لكل نظير ولا يعتمد على الحرارة أو الضغط. بعد ثلاثة أعمار نصف يبقى الثُمن. النشاط الإشعاعي، ويقاس بالبيكريل، هو عدد الاضمحلالات في الثانية وينخفض بالمعدل نفسه. عمر النصف لليود-131 نحو 8 أيام، فبعد 24 يومًا يبقى الثُمن.","N = N₀ × (1/2)^(t / T½)"]},
+  {en:["Radioactive sources are used in medical imaging and cancer therapy, in carbon dating, in smoke detectors and in power generation. The effect of radiation on the body is measured as dose, in sieverts. Everyone receives a natural background dose of a few millisieverts a year from rocks, radon and cosmic rays. Three habits keep extra dose low: less time near a source, more distance from it, and shielding in between.","dose falls with: less time, more distance, more shielding"],
+   ar:["تُستخدم المصادر المشعّة في التصوير الطبي وعلاج السرطان، وفي التأريخ بالكربون، وفي كواشف الدخان، وفي توليد الكهرباء. يقاس أثر الإشعاع في الجسم بالجرعة ووحدتها السيفرت. يتلقى كل إنسان جرعة طبيعية من بضعة ميلي سيفرت سنويًا من الصخور والرادون والأشعة الكونية. ثلاث عادات تُبقي الجرعة الإضافية منخفضة: زمن أقل قرب المصدر، ومسافة أبعد عنه، وتدريع بينك وبينه.","تقل الجرعة مع: زمن أقل، مسافة أبعد، تدريع أكثر"]}
+ ],
+ 12:[
+  {en:["When a neutron strikes a uranium-235 nucleus, the nucleus can split into two smaller nuclei. This is fission. Each split releases about 200 MeV of energy and two or three new neutrons. That is millions of times more energy than burning one molecule of fuel, which is why a small amount of uranium can power a city.","n + ²³⁵U → 2 fragments + 2–3 n + ~200 MeV"],
+   ar:["عندما يصطدم نيوترون بنواة يورانيوم-235 قد تنشطر النواة إلى نواتين أصغر. هذا هو الانشطار. كل انشطار يحرّر نحو 200 MeV من الطاقة ونيوترونين أو ثلاثة نيوترونات جديدة. هذه الطاقة أكبر بملايين المرات من حرق جزيء وقود واحد، ولهذا تكفي كمية صغيرة من اليورانيوم لتزويد مدينة بالكهرباء.","n + ²³⁵U → 2 fragments + 2–3 n + ~200 MeV"]},
+  {en:["The new neutrons can split more nuclei, making a chain reaction. A reactor runs steadily when, on average, exactly one neutron from each fission causes another fission. Engineers call this k = 1, or critical. Control rods containing boron or cadmium absorb neutrons to lower k. Water around the fuel slows the neutrons down, and slow neutrons are far more likely to split uranium-235.","k = 1 steady   k < 1 dying away   k > 1 rising"],
+   ar:["النيوترونات الجديدة قد تشطر أنوية أخرى فينشأ تفاعل متسلسل. يعمل المفاعل بثبات عندما يسبّب نيوترون واحد بالضبط، في المتوسط، من كل انشطار انشطارًا آخر. يسمي المهندسون ذلك k = 1 أو الحالة الحرجة. قضبان التحكم المحتوية على البورون أو الكادميوم تمتص النيوترونات لتخفض k. والماء حول الوقود يبطّئ النيوترونات، والنيوترونات البطيئة أقدر بكثير على شطر اليورانيوم-235.","k = 1 ثابت   k < 1 يخمد   k > 1 يتصاعد"]},
+  {en:["The fragments from fission stop inside the fuel and heat it. Water pumped past the fuel carries the heat away. In a pressurised water reactor this hot water heats a second, separate loop of water into steam. The steam spins a turbine connected to a generator. About one third of the heat ends up as electricity; the rest is released through cooling towers or to the sea.","~3000 MW heat → ~1000 MW electricity"],
+   ar:["شظايا الانشطار تتوقف داخل الوقود فتسخّنه. الماء المضخوخ حول الوقود يحمل الحرارة بعيدًا. في مفاعل الماء المضغوط يسخّن هذا الماء الحار دورة ماء ثانية منفصلة فتتحول إلى بخار. البخار يدير توربينًا متصلًا بمولّد. نحو ثلث الحرارة يصير كهرباء، والباقي يُطرح عبر أبراج التبريد أو إلى البحر.","~3000 MW حرارة → ~1000 MW كهرباء"]},
+  {en:["A reactor keeps radioactive material inside several barriers: the ceramic fuel pellet, the sealed metal tube around it, the thick steel pressure vessel, and the concrete containment building. Shutting down stops the chain reaction within seconds, but the fuel keeps producing decay heat. It starts at about 6 to 7 percent of full power and drops below 1 percent within a day, so cooling must continue after shutdown.","decay heat: ~6–7% at shutdown → under 1% after a day"],
+   ar:["يحتجز المفاعل المواد المشعّة داخل عدة حواجز: قرص الوقود الخزفي، والأنبوب المعدني المحكم حوله، ووعاء الضغط الفولاذي السميك، ومبنى الاحتواء الخرساني. الإطفاء يوقف التفاعل المتسلسل خلال ثوانٍ، لكن الوقود يستمر في إنتاج حرارة الاضمحلال. تبدأ بنحو 6 إلى 7 بالمئة من القدرة الكاملة وتنخفض إلى أقل من 1 بالمئة خلال يوم، لذلك يجب أن يستمر التبريد بعد الإطفاء.","حرارة الاضمحلال: نحو 6–7% عند الإطفاء ← أقل من 1% بعد يوم"]}
+ ]
+};
+let COURSES = BASE_COURSES.slice();
+const TIER = [{en:"Free",ar:"مجاني"},{en:"Student",ar:"الطالب"},{en:"Professional",ar:"المحترف"}];
+const PLANS = [
+ {id:0,en:["Explorer",["Introductory courses","5 tutor questions a day","English and Arabic"]],ar:["المستكشف",["الدورات التمهيدية","5 أسئلة للمعلّم يوميًا","العربية والإنجليزية"]],m:0,y:0},
+ {id:1,best:true,en:["Student",["All school and university courses","Unlimited tutor questions","Practice quizzes with feedback","Progress tracking"]],ar:["الطالب",["كل دورات المدرسة والجامعة","أسئلة غير محدودة للمعلّم","اختبارات تدريبية مع ملاحظات","متابعة التقدّم"]],m:5,y:50},
+ {id:2,en:["Professional",["Everything in Student","Research and professional track","Step-by-step problem assistant","Completion certificates"]],ar:["المحترف",["كل ما في خطة الطالب","مسار البحث والمهنيين","مساعد حلّ المسائل خطوة بخطوة","شهادات إتمام"]],m:19,y:190},
+ {id:3,en:["Institution",["Professional access for every seat","From 10 seats","Class dashboard for teachers","Invoice billing"]],ar:["المؤسسات",["وصول المحترف لكل مقعد","ابتداءً من 10 مقاعد","لوحة صفّ للمعلمين","فوترة بالفواتير"]],m:10,seat:true}
+];
+const CMP = [
+ [{en:"Tutor questions",ar:"أسئلة المعلّم"},{en:"5 / day",ar:"5 / يوم"},"∞","∞","∞"],
+ [{en:"Quizzes",ar:"الاختبارات"},"–","✓","✓","✓"],
+ [{en:"Research track",ar:"مسار البحث"},"–","–","✓","✓"],
+ [{en:"Certificates",ar:"الشهادات"},"–","–","✓","✓"],
+ [{en:"Teacher dashboard",ar:"لوحة المعلّم"},"–","–","–","✓"]
+];
+const SUGGEST = {
+ en:["Why does iron sit at the top of the binding energy curve?","Quiz me on half-life","Explain the four-factor formula","What is a barn?"],
+ ar:["لماذا يقع الحديد عند قمة منحنى طاقة الربط؟","اختبرني في عمر النصف","اشرح صيغة العوامل الأربعة","ما هو البارن؟"]
+};
+
+/* ---------- state ---------- */
+const S = {lang:"en",plan:0,cycle:"m",filter:"all",used:0,chat:[],busy:false,done:{},trial:7,notice:null,admin:false,extra:[],db:null,pref:null};
+const DEF = {sm:5,sy:50,pm:19,py:190,im:10};
+const $ = id => document.getElementById(id);
+const t = k => T[S.lang][k] ?? T.en[k] ?? k;
+const L = o => typeof o === "string" ? o : o[S.lang];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dayW = () => S.lang === "ar" ? (S.trial <= 10 ? "أيام" : "يومًا") : t("days");
+const tt = k => t(k).replace(/\{d\}/g, S.trial).replace("{w}", dayW());
+const K = i => COURSES[i].id || i;
+
+/* ---------- render ---------- */
+function renderStatic(){
+  document.documentElement.lang = S.lang;
+  document.documentElement.dir = S.lang === "ar" ? "rtl" : "ltr";
+  document.querySelectorAll("[data-i18n]").forEach(e => e.textContent = t(e.dataset.i18n));
+  document.querySelectorAll("[data-i18n-html]").forEach(e => e.innerHTML = t(e.dataset.i18nHtml));
+  $("langBtn").textContent = S.lang === "en" ? "العربية" : "English";
+  $("planChip").textContent = S.plan === 0 ? t("free").toUpperCase() : TIER[Math.min(S.plan,2)][S.lang].toUpperCase();
+  $("q").placeholder = t("placeholder");
+  $("audGrid").innerHTML = TRACKS.map(a => `<button class="aud" type="button" data-track="${a.id}"><h3>${a[S.lang][0]}</h3><p>${a[S.lang][1]}</p></button>`).join("");
+  $("featList").innerHTML = FEATS.map(f => `<div><span class="k">${f.k}</span><p>${f[S.lang]}</p></div>`).join("");
+  $("level").innerHTML = TRACKS.map(a => `<option value="${a.id}">${a[S.lang][0]}</option>`).join("");
+  $("level").value = S.level || "uni";
+  $("suggest").innerHTML = SUGGEST[S.lang].map(s => `<button class="chip" type="button">${s}</button>`).join("");
+  $("manageTab").hidden = !S.admin;
+  renderCourses(); renderPlans(); renderQuota(); renderLog(); renderNotice(); drawCurve();
+  if (S.admin) { S.setDirty = S.addDirty = false; renderAdmin(); }
+}
+function renderNotice(){
+  const n = S.notice ? (S.notice[S.lang] || S.notice.en || "") : "";
+  $("notice").textContent = n; $("notice").hidden = !n;
+}
+function renderCourses(){
+  const f = [{id:"all",label:t("all")}].concat(TRACKS.map(a => ({id:a.id,label:a[S.lang][0]})));
+  $("filters").innerHTML = f.map(x => `<button class="chip" type="button" data-f="${x.id}" aria-pressed="${S.filter===x.id}">${x.label}</button>`).join("");
+  $("courseGrid").innerHTML = COURSES.map((c,i) => {
+    if (S.filter !== "all" && c.t !== S.filter) return "";
+    const d0 = c[S.lang], d = [esc(d0[0]), esc(d0[1]), d0[2].map(esc)], open = S.plan >= c.tier, tr = TRACKS.find(a => a.id === c.t)[S.lang][0];
+    const pill = c.tier === 0 ? `<span class="pill">${t("free")}</span>` : `<span class="pill ${open?"":"lock"}">${TIER[c.tier][S.lang]}</span>`;
+    const nd = d[2].filter((_,j) => S.done[K(i)+":"+j]).length;
+    const act = open ? (LESSONS[i] ? `<button class="btn small" type="button" data-lesson="${i}:${Math.min(nd,d[2].length-1)}">${nd ? t("resume") : t("begin")}</button>` : `<button class="btn small" type="button" data-ask="${i}">${t("start")}</button>`)
+                     : `<a class="btn small" href="#pricing">${t("unlock")} ${TIER[c.tier][S.lang]}</a>`;
+    return `<article class="course" id="c${i}"><div class="course-top"><span class="meta">${tr}</span>${pill}</div>
+      <h3>${d[0]}</h3><p>${d[1]}</p><span class="meta">${c.n} ${t("lessons")} · ${c.h} ${t("hours")}${nd ? " · " + t("readN").replace("{d}",nd).replace("{n}",d[2].length) : ""}</span>
+      <ol>${d[2].map((x,j) => `<li>${open ? `<button class="lk" type="button" data-lesson="${i}:${j}">${x}</button>` : x}${S.done[K(i)+":"+j] ? " ✓" : ""}</li>`).join("")}</ol>
+      <div class="course-actions"><button class="btn ghost small" type="button" data-syl="${i}">${t("syllabus")}</button>${act}</div></article>`;
+  }).join("");
+}
+function priceOf(p){
+  if (p.seat) return `$${p.m} <small>${t("perSeat")}</small>`;
+  if (p.m === 0) return `$0`;
+  return S.cycle === "m" ? `$${p.m} <small>${t("perMo")}</small>` : `$${p.y} <small>${t("perYr")}</small>`;
+}
+function renderPlans(){
+  $("cyM").setAttribute("aria-pressed", S.cycle === "m"); $("cyY").setAttribute("aria-pressed", S.cycle === "y");
+  $("planGrid").innerHTML = PLANS.map(p => {
+    const d = p[S.lang], cur = S.plan === p.id;
+    const btn = cur ? `<button class="btn ghost" type="button" disabled>${t("current")}</button>`
+      : p.id === 0 ? "" : `<button class="btn ${p.best?"":"ghost"}" type="button" data-plan="${p.id}">${p.seat ? t("contact") : S.trial ? tt("trialBtn") : t("choose")+" "+d[0]}</button>`;
+    return `<div class="plan ${p.best?"best":""}"><h3>${d[0]}${p.best?`<span class="pill">${t("popular")}</span>`:""}</h3>
+      <div class="price">${priceOf(p)}</div>${p.m && !p.seat && S.trial ? `<span class="pill" style="align-self:flex-start">${tt("trial")}</span>` : ""}<ul>${d[1].map(x => `<li>${x}</li>`).join("")}</ul>${btn}</div>`;
+  }).join("");
+  $("priceLede").textContent = S.trial ? tt("pricingLede") : t("pricingLede0");
+  const cnt = k => String(COURSES.filter(c => c.tier <= k).length), tr = S.trial + " " + dayW();
+  const rows = [[{en:"Courses",ar:"الدورات"},cnt(0),cnt(1),cnt(2),cnt(2)]].concat(S.trial ? [[{en:"Free trial",ar:"تجربة مجانية"},"–",tr,tr,"–"]] : [], CMP);
+  $("cmp").innerHTML = `<tr><th></th>${PLANS.map(p => `<th>${p[S.lang][0]}</th>`).join("")}</tr>` +
+    rows.map(r => `<tr>${r.map((c,i) => i ? `<td class="mono">${L(c)}</td>` : `<td>${L(c)}</td>`).join("")}</tr>`).join("");
+}
+function renderQuota(){ $("quota").textContent = S.plan > 0 ? t("quotaUnl") : t("quotaFree").replace("{n}", Math.max(0, 5 - S.used)); }
+function bubble(role, text){
+  const d = document.createElement("div"); d.className = "msg " + role; d.textContent = text;
+  $("log").appendChild(d); $("log").scrollTop = $("log").scrollHeight; return d;
+}
+function renderLog(){
+  $("log").innerHTML = ""; bubble("ai", t("hello"));
+  S.chat.forEach(m => bubble(m.role === "user" ? "user" : "ai", m.content));
+}
+
+/* ---------- routing ---------- */
+const VIEWS = ["home","courses","tutor","pricing","manage"];
+function route(){
+  const h = location.hash.replace("#",""); let v = VIEWS.includes(h) ? h : "home";
+  if (v === "manage" && !S.admin) v = "home";
+  if (v === "manage" && (!$("fSet") || (!S.setDirty && !S.addDirty))) renderAdmin();
+  VIEWS.forEach(x => $("v-"+x).classList.toggle("on", x === v));
+  document.querySelectorAll("nav.tabs a").forEach(a => a.getAttribute("href") === "#"+v ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
+  if (v === "home") drawCurve();
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange", route);
+
+/* ---------- binding energy curve ---------- */
+const BE = [[1,0],[2,1.112],[3,2.827],[4,7.074],[6,5.332],[7,5.606],[9,6.463],[11,6.928],[12,7.680],[14,7.476],[16,7.976],[20,8.032],[24,8.261],[28,8.448],[32,8.493],[40,8.551],[48,8.723],[56,8.790],[62,8.795],[75,8.701],[90,8.710],[107,8.554],[120,8.505],[138,8.393],[150,8.262],[165,8.147],[181,8.023],[197,7.916],[208,7.868],[232,7.615],[235,7.591],[238,7.570]];
+const MARK = [[2,"²H"],[4,"⁴He"],[12,"¹²C"],[56,"⁵⁶Fe"],[235,"²³⁵U"]];
+function beAt(A){
+  for (let i = 1; i < BE.length; i++) if (A <= BE[i][0]) { const a = BE[i-1], b = BE[i]; return a[1] + (b[1]-a[1]) * (A-a[0]) / (b[0]-a[0]); }
+  return BE[BE.length-1][1];
+}
+let probeA = 56;
+function drawCurve(){
+  const cv = $("curve"); if (!cv.offsetWidth) return;
+  const css = getComputedStyle(document.documentElement), col = n => css.getPropertyValue(n).trim();
+  const dpr = window.devicePixelRatio || 1, W = cv.offsetWidth, H = cv.offsetHeight;
+  cv.width = W*dpr; cv.height = H*dpr; const g = cv.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0);
+  const pl = 30, pr = 10, pt = 12, pb = 26;
+  const X = A => pl + (A-1)/(240-1) * (W-pl-pr), Y = b => pt + (9-b)/9 * (H-pt-pb);
+  g.font = '11px "IBM Plex Mono", monospace'; g.lineWidth = 1;
+  [0,3,6,9].forEach(b => { g.strokeStyle = col("--line"); g.beginPath(); g.moveTo(pl,Y(b)); g.lineTo(W-pr,Y(b)); g.stroke();
+    g.fillStyle = col("--muted"); g.textAlign = "right"; g.fillText(b, pl-6, Y(b)+4); });
+  g.textAlign = "center"; [1,60,120,180,240].forEach(A => g.fillText(A, X(A), H-8));
+  // area + line
+  g.beginPath(); g.moveTo(X(1),Y(0)); BE.forEach(p => g.lineTo(X(p[0]),Y(p[1]))); g.lineTo(X(238),Y(0)); g.closePath();
+  g.globalAlpha = .12; g.fillStyle = col("--accent"); g.fill(); g.globalAlpha = 1;
+  g.beginPath(); BE.forEach((p,i) => i ? g.lineTo(X(p[0]),Y(p[1])) : g.moveTo(X(p[0]),Y(p[1])));
+  g.strokeStyle = col("--accent"); g.lineWidth = 2.2; g.lineJoin = "round"; g.stroke();
+  // marked nuclides
+  MARK.forEach(([A,lab]) => { const b = beAt(A); g.fillStyle = col("--ink"); g.beginPath(); g.arc(X(A),Y(b),3,0,7); g.fill();
+    g.textAlign = A > 200 ? "right" : A < 13 ? "left" : "center";
+    const dx = A < 13 ? 7 : 0, dy = A < 13 ? 4 : A === 56 ? -9 : 16;
+    g.fillText(lab, X(A)+dx, Y(b)+dy); });
+  // probe
+  const b = beAt(probeA); g.strokeStyle = col("--amber"); g.lineWidth = 1; g.setLineDash([3,3]);
+  g.beginPath(); g.moveTo(X(probeA),Y(0)); g.lineTo(X(probeA),Y(b)); g.stroke(); g.setLineDash([]);
+  g.fillStyle = col("--amber"); g.beginPath(); g.arc(X(probeA),Y(b),5,0,7); g.fill();
+  const side = probeA < 50 ? t("fusion") : probeA > 66 ? t("fission") : t("peak");
+  $("readout").innerHTML = `A = <strong>${probeA}</strong> · <strong>${b.toFixed(2)}</strong> MeV · ${side}`;
+  cv._inv = px => Math.round(Math.min(238, Math.max(1, 1 + (px-pl)/(W-pl-pr)*239)));
+}
+function probe(e){ const cv = $("curve"), r = cv.getBoundingClientRect(); if (cv._inv) { probeA = cv._inv(e.clientX - r.left); drawCurve(); } }
+$("curve").addEventListener("pointermove", probe); $("curve").addEventListener("pointerdown", probe);
+window.addEventListener("resize", drawCurve);
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawCurve);
+new MutationObserver(drawCurve).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawCurve);
+
+/* ---------- tutor ---------- */
+let samplePromise = null;
+function getSample(){ if (!samplePromise) samplePromise = (window.claude && window.claude.use) ? window.claude.use("sample").catch(() => null) : Promise.resolve(null); return samplePromise; }
+function instructions(){
+  const lvl = {school:"a school student aged 12 to 18",uni:"a university physics or engineering student",pro:"a researcher or practising nuclear engineer",curious:"a curious adult with no physics background; avoid equations unless asked"}[$("level").value];
+  return `You are the NeutrAI Physics tutor, teaching physics and nuclear physics for education. The learner is ${lvl}. Reply in ${S.lang === "ar" ? "Arabic, keeping the standard English technical term in brackets on first use" : "English"}. Show the reasoning step by step and always carry units. Write maths in plain text (for example E = m c^2), no LaTeX and no markdown symbols. Keep the answer under 170 words unless the learner asks for more. If asked for a quiz, give one question at a time and wait for the answer. If you are unsure of a numerical value, say so.\n\nLearner: `;
+}
+async function ask(text){
+  text = text.trim(); if (!text || S.busy) return;
+  if (S.plan === 0 && S.used >= 5) { bubble("sys", t("limit")); return; }
+  S.busy = true; $("send").disabled = true; $("q").value = "";
+  bubble("user", text); S.chat.push({role:"user",content:text});
+  const out = bubble("ai", t("thinking"));
+  try {
+    const sample = await getSample();
+    if (!sample) { out.remove(); S.chat.pop(); bubble("sys", t("noAI")); return; }
+    const msgs = S.chat.slice(-12); while (msgs.length && msgs[0].role !== "user") msgs.shift();
+    const input = msgs.map((m,i) => i === 0 ? {role:"user",content:instructions()+m.content} : m);
+    const res = await sample(input, {cache:false, onText: ({text}) => { out.textContent = text; $("log").scrollTop = $("log").scrollHeight; }});
+    out.textContent = res.text; S.chat.push({role:"assistant",content:res.text}); S.used++; renderQuota();
+  } catch (e) {
+    out.remove(); S.chat.pop();
+    bubble("sys", e && e.code === "not_granted" ? t("noAI") : e && e.code === "rate_limited" ? t("rate") : t("fail"));
+  } finally { S.busy = false; $("send").disabled = false; }
+}
+$("compose").addEventListener("submit", e => { e.preventDefault(); ask($("q").value); });
+$("q").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask($("q").value); } });
+$("suggest").addEventListener("click", e => { const b = e.target.closest("button"); if (b) ask(b.textContent); });
+$("level").addEventListener("change", () => S.level = $("level").value);
+
+/* ---------- courses / plans events ---------- */
+document.addEventListener("click", e => {
+  const f = e.target.closest("[data-f]"); if (f) { S.filter = f.dataset.f; renderCourses(); return; }
+  const s = e.target.closest("[data-syl]"); if (s) { const c = $("c"+s.dataset.syl); const o = c.classList.toggle("open"); s.textContent = o ? t("hide") : t("syllabus"); return; }
+  const le = e.target.closest("[data-lesson]"); if (le) { const [ci,li] = le.dataset.lesson.split(":").map(Number); openLesson(ci,li); return; }
+  const a = e.target.closest("[data-ask]"); if (a) { const c = COURSES[a.dataset.ask]; S.level = c.t; $("level").value = c.t; location.hash = "tutor";
+    $("q").value = S.lang === "ar" ? `أدرس دورة "${c.ar[0]}". ابدأ معي بالدرس الأول: ${c.ar[2][0] || ""}` : `I am taking "${c.en[0]}". Start me on lesson one: ${c.en[2][0] || ""}`; $("q").focus(); return; }
+  const tr = e.target.closest("[data-track]"); if (tr) { S.filter = tr.dataset.track; renderCourses(); location.hash = "courses"; return; }
+  const dl = e.target.closest("[data-del]"); if (dl) {
+    if (!dl.dataset.sure) { dl.dataset.sure = "1"; dl.textContent = t("mgDelSure"); return; }
+    dl.disabled = true; S.db.doc("courses/" + dl.dataset.del).delete().catch(() => { dl.disabled = false; }); return; }
+  const p = e.target.closest("[data-plan]"); if (p) { openCheckout(+p.dataset.plan); return; }
+});
+$("cyM").addEventListener("click", () => { S.cycle = "m"; renderPlans(); });
+$("cyY").addEventListener("click", () => { S.cycle = "y"; renderPlans(); });
+$("langBtn").addEventListener("click", () => { S.lang = S.lang === "en" ? "ar" : "en"; renderStatic(); saveProgress(); });
+
+/* ---------- checkout ---------- */
+function openCheckout(id){
+  const p = PLANS[id], d = p[S.lang];
+  const total = p.seat ? `$${p.m} ${t("perSeat")}` : S.cycle === "m" ? `$${p.m} ${t("perMo")}` : `$${p.y} ${t("perYr")}`;
+  $("sheet").innerHTML = `<h2 id="coTitle">${t("coTitle")}</h2>
+    <div class="sum"><span>${t("coPlan")}: <b>${d[0]}</b></span><span class="mono">${total}</span></div>
+    ${p.seat || !S.trial ? "" : `<p style="font-size:14px">${tt("trialThen").replace("{p}", total)}</p>`}
+    ${p.seat ? `<p class="warn">${t("coQuote")}</p>` : `
+    <label for="coEmail">${t("coEmail")}<input type="email" id="coEmail" autocomplete="email" placeholder="name@example.com"></label>
+    <p class="err" id="coErr" role="alert"></p>
+    <button class="btn" type="button" id="coPay">${t("coPay")}</button>
+    <p class="warn">${t("coWarn")}</p>
+    <button class="btn ghost" type="button" id="coDemo">${t("coDemo")}</button>`}
+    <button class="chip" type="button" id="coClose">${t("coCancel")}</button>`;
+  $("veil").classList.add("on");
+  $("coClose").onclick = closeCheckout;
+  if (p.seat) return;
+  $("coPay").onclick = () => {
+    const ok = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($("coEmail").value.trim());
+    $("coErr").textContent = ok ? t("coNoProv") : t("coEmailErr");
+  };
+  $("coDemo").onclick = () => { S.plan = id; renderStatic();
+    $("sheet").innerHTML = `<h2 id="coTitle">${d[0]}</h2><p>${t("coDone")}</p><a class="btn" href="#courses" id="coGo">${t("ctaCourses")}</a>`;
+    $("coGo").onclick = closeCheckout; };
+}
+function openLesson(ci, li){
+  const c = COURSES[ci], d = c[S.lang], n = d[2].length, e0 = esc(d[0]), e1 = esc(d[2][li]), L0 = LESSONS[ci] && LESSONS[ci][li];
+  const toTutor = (q, send) => { closeCheckout(); S.level = c.t; $("level").value = c.t; location.hash = "tutor"; if (send) ask(q); else { $("q").value = q; } };
+  if (L0) { S.done[K(ci)+":"+li] = true; renderCourses(); saveProgress(); }
+  $("sheet").innerHTML = `<span class="eyebrow">${e0} · ${t("lessonOf").replace("{i}",li+1).replace("{n}",n)}</span>
+    <h2 id="coTitle">${e1}</h2>
+    ${L0 ? `<p class="lesson-body">${L0[S.lang][0]}</p><div><span class="meta">${t("keyRel")}</span><div class="key" dir="auto">${L0[S.lang][1]}</div></div>` : `<p class="warn">${t("soon")}</p>`}
+    ${L0 ? `<button class="btn ghost" type="button" id="lsQuiz">${t("quizThis")}</button>` : `<button class="btn" type="button" id="lsTeach">${t("teach")}</button>`}
+    ${li < n-1 ? `<button class="btn" type="button" id="lsNext">${t("nextLesson")}</button>` : ""}
+    <button class="chip" type="button" id="coClose">${t("coCancel")}</button>`;
+  $("veil").classList.add("on"); $("sheet").scrollTop = 0;
+  $("coClose").onclick = closeCheckout;
+  if ($("lsNext")) $("lsNext").onclick = () => openLesson(ci, li+1);
+  if ($("lsQuiz")) $("lsQuiz").onclick = () => toTutor(S.lang === "ar" ? `اختبرني بسؤال واحد عن درس "${d[2][li]}" من دورة "${d[0]}".` : `Quiz me with one question on the lesson "${d[2][li]}" from the course "${d[0]}".`, true);
+  if ($("lsTeach")) $("lsTeach").onclick = () => toTutor(S.lang === "ar" ? `اشرح لي درس "${d[2][li]}" من دورة "${d[0]}".` : `Teach me the lesson "${d[2][li]}" from the course "${d[0]}".`, true);
+}
+function closeCheckout(){ $("veil").classList.remove("on"); }
+$("veil").addEventListener("click", e => { if (e.target === $("veil")) closeCheckout(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeCheckout(); });
+
+/* ---------- saved data: shared settings and courses, private progress ---------- */
+function applySettings(x){
+  x = x || {}; const p = x.prices || {}, num = (v,d) => (typeof v === "number" && v >= 0 && v < 100000) ? v : d;
+  PLANS[1].m = num(p.sm,DEF.sm); PLANS[1].y = num(p.sy,DEF.sy); PLANS[2].m = num(p.pm,DEF.pm); PLANS[2].y = num(p.py,DEF.py); PLANS[3].m = num(p.im,DEF.im);
+  S.trial = [0,3,7,14,30].includes(x.trialDays) ? x.trialDays : 7;
+  S.notice = x.notice && typeof x.notice === "object" ? {en:String(x.notice.en || "").slice(0,300), ar:String(x.notice.ar || "").slice(0,300)} : null;
+  renderPlans(); renderNotice();
+  if (S.admin && !S.setDirty && !S.addDirty) renderAdmin();
+}
+function toCourse(s){
+  const x = s.data(); if (!x || !x.en || typeof x.en.title !== "string") return null;
+  const side = o => { o = o || {}; const ls = Array.isArray(o.lessons) ? o.lessons.filter(v => typeof v === "string").slice(0,30) : [];
+    return [String(o.title || x.en.title).slice(0,120), String(o.desc || "").slice(0,300), ls]; };
+  const en = side(x.en), ar = side(x.ar); if (ar[2].length !== en[2].length) ar[2] = en[2];
+  return {id:s.id, t:TRACKS.some(a => a.id === x.t) ? x.t : "curious", tier:[0,1,2].includes(x.tier) ? x.tier : 0, n:en[2].length,
+    h:typeof x.h === "number" ? x.h : 1, created:typeof x.created === "number" ? x.created : 0, en, ar};
+}
+let saving = false, again = false;
+async function saveProgress(){
+  if (!S.pref) return; if (saving) { again = true; return; }
+  saving = true;
+  try { await S.pref.set({done:S.done, lang:S.lang}); } catch (e) { if (e && e.code === "invalid_argument") S.pref = null; }
+  saving = false; if (again) { again = false; saveProgress(); }
+}
+async function initData(){
+  if (!(window.claude && window.claude.use)) return;
+  const [db, user] = await Promise.all([window.claude.use("db").catch(() => null), window.claude.use("user").catch(() => null)]);
+  if (!db) return; S.db = db;
+  db.doc("site/settings").onSnapshot(s => applySettings(s.exists ? s.data() : null), () => {});
+  db.collection("courses").onSnapshot(q => {
+    S.extra = q.docs.map(toCourse).filter(Boolean).sort((a,b) => a.created - b.created);
+    COURSES = BASE_COURSES.concat(S.extra); renderCourses(); renderPlans(); renderAdminList();
+  }, () => {});
+  if (!user) return;
+  try { S.admin = !!(await user.canEdit()); } catch (e) {}
+  $("manageTab").hidden = !S.admin; if (S.admin && location.hash === "#manage") route();
+  try {
+    const uid = await user.id(); if (!uid) return;
+    S.pref = db.doc("data/users/" + uid + "/progress");
+    const s = await S.pref.get();
+    if (s.exists) { const x = s.data() || {};
+      if (x.done && typeof x.done === "object") S.done = Object.assign({}, x.done);
+      if (x.lang === "ar" || x.lang === "en") S.lang = x.lang;
+      renderStatic(); }
+  } catch (e) {}
+}
+
+/* ---------- manage ---------- */
+function renderAdmin(){
+  if (!S.admin) return;
+  const P = PLANS, n = S.notice || {en:"",ar:""};
+  const num = (id,l,v) => `<label for="${id}">${l}<input type="number" id="${id}" min="0" step="any" inputmode="decimal" value="${v}"></label>`;
+  $("adminForm").innerHTML = `
+  <form class="card form" id="fSet"><h3>${t("mgPrices")}</h3>
+    <div class="row2">${num("aSm",t("mgSm"),P[1].m)}${num("aSy",t("mgSy"),P[1].y)}</div>
+    <div class="row2">${num("aPm",t("mgPm"),P[2].m)}${num("aPy",t("mgPy"),P[2].y)}</div>
+    <div class="row2">${num("aIm",t("mgIm"),P[3].m)}<label for="aTr">${t("mgTrial")}<select id="aTr">${[0,3,7,14,30].map(d => `<option value="${d}" ${d === S.trial ? "selected" : ""}>${d}</option>`).join("")}</select></label></div>
+    <h3>${t("mgNotice")}</h3>
+    <label for="aNe">${t("mgNe")}<input type="text" id="aNe" maxlength="200" dir="ltr"></label>
+    <label for="aNa">${t("mgNa")}<input type="text" id="aNa" maxlength="200" dir="rtl"></label>
+    <button class="btn" type="submit">${t("mgSave")}</button><p class="err" id="mSet" role="status"></p></form>
+  <form class="card form" id="fAdd"><h3>${t("mgAdd")}</h3>
+    <div class="row2"><label for="aT">${t("mgTrack")}<select id="aT">${TRACKS.map(a => `<option value="${a.id}">${a[S.lang][0]}</option>`).join("")}</select></label>
+      <label for="aTier">${t("mgPlan")}<select id="aTier">${TIER.map((x,i) => `<option value="${i}">${x[S.lang]}</option>`).join("")}</select></label></div>
+    <label for="aTe">${t("mgTe")}<input type="text" id="aTe" maxlength="80" dir="ltr"></label>
+    <label for="aTa">${t("mgTa")}<input type="text" id="aTa" maxlength="80" dir="rtl"></label>
+    <label for="aDe">${t("mgDe")}<input type="text" id="aDe" maxlength="200" dir="ltr"></label>
+    <label for="aDa">${t("mgDa")}<input type="text" id="aDa" maxlength="200" dir="rtl"></label>
+    <label for="aLe">${t("mgLe")}<textarea id="aLe" dir="ltr"></textarea></label>
+    <label for="aLa">${t("mgLa")}<textarea id="aLa" dir="rtl"></textarea></label>
+    <label for="aH">${t("mgH")}<input type="number" id="aH" min="1" value="4"></label>
+    <button class="btn" type="submit">${t("mgAddBtn")}</button><p class="err" id="mAdd" role="status"></p></form>
+  <div class="card form"><h3>${t("mgYour")}</h3><div id="adminList" class="form"></div></div>`;
+  $("aNe").value = n.en; $("aNa").value = n.ar;
+  renderAdminList();
+}
+function renderAdminList(){
+  const el = $("adminList"); if (!el) return;
+  el.innerHTML = S.extra.length ? S.extra.map(c => `<div class="course-top"><span>${esc(c[S.lang][0])} <span class="meta">${TIER[c.tier][S.lang]}</span></span><button class="chip" type="button" data-del="${esc(c.id)}">${t("mgDel")}</button></div>`).join("") : `<p class="meta">${t("mgNone")}</p>`;
+}
+document.addEventListener("input", e => { if (e.target.closest("#fSet")) S.setDirty = true; if (e.target.closest("#fAdd")) S.addDirty = true; });
+document.addEventListener("submit", async e => {
+  if (e.target.id === "fSet") {
+    e.preventDefault();
+    const v = id => { const x = parseFloat($(id).value); return isFinite(x) && x >= 0 ? x : null; };
+    const pr = {sm:v("aSm"), sy:v("aSy"), pm:v("aPm"), py:v("aPy"), im:v("aIm")};
+    if (Object.values(pr).some(x => x === null)) { $("mSet").textContent = t("mgBadNum"); return; }
+    const body = {prices:pr, trialDays:+$("aTr").value, notice:{en:$("aNe").value.trim(), ar:$("aNa").value.trim()}};
+    $("mSet").textContent = t("mgSaving");
+    try { await S.db.doc("site/settings").set(body); S.setDirty = false; if ($("mSet")) $("mSet").textContent = t("mgSaved"); }
+    catch (err) { if ($("mSet")) $("mSet").textContent = t("mgFail"); }
+  } else if (e.target.id === "fAdd") {
+    e.preventDefault();
+    const te = $("aTe").value.trim(); if (!te) { $("mAdd").textContent = t("mgNeedTitle"); return; }
+    const lines = id => $(id).value.split("\n").map(x => x.trim()).filter(Boolean).slice(0,30);
+    const le = lines("aLe"), la = lines("aLa"), de = $("aDe").value.trim();
+    const body = {t:$("aT").value, tier:+$("aTier").value, h:Math.max(1, parseInt($("aH").value) || 1), created:Date.now(),
+      en:{title:te, desc:de, lessons:le}, ar:{title:$("aTa").value.trim() || te, desc:$("aDa").value.trim() || de, lessons:la.length === le.length ? la : le}};
+    $("mAdd").textContent = t("mgSaving");
+    try { await S.db.collection("courses").add(body); S.addDirty = false; if ($("fAdd")) { $("fAdd").reset(); $("mAdd").textContent = t("mgAdded"); } }
+    catch (err) { if ($("mAdd")) $("mAdd").textContent = err && err.code === "quota_exceeded" ? t("mgFull") : t("mgFail"); }
+  }
+});
+
+renderStatic(); route(); initData();
+</script>
+</body>
+</html>

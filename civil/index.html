@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fazayah Civil Toolkit</title>
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<style>:root{color-scheme:light;box-sizing:border-box}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+</head>
+<body>
+<meta name="description" content="Civil engineering calculators, a multilingual site glossary and subscription plans.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
+<style>
+/* Layout: a drawing sheet. Blueprint-grid hero with a live beam figure and title block, then ruled working sections. */
+:root {
+  --paper: #edf1f3;
+  --sheet: #f9fbfc;
+  --ink: #13232b;
+  --muted: #52666f;
+  --line: #c3cfd5;
+  --blue: #0b5c7a;
+  --blue-soft: #d9e8ee;
+  --stake: #c9500a;
+  --on-blue: #ffffff;
+  --ok: #1d7a4c;
+  --bad: #b3261e;
+  --grid: rgba(11, 92, 122, 0.09);
+  --display: "Barlow Condensed", "Arial Narrow", "IBM Plex Sans Arabic", sans-serif;
+  --body: "IBM Plex Sans", "IBM Plex Sans Arabic", system-ui, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0c1a21; --sheet: #12262f; --ink: #e2ebee; --muted: #9ab0b9; --line: #2b4551;
+    --blue: #6cc4e0; --blue-soft: #173642; --stake: #ff8f47; --on-blue: #06202a;
+    --ok: #5fd39a; --bad: #ff8a80; --grid: rgba(108, 196, 224, 0.08); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0c1a21; --sheet: #12262f; --ink: #e2ebee; --muted: #9ab0b9; --line: #2b4551;
+  --blue: #6cc4e0; --blue-soft: #173642; --stake: #ff8f47; --on-blue: #06202a;
+  --ok: #5fd39a; --bad: #ff8a80; --grid: rgba(108, 196, 224, 0.08); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 1120px; margin-inline: auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); line-height: 1.05; margin: 0; text-wrap: balance; letter-spacing: 0.01em; }
+h1 { font-size: clamp(2.6rem, 7vw, 4.4rem); font-weight: 700; text-transform: uppercase; }
+h2 { font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 600; text-transform: uppercase; }
+h3 { font-size: 1.5rem; font-weight: 600; }
+p { margin: 0; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--stake); }
+:focus-visible { outline: 2px solid var(--stake); outline-offset: 2px; }
+
+header .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding-block: 14px; }
+.brand { font-family: var(--display); font-weight: 700; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+.brand svg { flex: none; }
+nav { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-inline-start: auto; align-items: center; }
+nav a { color: var(--ink); text-decoration: none; font-weight: 500; padding-block: 4px; border-bottom: 2px solid transparent; }
+nav a:hover { border-bottom-color: var(--stake); }
+select, input { font: inherit; color: var(--ink); background: var(--sheet); border: 1px solid var(--line); border-radius: 3px; padding: 8px 10px; width: 100%; min-width: 0; }
+.lang { width: auto; }
+
+.hero { border-block: 1px solid var(--line); background-color: var(--sheet); background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 24px 24px; }
+.hero .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 32px 48px; padding-block: 48px; align-items: center; }
+.hero-copy { display: flex; flex-direction: column; gap: 18px; align-items: flex-start; }
+.hero-copy p { max-width: 46ch; color: var(--muted); font-size: 1.06rem; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn { font: inherit; font-weight: 600; cursor: pointer; border-radius: 3px; padding: 10px 18px; border: 1px solid var(--blue); background: var(--blue); color: var(--on-blue); text-decoration: none; display: inline-block; text-align: center; }
+.btn:hover { filter: brightness(1.12); }
+.btn.ghost { background: transparent; color: var(--blue); }
+.btn[disabled] { background: transparent; color: var(--muted); border-color: var(--line); cursor: default; filter: none; }
+.figure { border: 1.5px solid var(--ink); background: var(--sheet); }
+.figure svg { display: block; width: 100%; height: auto; }
+.titleblock { display: grid; grid-template-columns: 2fr 1fr 1fr; border-top: 1.5px solid var(--ink); font-family: var(--mono); font-size: 0.74rem; }
+.titleblock div { padding: 6px 10px; border-inline-start: 1px solid var(--ink); min-width: 0; }
+.titleblock div:first-child { border-inline-start: 0; }
+.titleblock span { display: block; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.64rem; }
+
+section > .wrap { padding-block: 56px; display: flex; flex-direction: column; gap: 28px; }
+section + section > .wrap { border-top: 1px solid var(--line); }
+.head { display: flex; flex-direction: column; gap: 6px; }
+.head p { color: var(--muted); }
+
+.tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 20px; }
+.tool { background: var(--sheet); border: 1px solid var(--line); border-top: 3px solid var(--blue); padding: 20px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.tool > p { color: var(--muted); font-size: 0.93rem; }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 0.82rem; color: var(--muted); min-width: 0; justify-content: flex-end; }
+.results { margin: 0; margin-top: auto; border-top: 1px dashed var(--line); padding-top: 12px; display: grid; gap: 6px; }
+.results div { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.results dt { color: var(--muted); font-size: 0.9rem; }
+.results dd { margin: 0; font-family: var(--mono); font-variant-numeric: tabular-nums; font-weight: 500; direction: ltr; unicode-bidi: isolate; white-space: nowrap; }
+.results dd small { color: var(--muted); font-weight: 400; font-size: 0.8em; }
+.check { font-family: var(--mono); font-size: 0.8rem; padding: 3px 8px; border: 1px solid currentColor; border-radius: 2px; align-self: flex-start; }
+.check.ok { color: var(--ok); } .check.bad { color: var(--bad); }
+
+.courses { display: grid; grid-template-columns: minmax(0, 330px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.clist { display: grid; gap: 8px; }
+.citem { font: inherit; text-align: start; background: var(--sheet); border: 1px solid var(--line); border-inline-start: 4px solid var(--line); padding: 12px 14px; cursor: pointer; color: var(--ink); display: grid; gap: 6px; min-width: 0; }
+.citem b { font-family: var(--display); font-size: 1.25rem; font-weight: 600; line-height: 1.15; }
+.citem[aria-current="true"] { border-inline-start-color: var(--stake); background: var(--blue-soft); }
+.meta { font-family: var(--mono); font-size: 0.74rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.tag { font-family: var(--mono); font-size: 0.7rem; padding: 1px 6px; border: 1px solid currentColor; border-radius: 2px; color: var(--blue); }
+.tag.lock { color: var(--stake); }
+.bar { height: 4px; background: var(--line); }
+.bar i { display: block; height: 100%; background: var(--ok); }
+.cdetail { background: var(--sheet); border: 1px solid var(--line); border-top: 3px solid var(--blue); padding: 24px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.cdetail > p { color: var(--muted); max-width: 68ch; }
+.lessons { border-bottom: 1px solid var(--line); }
+.lesson { border-top: 1px solid var(--line); }
+.lhead { font: inherit; width: 100%; text-align: start; background: none; border: 0; color: var(--ink); padding: 12px 0; display: flex; gap: 12px; align-items: baseline; cursor: pointer; font-weight: 600; }
+.lhead[disabled] { cursor: default; color: var(--muted); font-weight: 400; }
+.lhead .n { font-family: var(--mono); font-weight: 400; color: var(--muted); font-size: 0.85rem; }
+.lhead .tick { margin-inline-start: auto; color: var(--ok); font-family: var(--mono); font-size: 0.74rem; font-weight: 400; white-space: nowrap; }
+.lbody { display: grid; gap: 12px; padding-bottom: 18px; max-width: 70ch; }
+.lbody > * { min-width: 0; }
+.formula { font-family: var(--mono); font-size: 0.92rem; background: var(--blue-soft); padding: 10px 12px; overflow-x: auto; }
+.example { border-inline-start: 3px solid var(--stake); padding-inline-start: 12px; }
+.label { display: block; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lbody .btn { justify-self: start; }
+.quiz { display: grid; gap: 14px; }
+.quiz h3 { font-size: 1.25rem; }
+.qopts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.qopt { font: inherit; padding: 6px 12px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 3px; cursor: pointer; }
+.qopt.ok { border-color: var(--ok); color: var(--ok); font-weight: 600; }
+.qopt.bad { border-color: var(--bad); color: var(--bad); }
+@media (max-width: 800px) { .courses { grid-template-columns: minmax(0, 1fr); } .cdetail { padding: 18px; } }
+
+.scroll { overflow-x: auto; border: 1px solid var(--line); background: var(--sheet); }
+table { border-collapse: collapse; width: 100%; min-width: 640px; }
+th, td { text-align: start; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+tr:last-child td { border-bottom: 0; }
+td.on, th.on { background: var(--blue-soft); color: var(--ink); font-weight: 600; }
+.search { max-width: 340px; }
+.empty { color: var(--muted); }
+
+.cycle { display: inline-flex; border: 1px solid var(--line); border-radius: 3px; overflow: hidden; align-self: flex-start; }
+.cycle button { font: inherit; font-weight: 500; padding: 8px 16px; border: 0; background: var(--sheet); color: var(--ink); cursor: pointer; }
+.cycle button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; align-items: stretch; }
+.plan { background: var(--sheet); border: 1px solid var(--line); padding: 24px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.plan.featured { border: 2px solid var(--blue); }
+.plan.active { border-color: var(--stake); }
+.price { font-family: var(--display); font-weight: 700; font-size: 3rem; line-height: 1; }
+.price small { font-family: var(--body); font-size: 0.95rem; font-weight: 400; color: var(--muted); }
+.billnote { font-size: 0.82rem; color: var(--muted); min-height: 1.3em; }
+.plan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; flex: 1; }
+.plan li { padding-inline-start: 20px; position: relative; font-size: 0.95rem; }
+.plan li::before { content: ""; position: absolute; inset-inline-start: 0; top: 0.5em; width: 9px; height: 5px; border: solid var(--blue); border-width: 0 0 2px 2px; transform: rotate(-45deg); }
+.status { border: 1px solid var(--line); border-inline-start: 4px solid var(--stake); background: var(--sheet); padding: 16px 20px; display: flex; flex-wrap: wrap; gap: 6px 28px; align-items: baseline; }
+.status strong { font-family: var(--display); font-size: 1.4rem; text-transform: uppercase; letter-spacing: 0.02em; }
+.status .note { flex-basis: 100%; color: var(--muted); font-size: 0.85rem; }
+
+footer .wrap { padding-block: 28px 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px; }
+@media (max-width: 800px) { .hero .wrap { grid-template-columns: minmax(0, 1fr); padding-block: 32px; } }
+@media (max-width: 380px) { .fields { grid-template-columns: 1fr; } }
+</style>
+<header>
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="2" y="9" width="26" height="5" fill="var(--blue)"/><path d="M4 24l4-9 4 9zM18 24l4-9 4 9z" fill="var(--stake)"/></svg>
+      Fazayah Civil
+    </a>
+    <nav>
+      <a href="#tools" data-i18n="nav_tools"></a>
+      <a href="#courses" data-i18n="nav_courses"></a>
+      <a href="#glossary" data-i18n="nav_glossary"></a>
+      <a href="#pricing" data-i18n="nav_pricing"></a>
+      <select class="lang" id="lang" aria-label="Language">
+        <option value="en">English</option>
+        <option value="ar">العربية</option>
+        <option value="fr">Français</option>
+        <option value="es">Español</option>
+        <option value="zh">中文</option>
+      </select>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+<div class="hero">
+  <div class="wrap">
+    <div class="hero-copy">
+      <span class="eyebrow" data-i18n="hero_eyebrow"></span>
+      <h1 data-i18n="hero_title"></h1>
+      <p data-i18n="hero_body"></p>
+      <div class="actions">
+        <a class="btn" href="#tools" data-i18n="hero_cta"></a>
+        <a class="btn ghost" href="#pricing" data-i18n="hero_cta2"></a>
+      </div>
+    </div>
+    <div class="figure" dir="ltr">
+      <svg viewBox="0 0 520 250" role="img" aria-label="Beam loading and bending moment diagram" font-family="IBM Plex Mono, monospace" font-size="12">
+        <g stroke="var(--blue)" stroke-width="1.2" fill="none" id="udl"></g>
+        <text id="fig-w" x="260" y="24" text-anchor="middle" fill="var(--blue)"></text>
+        <rect x="60" y="86" width="400" height="10" fill="var(--ink)"/>
+        <path d="M60 96l-11 18h22z" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+        <circle cx="460" cy="104" r="7" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+        <path d="M40 114h40M440 113h40" stroke="var(--ink)" stroke-width="1.5" fill="none"/>
+        <path d="M60 128v14M460 128v14M60 135h400" stroke="var(--muted)" stroke-width="1" fill="none"/>
+        <rect x="225" y="126" width="70" height="18" fill="var(--sheet)"/>
+        <text id="fig-l" x="260" y="139" text-anchor="middle" fill="var(--ink)"></text>
+        <path d="M60 160Q260 290 460 160z" fill="var(--stake)" fill-opacity="0.18" stroke="var(--stake)" stroke-width="1.5"/>
+        <text id="fig-m" x="260" y="205" text-anchor="middle" fill="var(--ink)" font-weight="500"></text>
+        <text id="fig-r1" x="60" y="240" text-anchor="middle" fill="var(--muted)"></text>
+        <text id="fig-r2" x="460" y="240" text-anchor="middle" fill="var(--muted)"></text>
+      </svg>
+      <div class="titleblock">
+        <div><span data-i18n="tb_project"></span><b data-i18n="tb_proj_val"></b></div>
+        <div><span data-i18n="tb_scale"></span>NTS</div>
+        <div><span data-i18n="tb_sheet"></span>S-101</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section id="tools">
+  <div class="wrap">
+    <div class="head"><h2 data-i18n="tools_title"></h2><p data-i18n="tools_sub"></p></div>
+    <div class="tools">
+      <div class="tool">
+        <h3 data-i18n="beam_title"></h3><p data-i18n="beam_desc"></p>
+        <div class="fields">
+          <label><span data-i18n="f_span"></span><input id="b-l" type="number" min="0.1" step="0.1" value="6"></label>
+          <label><span data-i18n="f_load"></span><input id="b-w" type="number" min="0" step="1" value="20"></label>
+          <label><span data-i18n="f_E"></span><input id="b-e" type="number" min="1" step="1" value="200"></label>
+          <label><span data-i18n="f_I"></span><input id="b-i" type="number" min="0.1" step="0.1" value="83.6"></label>
+        </div>
+        <dl class="results">
+          <div><dt data-i18n="r_moment"></dt><dd id="o-m"></dd></div>
+          <div><dt data-i18n="r_shear"></dt><dd id="o-v"></dd></div>
+          <div><dt data-i18n="r_defl"></dt><dd id="o-d"></dd></div>
+          <div><dt data-i18n="r_ratio"></dt><dd id="o-r"></dd></div>
+        </dl>
+        <span class="check" id="o-chk"></span>
+      </div>
+      <div class="tool">
+        <h3 data-i18n="conc_title"></h3><p data-i18n="conc_desc"></p>
+        <div class="fields">
+          <label><span data-i18n="f_len"></span><input id="c-l" type="number" min="0" step="0.1" value="5"></label>
+          <label><span data-i18n="f_wid"></span><input id="c-w" type="number" min="0" step="0.1" value="4"></label>
+          <label><span data-i18n="f_thk"></span><input id="c-t" type="number" min="0" step="5" value="150"></label>
+          <label><span data-i18n="f_mix"></span><select id="c-mix"><option value="1,1.5,3">1 : 1.5 : 3 (M20)</option><option value="1,2,4" selected>1 : 2 : 4 (M15)</option><option value="1,3,6">1 : 3 : 6 (M10)</option></select></label>
+        </div>
+        <dl class="results">
+          <div><dt data-i18n="r_vol"></dt><dd id="o-cv"></dd></div>
+          <div><dt data-i18n="r_cement"></dt><dd id="o-cc"></dd></div>
+          <div><dt data-i18n="r_sand"></dt><dd id="o-cs"></dd></div>
+          <div><dt data-i18n="r_agg"></dt><dd id="o-ca"></dd></div>
+        </dl>
+      </div>
+      <div class="tool">
+        <h3 data-i18n="rebar_title"></h3><p data-i18n="rebar_desc"></p>
+        <div class="fields">
+          <label><span data-i18n="f_dia"></span><select id="r-d"><option>8</option><option>10</option><option selected>12</option><option>16</option><option>20</option><option>25</option><option>32</option></select></label>
+          <label><span data-i18n="f_barlen"></span><input id="r-l" type="number" min="0" step="0.5" value="12"></label>
+          <label><span data-i18n="f_count"></span><input id="r-n" type="number" min="0" step="1" value="40"></label>
+        </div>
+        <dl class="results">
+          <div><dt data-i18n="r_unit"></dt><dd id="o-ru"></dd></div>
+          <div><dt data-i18n="r_totlen"></dt><dd id="o-rl"></dd></div>
+          <div><dt data-i18n="r_total"></dt><dd id="o-rt"></dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="courses">
+  <div class="wrap">
+    <div class="head"><h2 data-i18n="co_title"></h2><p data-i18n="co_sub"></p></div>
+    <div class="courses">
+      <div class="clist" id="course-list"></div>
+      <div class="cdetail" id="course-detail"></div>
+    </div>
+  </div>
+</section>
+
+<section id="glossary">
+  <div class="wrap">
+    <div class="head"><h2 data-i18n="gl_title"></h2><p data-i18n="gl_sub"></p></div>
+    <input class="search" id="gl-q" type="search" data-i18n-ph="gl_search" aria-label="Search">
+    <div class="scroll"><table><thead><tr id="gl-head"></tr></thead><tbody id="gl-body"></tbody></table></div>
+    <p class="empty" id="gl-none" data-i18n="gl_none" hidden></p>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <div class="head"><h2 data-i18n="pr_title"></h2><p data-i18n="pr_sub"></p></div>
+    <div class="cycle" role="group">
+      <button type="button" id="cy-m" data-i18n="monthly"></button>
+      <button type="button" id="cy-y" data-i18n="yearly"></button>
+    </div>
+    <div class="plans" id="plans"></div>
+    <div class="status" aria-live="polite">
+      <span data-i18n="sub_status"></span>
+      <strong id="st-plan"></strong>
+      <span id="st-renew"></span>
+      <span class="note"><span data-i18n="sub_demo"></span> <span data-i18n="price_updated"></span> <span id="st-updated"></span>.</span>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><p data-i18n="disclaimer"></p><p>© 2026 Fazayah Civil</p></div></footer>
+
+<script>
+(function () {
+  var PRICES_UPDATED = '2026-11-12';
+  var PLANS = [
+    { id: 'free', month: 0, year: 0, feats: ['pf1', 'pf2', 'pf3', 'pf4'] },
+    { id: 'pro', month: 19, year: 15, feats: ['pp1', 'pp5', 'pp2', 'pp3', 'pp4'], featured: true },
+    { id: 'team', month: 49, year: 39, feats: ['pt1', 'pt2', 'pt3', 'pt4'] }
+  ];
+  var LANGS = { en: 'English', ar: 'العربية', fr: 'Français', es: 'Español', zh: '中文' };
+  var LOCALE = { en: 'en', ar: 'ar-u-nu-latn', fr: 'fr', es: 'es', zh: 'zh-CN' };
+  var GLOSSARY = [
+    { en: 'Beam', ar: 'كمرة', fr: 'Poutre', es: 'Viga', zh: '梁' },
+    { en: 'Column', ar: 'عمود', fr: 'Poteau', es: 'Columna', zh: '柱' },
+    { en: 'Foundation', ar: 'أساس', fr: 'Fondation', es: 'Cimentación', zh: '基础' },
+    { en: 'Reinforcement', ar: 'حديد التسليح', fr: 'Ferraillage', es: 'Armadura', zh: '钢筋' },
+    { en: 'Formwork', ar: 'شدة خشبية', fr: 'Coffrage', es: 'Encofrado', zh: '模板' },
+    { en: 'Retaining wall', ar: 'جدار استنادي', fr: 'Mur de soutènement', es: 'Muro de contención', zh: '挡土墙' },
+    { en: 'Bearing capacity', ar: 'قدرة التحمل', fr: 'Capacité portante', es: 'Capacidad portante', zh: '承载力' },
+    { en: 'Bending moment', ar: 'عزم الانحناء', fr: 'Moment fléchissant', es: 'Momento flector', zh: '弯矩' },
+    { en: 'Shear force', ar: 'قوة القص', fr: 'Effort tranchant', es: 'Esfuerzo cortante', zh: '剪力' },
+    { en: 'Deflection', ar: 'الترخيم', fr: 'Flèche', es: 'Flecha', zh: '挠度' },
+    { en: 'Aggregate', ar: 'ركام', fr: 'Granulat', es: 'Árido', zh: '骨料' },
+    { en: 'Surveying', ar: 'المساحة', fr: 'Topographie', es: 'Topografía', zh: '测量' }
+  ];
+  var T = {
+    en: {
+      nav_tools: 'Calculators', nav_glossary: 'Glossary', nav_pricing: 'Plans',
+      hero_eyebrow: 'Civil engineering toolkit', hero_title: 'Site calculations, checked in seconds.',
+      hero_body: 'Beam checks, concrete quantities and rebar weights in one place, in five languages. Built for engineers, site supervisors and students.',
+      hero_cta: 'Open the calculators', hero_cta2: 'See plans',
+      tb_project: 'Project', tb_proj_val: 'Simply supported beam', tb_scale: 'Scale', tb_sheet: 'Sheet',
+      tools_title: 'Calculators', tools_sub: 'Results update as you type. SI units throughout.',
+      beam_title: 'Beam check', beam_desc: 'Simply supported span under a uniform load.',
+      f_span: 'Span L (m)', f_load: 'Load w (kN/m)', f_E: 'Modulus E (GPa)', f_I: 'Inertia I (10⁶ mm⁴)',
+      r_moment: 'Max moment', r_shear: 'Max shear', r_defl: 'Deflection', r_ratio: 'Span / deflection',
+      ok: 'Within L/250', fail: 'Exceeds L/250',
+      conc_title: 'Concrete quantities', conc_desc: 'Slab volume and nominal mix materials.',
+      f_len: 'Length (m)', f_wid: 'Width (m)', f_thk: 'Thickness (mm)', f_mix: 'Mix ratio',
+      r_vol: 'Concrete volume', r_cement: 'Cement', bags: 'bags of 50 kg', r_sand: 'Sand', r_agg: 'Aggregate',
+      rebar_title: 'Rebar weight', rebar_desc: 'Steel bars by diameter and length.',
+      f_dia: 'Diameter (mm)', f_barlen: 'Bar length (m)', f_count: 'Number of bars',
+      r_unit: 'Unit weight', r_total: 'Total weight', r_totlen: 'Total length',
+      gl_title: 'Site glossary', gl_sub: 'The same term in every language spoken on site.', gl_search: 'Search a term', gl_none: 'No term matches your search.',
+      pr_title: 'Plans', pr_sub: 'Start free. Upgrade when your team needs more.',
+      monthly: 'Monthly', yearly: 'Yearly, save 20%',
+      p_free: 'Free', p_pro: 'Professional', p_team: 'Team', per_month: '/ month', billed_yearly: 'Billed yearly:', billed_monthly: 'Billed every month',free_note: 'Free forever',
+      pf1: 'All three calculators', pf2: 'Five languages', pf3: 'Site glossary',
+      pp1: 'Everything in Free', pp2: 'Saved projects', pp3: 'PDF calculation reports', pp4: 'Priority email support',
+      pt1: 'Everything in Professional', pt2: '10 team seats', pt3: 'Shared project library', pt4: 'Company branding on reports',
+      choose: 'Choose plan', current: 'Current plan',
+      sub_status: 'Your subscription', sub_renews: 'Renews on', sub_free: 'No renewal date',
+      sub_demo: 'Demo checkout: no payment is taken.', price_updated: 'Prices updated',
+      disclaimer: 'Results are for preliminary sizing. A qualified engineer must verify every design against the governing code.'
+    },
+    ar: {
+      nav_tools: 'الحاسبات', nav_glossary: 'المصطلحات', nav_pricing: 'الباقات',
+      hero_eyebrow: 'أدوات الهندسة المدنية', hero_title: 'حسابات الموقع، مدققة في ثوانٍ.',
+      hero_body: 'تدقيق الكمرات وكميات الخرسانة وأوزان حديد التسليح في مكان واحد وبخمس لغات. للمهندسين ومشرفي المواقع والطلاب.',
+      hero_cta: 'افتح الحاسبات', hero_cta2: 'عرض الباقات',
+      tb_project: 'المشروع', tb_proj_val: 'كمرة بسيطة الارتكاز', tb_scale: 'المقياس', tb_sheet: 'اللوحة',
+      tools_title: 'الحاسبات', tools_sub: 'تتحدث النتائج أثناء الكتابة. جميع الوحدات بالنظام الدولي.',
+      beam_title: 'تدقيق الكمرة', beam_desc: 'بحر بسيط الارتكاز تحت حمل منتظم.',
+      f_span: 'البحر L (م)', f_load: 'الحمل w (كيلونيوتن/م)', f_E: 'معامل المرونة E (GPa)', f_I: 'عزم القصور I (10⁶ مم⁴)',
+      r_moment: 'أقصى عزم', r_shear: 'أقصى قص', r_defl: 'الترخيم', r_ratio: 'البحر / الترخيم',
+      ok: 'ضمن الحد L/250', fail: 'يتجاوز الحد L/250',
+      conc_title: 'كميات الخرسانة', conc_desc: 'حجم البلاطة ومواد الخلطة الاسمية.',
+      f_len: 'الطول (م)', f_wid: 'العرض (م)', f_thk: 'السماكة (مم)', f_mix: 'نسبة الخلط',
+      r_vol: 'حجم الخرسانة', r_cement: 'الأسمنت', bags: 'كيس 50 كغ', r_sand: 'الرمل', r_agg: 'الركام',
+      rebar_title: 'وزن حديد التسليح', rebar_desc: 'القضبان حسب القطر والطول.',
+      f_dia: 'القطر (مم)', f_barlen: 'طول القضيب (م)', f_count: 'عدد القضبان',
+      r_unit: 'وزن المتر', r_total: 'الوزن الكلي', r_totlen: 'الطول الكلي',
+      gl_title: 'مصطلحات الموقع', gl_sub: 'المصطلح نفسه بكل لغة تُستخدم في الموقع.', gl_search: 'ابحث عن مصطلح', gl_none: 'لا يوجد مصطلح مطابق لبحثك.',
+      pr_title: 'الباقات', pr_sub: 'ابدأ مجاناً، وقم بالترقية عندما يحتاج فريقك إلى المزيد.',
+      monthly: 'شهري', yearly: 'سنوي، وفّر 20%',
+      p_free: 'مجانية', p_pro: 'احترافية', p_team: 'الفريق', per_month: '/ شهرياً', billed_yearly: 'يُدفع سنوياً:', billed_monthly: 'يُدفع كل شهر', free_note: 'مجانية دائماً',
+      pf1: 'الحاسبات الثلاث كاملة', pf2: 'خمس لغات', pf3: 'مصطلحات الموقع',
+      pp1: 'كل ما في الباقة المجانية', pp2: 'حفظ المشاريع', pp3: 'تقارير حسابية بصيغة PDF', pp4: 'دعم بالبريد الإلكتروني بأولوية',
+      pt1: 'كل ما في الباقة الاحترافية', pt2: '10 مقاعد للفريق', pt3: 'مكتبة مشاريع مشتركة', pt4: 'شعار الشركة على التقارير',
+      choose: 'اختر الباقة', current: 'الباقة الحالية',
+      sub_status: 'اشتراكك', sub_renews: 'يتجدد في', sub_free: 'لا يوجد تاريخ تجديد',
+      sub_demo: 'دفع تجريبي: لا يتم تحصيل أي مبلغ.', price_updated: 'آخر تحديث للأسعار',
+      disclaimer: 'النتائج للتصميم الأولي فقط. يجب أن يراجع مهندس مؤهل كل تصميم وفق الكود المعتمد.'
+    },
+    fr: {
+      nav_tools: 'Calculateurs', nav_glossary: 'Glossaire', nav_pricing: 'Formules',
+      hero_eyebrow: 'Outils de génie civil', hero_title: 'Les calculs de chantier, vérifiés en quelques secondes.',
+      hero_body: 'Vérification de poutres, quantités de béton et poids d’armatures au même endroit, en cinq langues. Pour les ingénieurs, les chefs de chantier et les étudiants.',
+      hero_cta: 'Ouvrir les calculateurs', hero_cta2: 'Voir les formules',
+      tb_project: 'Projet', tb_proj_val: 'Poutre sur deux appuis', tb_scale: 'Échelle', tb_sheet: 'Plan',
+      tools_title: 'Calculateurs', tools_sub: 'Les résultats se mettent à jour pendant la saisie. Unités SI.',
+      beam_title: 'Vérification de poutre', beam_desc: 'Travée sur deux appuis simples sous charge uniforme.',
+      f_span: 'Portée L (m)', f_load: 'Charge w (kN/m)', f_E: 'Module E (GPa)', f_I: 'Inertie I (10⁶ mm⁴)',
+      r_moment: 'Moment max.', r_shear: 'Effort tranchant max.', r_defl: 'Flèche', r_ratio: 'Portée / flèche',
+      ok: 'Inférieure à L/250', fail: 'Dépasse L/250',
+      conc_title: 'Quantités de béton', conc_desc: 'Volume de dalle et matériaux du dosage nominal.',
+      f_len: 'Longueur (m)', f_wid: 'Largeur (m)', f_thk: 'Épaisseur (mm)', f_mix: 'Dosage',
+      r_vol: 'Volume de béton', r_cement: 'Ciment', bags: 'sacs de 50 kg', r_sand: 'Sable', r_agg: 'Granulats',
+      rebar_title: 'Poids des armatures', rebar_desc: 'Barres d’acier selon le diamètre et la longueur.',
+      f_dia: 'Diamètre (mm)', f_barlen: 'Longueur de barre (m)', f_count: 'Nombre de barres',
+      r_unit: 'Poids linéique', r_total: 'Poids total', r_totlen: 'Longueur totale',
+      gl_title: 'Glossaire de chantier', gl_sub: 'Le même terme dans chaque langue parlée sur le chantier.', gl_search: 'Rechercher un terme', gl_none: 'Aucun terme ne correspond à votre recherche.',
+      pr_title: 'Formules', pr_sub: 'Commencez gratuitement. Passez à la formule supérieure quand votre équipe en a besoin.',
+      monthly: 'Mensuel', yearly: 'Annuel, 20 % d’économie',
+      p_free: 'Gratuite', p_pro: 'Professionnelle', p_team: 'Équipe', per_month: '/ mois', billed_yearly: 'Facturé par an :', billed_monthly: 'Facturé chaque mois', free_note: 'Gratuite pour toujours',
+      pf1: 'Les trois calculateurs', pf2: 'Cinq langues', pf3: 'Glossaire de chantier',
+      pp1: 'Tout ce qui est dans Gratuite', pp2: 'Projets enregistrés', pp3: 'Notes de calcul en PDF', pp4: 'Assistance prioritaire par e-mail',
+      pt1: 'Tout ce qui est dans Professionnelle', pt2: '10 utilisateurs', pt3: 'Bibliothèque de projets partagée', pt4: 'Logo de l’entreprise sur les notes',
+      choose: 'Choisir cette formule', current: 'Formule actuelle',
+      sub_status: 'Votre abonnement', sub_renews: 'Renouvellement le', sub_free: 'Aucune date de renouvellement',
+      sub_demo: 'Paiement de démonstration : aucun montant n’est prélevé.', price_updated: 'Tarifs mis à jour le',
+      disclaimer: 'Résultats destinés au prédimensionnement. Un ingénieur qualifié doit vérifier chaque ouvrage selon la norme applicable.'
+    },
+    es: {
+      nav_tools: 'Calculadoras', nav_glossary: 'Glosario', nav_pricing: 'Planes',
+      hero_eyebrow: 'Herramientas de ingeniería civil', hero_title: 'Cálculos de obra, comprobados en segundos.',
+      hero_body: 'Comprobación de vigas, cantidades de hormigón y pesos de armadura en un solo lugar y en cinco idiomas. Para ingenieros, jefes de obra y estudiantes.',
+      hero_cta: 'Abrir las calculadoras', hero_cta2: 'Ver planes',
+      tb_project: 'Proyecto', tb_proj_val: 'Viga simplemente apoyada', tb_scale: 'Escala', tb_sheet: 'Plano',
+      tools_title: 'Calculadoras', tools_sub: 'Los resultados se actualizan mientras escribes. Unidades SI.',
+      beam_title: 'Comprobación de viga', beam_desc: 'Vano simplemente apoyado con carga uniforme.',
+      f_span: 'Luz L (m)', f_load: 'Carga w (kN/m)', f_E: 'Módulo E (GPa)', f_I: 'Inercia I (10⁶ mm⁴)',
+      r_moment: 'Momento máx.', r_shear: 'Cortante máx.', r_defl: 'Flecha', r_ratio: 'Luz / flecha',
+      ok: 'Dentro de L/250', fail: 'Supera L/250',
+      conc_title: 'Cantidades de hormigón', conc_desc: 'Volumen de losa y materiales de la dosificación nominal.',
+      f_len: 'Largo (m)', f_wid: 'Ancho (m)', f_thk: 'Espesor (mm)', f_mix: 'Dosificación',
+      r_vol: 'Volumen de hormigón', r_cement: 'Cemento', bags: 'sacos de 50 kg', r_sand: 'Arena', r_agg: 'Árido',
+      rebar_title: 'Peso de armadura', rebar_desc: 'Barras de acero según diámetro y longitud.',
+      f_dia: 'Diámetro (mm)', f_barlen: 'Longitud de barra (m)', f_count: 'Número de barras',
+      r_unit: 'Peso por metro', r_total: 'Peso total', r_totlen: 'Longitud total',
+      gl_title: 'Glosario de obra', gl_sub: 'El mismo término en cada idioma que se habla en la obra.', gl_search: 'Buscar un término', gl_none: 'Ningún término coincide con tu búsqueda.',
+      pr_title: 'Planes', pr_sub: 'Empieza gratis. Mejora el plan cuando tu equipo lo necesite.',
+      monthly: 'Mensual', yearly: 'Anual, ahorra un 20 %',
+      p_free: 'Gratis', p_pro: 'Profesional', p_team: 'Equipo', per_month: '/ mes', billed_yearly: 'Facturado al año:', billed_monthly: 'Facturado cada mes', free_note: 'Gratis para siempre',
+      pf1: 'Las tres calculadoras', pf2: 'Cinco idiomas', pf3: 'Glosario de obra',
+      pp1: 'Todo lo del plan Gratis', pp2: 'Proyectos guardados', pp3: 'Informes de cálculo en PDF', pp4: 'Soporte prioritario por correo',
+      pt1: 'Todo lo del plan Profesional', pt2: '10 usuarios', pt3: 'Biblioteca de proyectos compartida', pt4: 'Marca de la empresa en los informes',
+      choose: 'Elegir plan', current: 'Plan actual',
+      sub_status: 'Tu suscripción', sub_renews: 'Se renueva el', sub_free: 'Sin fecha de renovación',
+      sub_demo: 'Pago de demostración: no se cobra nada.', price_updated: 'Precios actualizados el',
+      disclaimer: 'Resultados para predimensionado. Un ingeniero cualificado debe verificar cada diseño según la normativa aplicable.'
+    },
+    zh: {
+      nav_tools: '计算器', nav_glossary: '术语表', nav_pricing: '订阅方案',
+      hero_eyebrow: '土木工程工具箱', hero_title: '现场计算，几秒完成校核。',
+      hero_body: '梁校核、混凝土用量和钢筋重量集中在一处，支持五种语言。适合工程师、现场主管和学生使用。',
+      hero_cta: '打开计算器', hero_cta2: '查看方案',
+      tb_project: '项目', tb_proj_val: '简支梁', tb_scale: '比例', tb_sheet: '图号',
+      tools_title: '计算器', tools_sub: '输入时结果即时更新。全部采用国际单位制。',
+      beam_title: '梁校核', beam_desc: '均布荷载作用下的简支梁。',
+      f_span: '跨度 L (m)', f_load: '荷载 w (kN/m)', f_E: '弹性模量 E (GPa)', f_I: '惯性矩 I (10⁶ mm⁴)',
+      r_moment: '最大弯矩', r_shear: '最大剪力', r_defl: '挠度', r_ratio: '跨度 / 挠度',
+      ok: '满足 L/250', fail: '超过 L/250',
+      conc_title: '混凝土用量', conc_desc: '楼板体积与标称配合比材料用量。',
+      f_len: '长度 (m)', f_wid: '宽度 (m)', f_thk: '厚度 (mm)', f_mix: '配合比',
+      r_vol: '混凝土体积', r_cement: '水泥', bags: '袋（每袋 50 kg）', r_sand: '砂', r_agg: '骨料',
+      rebar_title: '钢筋重量', rebar_desc: '按直径和长度计算钢筋。',
+      f_dia: '直径 (mm)', f_barlen: '单根长度 (m)', f_count: '根数',
+      r_unit: '每米重量', r_total: '总重量', r_totlen: '总长度',
+      gl_title: '现场术语表', gl_sub: '同一术语在现场各种语言中的说法。', gl_search: '搜索术语', gl_none: '没有匹配的术语。',
+      pr_title: '订阅方案', pr_sub: '免费开始，团队需要时再升级。',
+      monthly: '按月', yearly: '按年，节省 20%',
+      p_free: '免费版', p_pro: '专业版', p_team: '团队版', per_month: '/ 月', billed_yearly: '按年付费：', billed_monthly: '每月付费', free_note: '永久免费',
+      pf1: '全部三个计算器', pf2: '五种语言', pf3: '现场术语表',
+      pp1: '包含免费版全部功能', pp2: '保存项目', pp3: 'PDF 计算书', pp4: '优先邮件支持',
+      pt1: '包含专业版全部功能', pt2: '10 个团队席位', pt3: '共享项目库', pt4: '计算书显示公司标识',
+      choose: '选择方案', current: '当前方案',
+      sub_status: '您的订阅', sub_renews: '续订日期', sub_free: '无续订日期',
+      sub_demo: '演示结账：不会收取任何费用。', price_updated: '价格更新于',
+      disclaimer: '结果仅供初步估算。每项设计必须由具备资格的工程师按适用规范复核。'
+    }
+  };
+
+  var TC = {
+    en: { nav_courses: 'Courses', co_title: 'Courses', co_sub: 'Six courses with formulas, worked examples and a quiz. Your progress is saved on this device.',
+      lv_beg: 'Beginner', lv_int: 'Intermediate', lessons_n: 'lessons', co_free: 'Free', co_locked: 'Professional',
+      co_locked_msg: 'This course is included in the Professional and Team plans. The syllabus is listed below.', co_unlock: 'Unlock with Professional',
+      mark: 'Mark lesson complete', done: 'Completed', formula: 'Key formula', example: 'Worked example', quiz: 'Check your understanding', score: 'Score', en_note: '',
+      pf4: 'Two starter courses', pp5: 'All six courses with quizzes',
+      c_sa_t: 'Structural Analysis Fundamentals', c_sa_d: 'How loads travel through a structure, and how to find the reactions, shear, moment, stress and deflection of a beam.',
+      c_rc_t: 'Reinforced Concrete Design', c_rc_d: 'Strength design of beams, columns and slabs to ACI 318 in SI units, from material properties to detailing.',
+      c_ge_t: 'Soil Mechanics and Foundations', c_ge_d: 'Soil properties, effective stress, bearing capacity and settlement, ending with the sizing of a pad footing.',
+      c_hw_t: 'Highway and Pavement Engineering', c_hw_d: 'Sight distance, horizontal and vertical curves, traffic loading and the layers that make up a pavement.',
+      c_hy_t: 'Hydraulics and Drainage', c_hy_d: 'Pipe and open channel flow, storm runoff and the sizing of drains and culverts.',
+      c_pm_t: 'Construction and Project Management', c_pm_d: 'Quantities, scheduling, cost control, concrete quality and safety on a working site.' },
+    ar: { nav_courses: 'الدورات', co_title: 'الدورات', co_sub: 'ست دورات تتضمن المعادلات وأمثلة محلولة واختباراً قصيراً. يُحفظ تقدمك على هذا الجهاز.',
+      lv_beg: 'مبتدئ', lv_int: 'متوسط', lessons_n: 'دروس', co_free: 'مجانية', co_locked: 'احترافية',
+      co_locked_msg: 'هذه الدورة متاحة ضمن الباقة الاحترافية وباقة الفريق. محتوى الدورة مدرج أدناه.', co_unlock: 'افتحها بالباقة الاحترافية',
+      mark: 'تم إكمال الدرس', done: 'مكتمل', formula: 'المعادلة الأساسية', example: 'مثال محلول', quiz: 'اختبر فهمك', score: 'النتيجة', en_note: 'نص الدروس متاح حالياً باللغة الإنجليزية.',
+      pf4: 'دورتان تمهيديتان', pp5: 'الدورات الست كاملة مع الاختبارات',
+      c_sa_t: 'أساسيات التحليل الإنشائي', c_sa_d: 'كيف تنتقل الأحمال عبر المنشأ، وكيف تُحسب ردود الأفعال والقص والعزم والإجهاد والترخيم في الكمرة.',
+      c_rc_t: 'تصميم الخرسانة المسلحة', c_rc_d: 'تصميم الكمرات والأعمدة والبلاطات بطريقة المقاومة وفق كود ACI 318 بالوحدات الدولية، من خواص المواد إلى التفاصيل.',
+      c_ge_t: 'ميكانيكا التربة والأساسات', c_ge_d: 'خواص التربة والإجهاد الفعال وقدرة التحمل والهبوط، وصولاً إلى تحديد أبعاد قاعدة منفصلة.',
+      c_hw_t: 'هندسة الطرق والرصف', c_hw_d: 'مسافة الرؤية والمنحنيات الأفقية والرأسية وأحمال المرور وطبقات الرصف.',
+      c_hy_t: 'الهيدروليكا والصرف', c_hy_d: 'الجريان في المواسير والقنوات المكشوفة، ومياه الأمطار، وتحديد مقاسات المصارف والعبّارات.',
+      c_pm_t: 'إدارة التشييد والمشاريع', c_pm_d: 'حصر الكميات والجدولة الزمنية وضبط التكاليف وجودة الخرسانة والسلامة في الموقع.' },
+    fr: { nav_courses: 'Cours', co_title: 'Cours', co_sub: 'Six cours avec formules, exemples résolus et quiz. Votre progression est enregistrée sur cet appareil.',
+      lv_beg: 'Débutant', lv_int: 'Intermédiaire', lessons_n: 'leçons', co_free: 'Gratuit', co_locked: 'Professionnelle',
+      co_locked_msg: 'Ce cours est inclus dans les formules Professionnelle et Équipe. Le programme figure ci-dessous.', co_unlock: 'Débloquer avec Professionnelle',
+      mark: 'Marquer la leçon comme terminée', done: 'Terminée', formula: 'Formule clé', example: 'Exemple résolu', quiz: 'Vérifiez vos acquis', score: 'Score', en_note: 'Le texte des leçons est pour l’instant disponible en anglais.',
+      pf4: 'Deux cours d’initiation', pp5: 'Les six cours avec quiz',
+      c_sa_t: 'Bases de l’analyse des structures', c_sa_d: 'Le cheminement des charges dans une structure, puis le calcul des réactions, de l’effort tranchant, du moment, des contraintes et de la flèche d’une poutre.',
+      c_rc_t: 'Calcul du béton armé', c_rc_d: 'Dimensionnement des poutres, poteaux et dalles selon l’ACI 318 en unités SI, des matériaux aux dispositions constructives.',
+      c_ge_t: 'Mécanique des sols et fondations', c_ge_d: 'Propriétés des sols, contrainte effective, capacité portante et tassement, jusqu’au dimensionnement d’une semelle isolée.',
+      c_hw_t: 'Routes et chaussées', c_hw_d: 'Distance de visibilité, courbes en plan et en profil, trafic et couches de chaussée.',
+      c_hy_t: 'Hydraulique et assainissement', c_hy_d: 'Écoulements en conduite et à surface libre, ruissellement pluvial et dimensionnement des collecteurs et des buses.',
+      c_pm_t: 'Gestion de chantier et de projet', c_pm_d: 'Métrés, planification, maîtrise des coûts, qualité du béton et sécurité sur le chantier.' },
+    es: { nav_courses: 'Cursos', co_title: 'Cursos', co_sub: 'Seis cursos con fórmulas, ejemplos resueltos y un cuestionario. Tu progreso se guarda en este dispositivo.',
+      lv_beg: 'Inicial', lv_int: 'Intermedio', lessons_n: 'lecciones', co_free: 'Gratis', co_locked: 'Profesional',
+      co_locked_msg: 'Este curso está incluido en los planes Profesional y Equipo. El temario aparece a continuación.', co_unlock: 'Desbloquear con Profesional',
+      mark: 'Marcar lección como completada', done: 'Completada', formula: 'Fórmula clave', example: 'Ejemplo resuelto', quiz: 'Comprueba lo aprendido', score: 'Puntuación', en_note: 'El texto de las lecciones está disponible por ahora en inglés.',
+      pf4: 'Dos cursos iniciales', pp5: 'Los seis cursos con cuestionarios',
+      c_sa_t: 'Fundamentos de análisis estructural', c_sa_d: 'Cómo viajan las cargas por una estructura y cómo obtener reacciones, cortante, momento, tensiones y flecha de una viga.',
+      c_rc_t: 'Diseño de hormigón armado', c_rc_d: 'Diseño por resistencia de vigas, columnas y losas según ACI 318 en unidades SI, desde los materiales hasta el detallado.',
+      c_ge_t: 'Mecánica de suelos y cimentaciones', c_ge_d: 'Propiedades del suelo, tensión efectiva, capacidad portante y asientos, hasta dimensionar una zapata aislada.',
+      c_hw_t: 'Carreteras y pavimentos', c_hw_d: 'Distancia de visibilidad, curvas horizontales y verticales, cargas de tráfico y capas del pavimento.',
+      c_hy_t: 'Hidráulica y drenaje', c_hy_d: 'Flujo en tuberías y canales abiertos, escorrentía pluvial y dimensionado de colectores y alcantarillas.',
+      c_pm_t: 'Gestión de obra y de proyectos', c_pm_d: 'Mediciones, programación, control de costes, calidad del hormigón y seguridad en la obra.' },
+    zh: { nav_courses: '课程', co_title: '课程', co_sub: '六门课程，包含公式、例题和小测验。学习进度保存在本设备上。',
+      lv_beg: '入门', lv_int: '中级', lessons_n: '节课', co_free: '免费', co_locked: '专业版',
+      co_locked_msg: '本课程包含在专业版和团队版中。课程大纲如下。', co_unlock: '升级专业版解锁',
+      mark: '标记本节已完成', done: '已完成', formula: '核心公式', example: '例题', quiz: '检验学习效果', score: '得分', en_note: '课程正文目前仅提供英文。',
+      pf4: '两门入门课程', pp5: '全部六门课程及测验',
+      c_sa_t: '结构分析基础', c_sa_d: '荷载如何在结构中传递，以及如何求梁的支座反力、剪力、弯矩、应力和挠度。',
+      c_rc_t: '钢筋混凝土设计', c_rc_d: '按 ACI 318（国际单位制）进行梁、柱、板的承载力设计，从材料性能到构造要求。',
+      c_ge_t: '土力学与基础工程', c_ge_d: '土的性质、有效应力、地基承载力与沉降，最后完成独立基础的尺寸确定。',
+      c_hw_t: '道路与路面工程', c_hw_d: '视距、平曲线与竖曲线、交通荷载以及路面结构层。',
+      c_hy_t: '水力学与排水', c_hy_d: '管道流与明渠流、暴雨径流，以及排水管和涵洞的尺寸确定。',
+      c_pm_t: '施工与项目管理', c_pm_d: '工程量计算、进度计划、成本控制、混凝土质量和现场安全。' }
+  };
+  Object.keys(TC).forEach(function (l) { for (var k in TC[l]) T[l][k] = TC[l][k]; });
+
+  var COURSES = [
+    { id: 'sa', level: 'beg', hours: 6, free: true, lessons: [
+      { t: 'Loads and load paths',
+        b: 'Every structure carries dead load (self weight and permanent finishes), live load (people, furniture, vehicles) and environmental loads such as wind, snow and earthquake. A load path is the route a force takes from where it is applied down to the ground: slab to beam, beam to column, column to footing, footing to soil. A beam collects load from its tributary width, which is half the spacing to the neighbouring beam on each side. Design codes combine loads with factors, for example 1.2D + 1.6L in ACI and ASCE strength design.',
+        f: 'w = q × tributary width        wu = 1.2 D + 1.6 L',
+        e: 'A floor carries 5 kPa dead and 3 kPa live load. Beams are spaced at 3 m. Service line load on an interior beam: w = (5 + 3) × 3 = 24 kN/m. Factored: wu = (1.2 × 5 + 1.6 × 3) × 3 = 32.4 kN/m.' },
+      { t: 'Supports and reactions',
+        b: 'A roller resists one force perpendicular to its surface. A pin resists force in two directions but no moment. A fixed support resists two forces and a moment. A structure is statically determinate when the three equations of equilibrium are enough to find every reaction. Take moments about one support to eliminate its unknowns, then sum vertical forces to find the rest. Always finish by checking that the reactions add up to the applied load.',
+        f: 'ΣFx = 0      ΣFy = 0      ΣM = 0',
+        e: 'A 5 m simply supported beam carries a 40 kN point load 2 m from support A. Moments about A: RB × 5 = 40 × 2, so RB = 16 kN. Vertical equilibrium: RA = 40 − 16 = 24 kN. The support nearer the load takes the larger share.' },
+      { t: 'Shear force and bending moment diagrams',
+        b: 'Shear force V at a section is the sum of the vertical forces on one side of it. Bending moment M is the sum of the moments of those forces. The slope of the shear diagram equals the load intensity, and the slope of the moment diagram equals the shear, so the moment is greatest where the shear passes through zero. Under a uniform load the shear diagram is a straight line and the moment diagram is a parabola. Under point loads the shear steps and the moment diagram is made of straight lines.',
+        f: 'dV/dx = −w      dM/dx = V      Mmax = wL²/8      Vmax = wL/2',
+        e: 'Uniform load of 20 kN/m on a 6 m simple span. Vmax = 20 × 6 / 2 = 60 kN at each support. Shear is zero at midspan, where Mmax = 20 × 6² / 8 = 90 kN·m. This is the case drawn at the top of this page.' },
+      { t: 'Bending and shear stress',
+        b: 'Bending produces compression on one face of the beam and tension on the other, with zero stress at the neutral axis. The stress grows linearly with distance y from that axis. The elastic section modulus S = I / c collects the geometry into one number, so the extreme fibre stress is simply M / S. Shear stress is greatest at the neutral axis; for a rectangular section the peak is 1.5 times the average V / A. A section is adequate when both stresses stay below the allowable or design values for the material.',
+        f: 'σ = M y / I = M / S        τ = V Q / (I b)',
+        e: 'The 90 kN·m moment acts on an IPE 300 steel section with S = 557 × 10³ mm³. σ = 90 × 10⁶ / 557 × 10³ = 162 MPa. For S275 steel the yield stress is 275 MPa, so the section works at 59% of yield in bending.' },
+      { t: 'Deflection and serviceability',
+        b: 'A beam can be strong enough and still unusable if it sags too much. Deflection depends on the load, the span to the fourth power, the elastic modulus E of the material and the second moment of area I of the section. Because of the fourth power, a 10% longer span deflects about 46% more. Typical limits are span/250 for total load and span/360 for live load on floors that carry brittle finishes. Deflection is checked under service loads, not factored loads.',
+        f: 'δ = 5 w L⁴ / (384 E I)   (simple span, uniform load)',
+        e: 'w = 20 kN/m, L = 6 m, E = 200 GPa, I = 83.6 × 10⁶ mm⁴. δ = 5 × 20 000 × 6⁴ / (384 × 200 × 10⁹ × 83.6 × 10⁻⁶) = 0.0202 m = 20.2 mm. The limit L/250 is 24 mm, so the beam passes. Try it in the beam calculator above.' } ],
+      quiz: [
+        { q: 'A simply supported beam spans 8 m under a uniform load of 10 kN/m. What is the maximum bending moment?', o: ['40 kN·m', '80 kN·m', '160 kN·m'], a: 1 },
+        { q: 'Which support type can resist a moment?', o: ['Pin', 'Roller', 'Fixed'], a: 2 },
+        { q: 'If the span of a uniformly loaded beam doubles, its deflection becomes:', o: ['2 times larger', '8 times larger', '16 times larger'], a: 2 } ] },
+
+    { id: 'rc', level: 'int', hours: 10, lessons: [
+      { t: 'Concrete and steel properties',
+        b: 'Concrete is strong in compression and weak in tension, so steel bars are placed wherever tension occurs. The specified compressive strength f′c is measured on cylinders at 28 days; common structural grades run from 21 to 35 MPa. Reinforcing steel is defined by its yield strength fy, most often 420 MPa. ACI 318 estimates the elastic modulus of normal weight concrete from its strength, and takes the steel modulus as 200 GPa. Strength design multiplies the nominal capacity by a reduction factor φ and compares it with the factored load effect.',
+        f: 'Ec = 4700 √f′c  (MPa)        φ Rn ≥ U',
+        e: 'For f′c = 28 MPa: Ec = 4700 × √28 = 4700 × 5.29 = 24 870 MPa, about one eighth of the modulus of steel.' },
+      { t: 'Flexural design of beams',
+        b: 'At ultimate, the concrete compression zone is modelled as a rectangular stress block of intensity 0.85 f′c and depth a. The tension steel is assumed to have yielded. Equating compression and tension gives a, and the nominal moment is the steel force times the lever arm between the steel and the centre of the block. For tension controlled sections φ = 0.90. The effective depth d is measured from the compression face to the centroid of the tension steel.',
+        f: 'a = As fy / (0.85 f′c b)        Mn = As fy (d − a/2)',
+        e: 'b = 300 mm, d = 500 mm, three 20 mm bars (As = 942 mm²), fy = 420 MPa, f′c = 28 MPa. a = 942 × 420 / (0.85 × 28 × 300) = 55.4 mm. Mn = 942 × 420 × (500 − 27.7) = 186.9 kN·m. Design strength φMn = 0.90 × 186.9 = 168.2 kN·m.' },
+      { t: 'Shear design and stirrups',
+        b: 'Shear failures are sudden, so the code uses a lower factor, φ = 0.75. Part of the shear is carried by the concrete (Vc) and the remainder by stirrups (Vs). Stirrups are closed loops, so a single stirrup provides two legs of steel crossing a diagonal crack. The critical section is taken at a distance d from the face of the support. Minimum stirrups are required wherever the factored shear exceeds half of φVc, and spacing may not exceed d/2.',
+        f: 'Vc = 0.17 √f′c b d        Vs = Av fy d / s        φ (Vc + Vs) ≥ Vu',
+        e: 'Same beam: Vc = 0.17 × 5.29 × 300 × 500 = 134.9 kN. With 10 mm two leg stirrups (Av = 157 mm²) at 200 mm: Vs = 157 × 420 × 500 / 200 = 164.9 kN. φVn = 0.75 × (134.9 + 164.9) = 224.8 kN.' },
+      { t: 'Axially loaded columns',
+        b: 'A short column carries load through the concrete area and the longitudinal bars together. Ties hold the bars in place and stop them from buckling outward. Because some accidental eccentricity is always present, ACI limits the usable axial strength of a tied column to 80% of the theoretical value, with φ = 0.65. Longitudinal steel must be between 1% and 8% of the gross area; 1% to 3% is practical for placing concrete and lapping bars.',
+        f: 'φPn,max = 0.80 φ [0.85 f′c (Ag − Ast) + fy Ast]',
+        e: '400 × 400 mm column, eight 20 mm bars (Ast = 2513 mm², 1.6%). Concrete: 0.85 × 28 × (160 000 − 2513) = 3748 kN. Steel: 420 × 2513 = 1055 kN. φPn,max = 0.80 × 0.65 × (3748 + 1055) = 2498 kN.' },
+      { t: 'Slabs, cover and detailing',
+        b: 'Good detailing is what makes the calculated strength real. Cover protects bars from corrosion and fire: ACI calls for 20 mm in slabs not exposed to weather, 40 mm for beams and columns, and 75 mm for concrete cast against earth. Slabs need a minimum amount of steel in each direction to control shrinkage and temperature cracking. Bars must extend a development length beyond the point where they are needed, and splices should be placed away from points of maximum stress.',
+        f: 'As,min = 0.0018 b h   (slabs, fy = 420 MPa)',
+        e: 'A 150 mm slab, per metre width: As,min = 0.0018 × 1000 × 150 = 270 mm²/m. 10 mm bars at 250 mm give 314 mm²/m, which satisfies the minimum.' } ],
+      quiz: [
+        { q: 'In ACI 318, φ = 0.90 applies to:', o: ['Tension controlled flexure', 'Shear', 'Tied columns'], a: 0 },
+        { q: 'Increasing the stirrup spacing s makes the stirrup contribution Vs:', o: ['Larger', 'Smaller', 'Unchanged'], a: 1 },
+        { q: 'Why is concrete reinforced with steel bars?', o: ['Concrete is weak in tension', 'Concrete is weak in compression', 'Steel reduces the self weight'], a: 0 } ] },
+
+    { id: 'ge', level: 'int', hours: 9, lessons: [
+      { t: 'Soil phases and classification',
+        b: 'Soil is a mixture of solid grains, water and air. The void ratio e is the volume of voids divided by the volume of solids; the water content w is the mass of water divided by the mass of solids; the degree of saturation S is the share of the voids filled with water. Coarse soils (gravel and sand) are classified by their grading, and fine soils (silt and clay) by their plasticity, measured with the liquid and plastic limits. The Unified Soil Classification System gives each soil a two letter symbol such as SW or CL.',
+        f: 'γ = (Gs + S e) γw / (1 + e)        S e = w Gs',
+        e: 'A saturated soil has Gs = 2.65 and e = 0.60. γsat = (2.65 + 1 × 0.60) × 9.81 / 1.60 = 19.9 kN/m³. Its water content is w = S e / Gs = 0.60 / 2.65 = 22.6%.' },
+      { t: 'Effective stress',
+        b: 'Terzaghi’s principle of effective stress is the foundation of soil mechanics. The total stress at a depth is the weight of everything above it. Water in the pores carries part of that stress as pore pressure u, and only the remainder, the effective stress, is carried by grain to grain contact. Strength and compression of soil depend on effective stress, not total stress. That is why a rising water table weakens the ground even though nothing visible has changed.',
+        f: 'σ′ = σ − u        u = γw hw',
+        e: 'At 5 m depth with the water table at 2 m, γ = 18 kN/m³ above and 20 kN/m³ below. σ = 2 × 18 + 3 × 20 = 96 kPa. u = 3 × 9.81 = 29.4 kPa. σ′ = 96 − 29.4 = 66.6 kPa.' },
+      { t: 'Bearing capacity of shallow foundations',
+        b: 'The ultimate bearing capacity is the pressure at which the soil beneath a footing fails in shear. Terzaghi’s equation adds three contributions: cohesion, the surcharge of soil beside the footing above its base, and the weight of soil in the failure wedge. The bearing capacity factors Nc, Nq and Nγ depend only on the friction angle and rise steeply with it. The allowable pressure is the ultimate value divided by a factor of safety, usually 3.',
+        f: 'qu = c Nc + q Nq + 0.5 γ B Nγ   (strip footing)        qall = qu / FS',
+        e: 'Strip footing 2 m wide, 1.5 m deep, in sand with φ = 30° (Nq = 22.5, Nγ = 19.1), c = 0, γ = 18 kN/m³. q = 18 × 1.5 = 27 kPa. qu = 27 × 22.5 + 0.5 × 18 × 2 × 19.1 = 951 kPa. qall = 951 / 3 = 317 kPa.' },
+      { t: 'Consolidation settlement',
+        b: 'Clay settles slowly because water must squeeze out of very small pores before the grains can move closer. The amount of primary consolidation settlement in a normally consolidated clay depends on the compression index Cc from an oedometer test, the layer thickness, the initial void ratio and the ratio of final to initial effective stress. The time it takes depends on the drainage path squared, so a layer drained on both faces settles four times faster than one drained on a single face.',
+        f: 'Sc = Cc H / (1 + e0) × log10[(σ′0 + Δσ) / σ′0]',
+        e: 'A 4 m clay layer has Cc = 0.30, e0 = 0.90 and σ′0 = 80 kPa at mid depth. A new building adds Δσ = 40 kPa. Sc = 0.30 × 4 / 1.90 × log10(120 / 80) = 0.632 × 0.176 = 0.111 m, about 111 mm.' },
+      { t: 'Sizing a pad footing',
+        b: 'A pad footing spreads a column load over enough soil to keep the contact pressure below the allowable value. Size the plan area from service loads and the allowable bearing pressure, because that pressure already contains the factor of safety. Then design the thickness and reinforcement from factored loads, checking punching shear around the column, one way shear and bending at the column face. Round dimensions up to a practical module such as 100 mm.',
+        f: 'A = P / qall        B = √A   (square footing)',
+        e: 'A column delivers 1200 kN service load to soil with qall = 200 kPa. A = 1200 / 200 = 6.0 m². B = √6.0 = 2.45 m. Use a 2.5 m × 2.5 m footing, giving a pressure of 192 kPa.' } ],
+      quiz: [
+        { q: 'When the water table rises within a soil layer, the effective stress:', o: ['Increases', 'Decreases', 'Stays the same'], a: 1 },
+        { q: 'A column carries 900 kN on soil with an allowable pressure of 150 kPa. Minimum footing area?', o: ['4 m²', '6 m²', '9 m²'], a: 1 },
+        { q: 'Which soil settles slowly over months or years after loading?', o: ['Clean gravel', 'Coarse sand', 'Saturated clay'], a: 2 } ] },
+
+    { id: 'hw', level: 'int', hours: 8, lessons: [
+      { t: 'Stopping sight distance',
+        b: 'A driver must be able to see far enough ahead to stop before reaching an obstacle. Stopping sight distance has two parts: the distance covered during the perception and reaction time, and the braking distance. AASHTO uses a reaction time of 2.5 s. Braking distance grows with the square of speed and is longer on a downgrade. Every point on the road, including crests and the inside of curves, must offer at least this much visibility.',
+        f: 'SSD = 0.278 V t + V² / [254 (f ± G)]   (V in km/h, SSD in m)',
+        e: 'V = 80 km/h, t = 2.5 s, friction f = 0.35, level road. Reaction distance = 0.278 × 80 × 2.5 = 55.6 m. Braking distance = 80² / (254 × 0.35) = 72.0 m. SSD = 127.6 m, rounded up to 130 m.' },
+      { t: 'Horizontal curves and superelevation',
+        b: 'A vehicle on a curve needs a sideways force to keep it turning. Part comes from tilting the road toward the inside of the curve (superelevation, e) and part from side friction between tyre and surface (f). The faster the design speed, the larger the minimum radius. Superelevation is usually limited to 6% to 8%, less where ice is expected, and it is introduced gradually along a transition length before the curve.',
+        f: 'Rmin = V² / [127 (e + f)]   (V in km/h, R in m)',
+        e: 'V = 80 km/h, e = 0.06, f = 0.14. Rmin = 80² / (127 × 0.20) = 6400 / 25.4 = 252 m.' },
+      { t: 'Vertical curves',
+        b: 'Changes of grade are joined by parabolic vertical curves. A crest curve must be long enough for a driver to see over the top; a sag curve must be long enough for headlights to reach the stopping distance at night. Both are sized with a K value, the length of curve needed for each 1% change in grade, which is tabulated against design speed. A is the algebraic difference between the two grades in percent.',
+        f: 'L = K × A        A = |g2 − g1|',
+        e: 'A +3% grade meets a −2% grade on an 80 km/h road. A = 5%. AASHTO gives K = 26 for a crest curve at this speed. L = 26 × 5 = 130 m.' },
+      { t: 'Traffic loading and the fourth power law',
+        b: 'Pavements are worn out by heavy axles, not by cars. Traffic is converted into equivalent standard axle loads (ESALs), each equal to one pass of an 80 kN single axle. Damage rises with roughly the fourth power of axle load, so a modest overload does disproportionate harm. Design traffic is the total number of ESALs expected in the design lane over the life of the pavement, typically 20 years, including growth.',
+        f: 'Equivalence factor ≈ (axle load / 80 kN)⁴',
+        e: 'A 100 kN single axle: (100 / 80)⁴ = 1.25⁴ = 2.44 ESALs. A truck overloaded by 25% therefore does almost two and a half times the damage of a legal one.' },
+      { t: 'Pavement layers and subgrade strength',
+        b: 'A flexible pavement spreads wheel load through layers of decreasing quality: asphalt surfacing, granular base, subbase, then the natural subgrade. Each layer must be stiff enough to protect the one below. Subgrade strength is commonly measured by the California Bearing Ratio (CBR), which compares the force needed to push a plunger 2.5 mm into the soil with the force for a standard crushed stone, 13.24 kN. Weak subgrades need thicker pavements, and good drainage matters as much as thickness.',
+        f: 'CBR = (test load at 2.5 mm / 13.24 kN) × 100',
+        e: 'A soaked subgrade sample needs 1.06 kN at 2.5 mm penetration. CBR = 1.06 / 13.24 × 100 = 8%. This is a fair subgrade; below about 3% the soil would normally be improved or replaced.' } ],
+      quiz: [
+        { q: 'Doubling an axle load multiplies pavement damage by about:', o: ['2', '8', '16'], a: 2 },
+        { q: 'At the same design speed, more superelevation allows a minimum radius that is:', o: ['Smaller', 'Larger', 'The same'], a: 0 },
+        { q: 'The perception and reaction time used by AASHTO for stopping sight distance is:', o: ['1.0 s', '2.5 s', '5.0 s'], a: 1 } ] },
+
+    { id: 'hy', level: 'int', hours: 8, lessons: [
+      { t: 'Continuity and the Bernoulli equation',
+        b: 'Water is practically incompressible, so the flow rate Q is the same at every section of a pipe: where the area shrinks, the velocity rises. The Bernoulli equation states that the total head, the sum of elevation, pressure head and velocity head, stays constant along a streamline apart from losses. Together these two ideas explain most pipe and channel behaviour: a faster flow has less pressure, and energy is only ever lost in the direction of flow.',
+        f: 'Q = A v        z + p/γ + v²/2g = constant − losses',
+        e: 'A 300 mm pipe narrows to 150 mm. Upstream velocity is 1.0 m/s. Q = π × 0.3² / 4 × 1.0 = 0.0707 m³/s. The area falls by a factor of four, so the downstream velocity is 4.0 m/s.' },
+      { t: 'Friction loss in pipes',
+        b: 'Flow through a pipe loses head to friction along the wall. The Darcy–Weisbach equation relates the loss to the length to diameter ratio, the velocity head and a friction factor f that depends on the Reynolds number and the relative roughness of the pipe, read from the Moody diagram. Loss rises with the square of the velocity, so doubling the flow in the same pipe quadruples the head loss. Fittings and valves add minor losses, each a multiple of the velocity head.',
+        f: 'hf = f (L / D) v² / (2g)',
+        e: 'f = 0.02, L = 100 m, D = 0.3 m, v = 2.0 m/s. Velocity head = 2² / 19.62 = 0.204 m. hf = 0.02 × (100 / 0.3) × 0.204 = 1.36 m of head.' },
+      { t: 'Open channel flow and Manning’s equation',
+        b: 'In a channel the water surface is open to the atmosphere and gravity drives the flow. For steady uniform flow, Manning’s equation gives the mean velocity from the roughness coefficient n, the hydraulic radius R (flow area divided by wetted perimeter) and the bed slope S. Smooth concrete has n near 0.013 to 0.015; a natural stream may be 0.035 or more. The most efficient section carries the flow with the least wetted perimeter.',
+        f: 'v = (1/n) R^(2/3) S^(1/2)        R = A / P',
+        e: 'Rectangular concrete channel 2 m wide, water depth 1 m, n = 0.015, S = 0.001. A = 2 m², P = 4 m, R = 0.5 m. v = (1 / 0.015) × 0.5^(2/3) × 0.001^(1/2) = 66.7 × 0.630 × 0.0316 = 1.33 m/s. Q = 2.66 m³/s.' },
+      { t: 'Storm runoff by the rational method',
+        b: 'For small catchments the peak runoff is estimated with the rational method. C is the runoff coefficient, the fraction of rain that runs off: about 0.9 for roofs and paving, 0.2 to 0.35 for lawns. The rainfall intensity i is read from the local intensity–duration–frequency curve for the chosen return period, at a duration equal to the time of concentration of the catchment. The method suits areas up to roughly 80 hectares.',
+        f: 'Q = C i A / 360   (i in mm/h, A in hectares, Q in m³/s)',
+        e: 'A 5 ha residential area has C = 0.70. The design storm intensity is 60 mm/h. Q = 0.70 × 60 × 5 / 360 = 0.583 m³/s.' },
+      { t: 'Sizing drains and culverts',
+        b: 'A storm drain must carry the design flow while running fast enough to clean itself and slow enough not to scour. Aim for at least 0.6 to 0.75 m/s at design flow and no more than about 3 m/s in concrete pipe. Start from the required area A = Q / v, convert it to a diameter, then round up to the next standard pipe size and confirm the capacity with Manning’s equation at the available slope. Culverts must also be checked for headwater depth at the inlet.',
+        f: 'A = Q / v        D = √(4A / π)',
+        e: 'Carry 0.583 m³/s at 2.0 m/s. A = 0.583 / 2.0 = 0.292 m². D = √(4 × 0.292 / π) = 0.609 m. Choose the next standard size, a 675 mm pipe.' } ],
+      quiz: [
+        { q: 'In Manning’s equation, a rougher channel (higher n) gives:', o: ['Lower velocity', 'Higher velocity', 'The same velocity'], a: 0 },
+        { q: 'In the rational method, C is the:', o: ['Runoff coefficient', 'Channel slope', 'Pipe roughness'], a: 0 },
+        { q: 'If the velocity in a pipe doubles, the friction head loss becomes:', o: ['2 times larger', '4 times larger', 'Half as large'], a: 1 } ] },
+
+    { id: 'pm', level: 'beg', hours: 6, free: true, lessons: [
+      { t: 'Quantity take-off',
+        b: 'A take-off measures the work shown on the drawings so it can be priced and ordered. Work through the drawings in a fixed order, measure net quantities, and record the dimensions so someone else can check them. Add waste allowances separately: around 5% for ready mixed concrete, 3% to 5% for reinforcement, 10% for blocks and tiles. Keep units consistent, with concrete in m³, formwork in m², reinforcement in kg or tonnes.',
+        f: 'Order quantity = net quantity × (1 + waste %)',
+        e: 'A slab 5 m × 4 m × 150 mm thick: net volume = 5 × 4 × 0.15 = 3.00 m³. With 5% waste, order 3.15 m³. The concrete calculator above gives the cement, sand and aggregate for site mixing.' },
+      { t: 'Scheduling with the critical path method',
+        b: 'List the activities, their durations and what each depends on. A forward pass gives the earliest start and finish of each activity; a backward pass gives the latest dates that do not delay the project. The difference is the float. Activities with zero float form the critical path, which sets the project duration. A delay to any critical activity delays completion, so that is where supervision and resources should go first.',
+        f: 'EF = ES + duration        Float = LS − ES',
+        e: 'A (3 days) is followed by B (5 days) and C (4 days); both must finish before D (2 days). Path A–B–D takes 10 days and path A–C–D takes 9. The critical path is A–B–D, the project takes 10 days, and C has 1 day of float.' },
+      { t: 'Cost control with earned value',
+        b: 'Earned value compares three numbers at a status date: planned value (PV), the budget for work scheduled so far; earned value (EV), the budget for work actually done; and actual cost (AC), what that work has cost. The cost performance index shows whether money is being spent efficiently and the schedule performance index shows whether progress matches the plan. An index below 1.0 is a warning. Dividing the total budget by CPI gives a quick forecast of the final cost.',
+        f: 'CPI = EV / AC        SPI = EV / PV        EAC = BAC / CPI',
+        e: 'At month 4: PV = 100 000, EV = 90 000, AC = 120 000. SPI = 0.90, so the job is 10% behind. CPI = 0.75, so each unit spent earns 0.75 of work. With a 400 000 budget, forecast final cost = 400 000 / 0.75 = 533 000.' },
+      { t: 'Concrete quality on site',
+        b: 'Check every delivery before placing: the ticket (grade, time batched, water added), the slump, and the temperature in hot weather. Take cylinders or cubes for strength testing at the frequency the specification requires. Place concrete without segregation, compact it fully, and cure it for at least 7 days by keeping it wet or covered, because concrete that dries early never reaches its strength. ACI 318 accepts a concrete when the average of any three consecutive tests is at least f′c and no single test falls more than 3.5 MPa below it.',
+        f: 'Mean of 3 tests ≥ f′c        each test ≥ f′c − 3.5 MPa',
+        e: 'Specified f′c = 28 MPa. Three consecutive tests give 27.5, 29.0 and 30.5 MPa. The mean is 29.0 MPa, which is at least 28. The lowest result, 27.5, is above 24.5. The concrete is accepted.' },
+      { t: 'Safety in excavations and at height',
+        b: 'Excavation collapse and falls from height cause most serious injuries on building sites. Trenches deeper than about 1.5 m must be sloped, benched or shored before anyone enters, with spoil kept back from the edge and a ladder within reach. The safe slope depends on the soil: OSHA allows 0.75 horizontal to 1 vertical in stiff clay, and requires 1.5 to 1 in sand or soft soil. Work at height needs guardrails, a complete platform and inspected scaffolding. Start each shift with a short briefing on the hazards of that day.',
+        f: 'Top width = bottom width + 2 × (slope ratio × depth)',
+        e: 'A trench 3 m deep and 1 m wide at the bottom in sandy soil, sloped at 1.5H : 1V. Each side lays back 1.5 × 3 = 4.5 m. Top width = 1 + 2 × 4.5 = 10 m. If the site cannot give that much room, the trench must be shored.' } ],
+      quiz: [
+        { q: 'An activity with zero float is:', o: ['On the critical path', 'Ahead of schedule', 'Optional'], a: 0 },
+        { q: 'A cost performance index of 0.8 means the project is:', o: ['Under budget', 'Over budget', 'Ahead of schedule'], a: 1 },
+        { q: 'For how long should fresh concrete normally be cured at minimum?', o: ['1 day', '7 days', '60 days'], a: 1 } ] }
+  ];
+
+  var store = {
+    get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  };
+  var $ = function (id) { return document.getElementById(id); };
+  var lang = store.get('fz_lang');
+  if (!T[lang]) { lang = (navigator.language || 'en').slice(0, 2); if (!T[lang]) lang = 'en'; }
+  var sub = store.get('fz_sub') || { plan: 'free', cycle: 'month', since: null };
+  var cycle = sub.cycle === 'year' ? 'year' : 'month';
+
+  function t(k) { return T[lang][k] || T.en[k] || k; }
+  function num(v, d) { return isFinite(v) ? new Intl.NumberFormat(LOCALE[lang], { minimumFractionDigits: d, maximumFractionDigits: d }).format(v) : '–'; }
+  function val(id) { var v = parseFloat($(id).value); return isFinite(v) && v >= 0 ? v : NaN; }
+  function out(id, v, d, unit, extra) { $(id).innerHTML = num(v, d) + ' <small>' + unit + (extra ? ' · ' + extra : '') + '</small>'; }
+  function money(v) { return new Intl.NumberFormat(LOCALE[lang], { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v); }
+  function date(d) { return new Intl.DateTimeFormat(LOCALE[lang], { dateStyle: 'long' }).format(d); }
+
+  function calc() {
+    var L = val('b-l'), w = val('b-w'), E = val('b-e'), I = val('b-i');
+    var M = w * L * L / 8, V = w * L / 2;
+    var d = 5 * (w * 1e3) * Math.pow(L, 4) / (384 * (E * 1e9) * (I * 1e-6)) * 1e3;
+    var ratio = L * 1e3 / d;
+    out('o-m', M, 1, 'kN·m'); out('o-v', V, 1, 'kN'); out('o-d', d, 1, 'mm');
+    $('o-r').textContent = isFinite(ratio) ? 'L / ' + num(ratio, 0) : '–';
+    var chk = $('o-chk'), pass = ratio >= 250;
+    chk.hidden = !isFinite(ratio);
+    chk.className = 'check ' + (pass ? 'ok' : 'bad');
+    chk.textContent = t(pass ? 'ok' : 'fail');
+    $('fig-w').textContent = 'w = ' + num(w, 1) + ' kN/m';
+    $('fig-l').textContent = 'L = ' + num(L, 1) + ' m';
+    $('fig-m').textContent = 'M = ' + num(M, 1) + ' kN·m';
+    $('fig-r1').textContent = $('fig-r2').textContent = 'R = ' + num(V, 1) + ' kN';
+
+    var vol = val('c-l') * val('c-w') * val('c-t') / 1000;
+    var mix = $('c-mix').value.split(',').map(Number), sum = mix[0] + mix[1] + mix[2], dry = vol * 1.54;
+    var cem = dry * mix[0] / sum * 1440;
+    out('o-cv', vol, 2, 'm³');
+    out('o-cc', cem, 0, 'kg', isFinite(cem) ? num(Math.ceil(cem / 50), 0) + ' ' + t('bags') : '');
+    out('o-cs', dry * mix[1] / sum, 2, 'm³'); out('o-ca', dry * mix[2] / sum, 2, 'm³');
+
+    var dia = parseFloat($('r-d').value), unit = dia * dia / 162, len = val('r-l') * val('r-n');
+    out('o-ru', unit, 3, 'kg/m'); out('o-rl', len, 1, 'm'); out('o-rt', unit * len, 1, 'kg');
+  }
+
+  function glossary() {
+    var order = [lang].concat(Object.keys(LANGS).filter(function (l) { return l !== lang; }));
+    $('gl-head').innerHTML = order.map(function (l, i) { return '<th' + (i ? '' : ' class="on"') + '>' + LANGS[l] + '</th>'; }).join('');
+    var q = $('gl-q').value.trim().toLowerCase();
+    var rows = GLOSSARY.filter(function (g) { return !q || order.some(function (l) { return g[l].toLowerCase().indexOf(q) > -1; }); });
+    $('gl-body').innerHTML = rows.map(function (g) {
+      return '<tr>' + order.map(function (l, i) { return '<td' + (i ? '' : ' class="on"') + ' lang="' + l + '" dir="' + (l === 'ar' ? 'rtl' : 'ltr') + '">' + g[l] + '</td>'; }).join('') + '</tr>';
+    }).join('');
+    $('gl-none').hidden = rows.length > 0;
+  }
+
+  function pricing() {
+    $('cy-m').setAttribute('aria-pressed', cycle === 'month');
+    $('cy-y').setAttribute('aria-pressed', cycle === 'year');
+    $('plans').innerHTML = PLANS.map(function (p) {
+      var active = sub.plan === p.id && (p.id === 'free' || sub.cycle === cycle);
+      var note = !p.month ? t('free_note') : cycle === 'year' ? t('billed_yearly') + ' ' + money(p.year * 12) : t('billed_monthly');
+      return '<div class="plan' + (p.featured ? ' featured' : '') + (active ? ' active' : '') + '">' +
+        '<h3>' + t('p_' + p.id) + '</h3>' +
+        '<div><div class="price">' + money(cycle === 'year' ? p.year : p.month) + ' <small>' + t('per_month') + '</small></div>' +
+        '<div class="billnote">' + note + '</div></div>' +
+        '<ul>' + p.feats.map(function (f) { return '<li>' + t(f) + '</li>'; }).join('') + '</ul>' +
+        '<button type="button" class="btn' + (p.featured ? '' : ' ghost') + '" data-plan="' + p.id + '"' + (active ? ' disabled' : '') + '>' + t(active ? 'current' : 'choose') + '</button></div>';
+    }).join('');
+    $('st-plan').textContent = t('p_' + sub.plan);
+    var renew = '';
+    if (sub.plan !== 'free' && sub.since) {
+      var d = new Date(sub.since);
+      if (sub.cycle === 'year') d.setFullYear(d.getFullYear() + 1); else d.setMonth(d.getMonth() + 1);
+      while (d < new Date()) { if (sub.cycle === 'year') d.setFullYear(d.getFullYear() + 1); else d.setMonth(d.getMonth() + 1); }
+      renew = t(sub.cycle === 'year' ? 'yearly' : 'monthly').split(/[,،，]/)[0] + ' · ' + t('sub_renews') + ' ' + date(d);
+    } else { renew = t('sub_free'); }
+    $('st-renew').textContent = renew;
+    $('st-updated').textContent = date(new Date(PRICES_UPDATED + 'T00:00:00'));
+  }
+
+  var prog = store.get('fz_prog') || {}, cur = 0, openL = 0, ans = {};
+  function unlocked(c) { return c.free || sub.plan !== 'free'; }
+  function doneN(c) { return c.lessons.filter(function (_, i) { return prog[c.id + ':' + i]; }).length; }
+  function courses() {
+    $('course-list').innerHTML = COURSES.map(function (c, i) {
+      var open = unlocked(c);
+      return '<button type="button" class="citem" data-course="' + i + '" aria-current="' + (i === cur) + '">' +
+        '<b>' + t('c_' + c.id + '_t') + '</b>' +
+        '<span class="meta"><span>' + t('lv_' + c.level) + '</span><span>' + c.lessons.length + ' ' + t('lessons_n') + '</span><span>' + c.hours + ' h</span>' +
+        '<span class="tag' + (open ? '' : ' lock') + '">' + t(c.free ? 'co_free' : 'co_locked') + '</span></span>' +
+        '<span class="bar"><i style="width:' + (doneN(c) / c.lessons.length * 100) + '%"></i></span></button>';
+    }).join('');
+    var c = COURSES[cur], open = unlocked(c);
+    var h = '<h3>' + t('c_' + c.id + '_t') + '</h3><p>' + t('c_' + c.id + '_d') + '</p>' +
+      '<span class="meta"><span>' + t('lv_' + c.level) + '</span><span>' + c.hours + ' h</span><span>' + doneN(c) + ' / ' + c.lessons.length + ' ' + t('done').toLowerCase() + '</span></span>';
+    if (!open) h += '<p>' + t('co_locked_msg') + '</p><a class="btn" href="#pricing" style="align-self:flex-start">' + t('co_unlock') + '</a>';
+    else if (T[lang].en_note) h += '<p>' + T[lang].en_note + '</p>';
+    h += '<div class="lessons" lang="en" dir="ltr">' + c.lessons.map(function (l, i) {
+      var done = prog[c.id + ':' + i];
+      var s = '<div class="lesson"><button type="button" class="lhead" data-lesson="' + i + '"' + (open ? ' aria-expanded="' + (i === openL) + '"' : ' disabled') + '>' +
+        '<span class="n">' + (i + 1) + '</span><span>' + l.t + '</span>' + (done ? '<span class="tick" lang="' + lang + '">✓ ' + t('done') + '</span>' : '') + '</button>';
+      if (open && i === openL) s += '<div class="lbody"><p>' + l.b + '</p>' +
+        '<div><span class="label" lang="' + lang + '">' + t('formula') + '</span><div class="formula">' + l.f + '</div></div>' +
+        '<div class="example"><span class="label" lang="' + lang + '">' + t('example') + '</span>' + l.e + '</div>' +
+        '<button type="button" class="btn' + (done ? ' ghost' : '') + '" data-mark="' + i + '" lang="' + lang + '">' + (done ? '✓ ' + t('done') : t('mark')) + '</button></div>';
+      return s + '</div>';
+    }).join('') + '</div>';
+    if (open) {
+      var right = 0, answered = 0;
+      h += '<div class="quiz"><h3>' + t('quiz') + '</h3>' + c.quiz.map(function (q, qi) {
+        var a = ans[c.id + ':' + qi];
+        if (a != null) { answered++; if (a === q.a) right++; }
+        return '<div lang="en" dir="ltr"><div>' + (qi + 1) + '. ' + q.q + '</div><div class="qopts">' + q.o.map(function (o, oi) {
+          var cls = a == null ? '' : oi === q.a ? ' ok' : oi === a ? ' bad' : '';
+          return '<button type="button" class="qopt' + cls + '" data-q="' + qi + '" data-o="' + oi + '">' + o + '</button>';
+        }).join('') + '</div></div>';
+      }).join('') + (answered === c.quiz.length ? '<div class="mono">' + t('score') + ': ' + right + ' / ' + c.quiz.length + '</div>' : '') + '</div>';
+    }
+    $('course-detail').innerHTML = h;
+  }
+  $('course-list').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-course]'); if (!b) return;
+    cur = +b.getAttribute('data-course'); openL = 0; courses();
+  });
+  $('course-detail').addEventListener('click', function (e) {
+    var c = COURSES[cur], b;
+    if ((b = e.target.closest('[data-lesson]'))) { var i = +b.getAttribute('data-lesson'); openL = openL === i ? -1 : i; }
+    else if ((b = e.target.closest('[data-mark]'))) { var k = c.id + ':' + b.getAttribute('data-mark'); prog[k] = !prog[k]; store.set('fz_prog', prog); if (prog[k] && openL < c.lessons.length - 1) openL++; }
+    else if ((b = e.target.closest('[data-q]'))) { ans[c.id + ':' + b.getAttribute('data-q')] = +b.getAttribute('data-o'); }
+    else return;
+    courses();
+  });
+
+  function render() {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    $('lang').value = lang;
+    document.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = t(el.getAttribute('data-i18n')); });
+    document.querySelectorAll('[data-i18n-ph]').forEach(function (el) { el.placeholder = t(el.getAttribute('data-i18n-ph')); });
+    calc(); glossary(); pricing(); courses();
+  }
+
+  var udl = '';
+  for (var x = 60; x <= 460; x += 40) udl += 'M' + x + ' 36V80M' + (x - 4) + ' 73l4 7 4-7';
+  $('udl').innerHTML = '<path d="M60 36H460' + udl + '"/>';
+
+  $('lang').addEventListener('change', function () { lang = this.value; store.set('fz_lang', lang); render(); });
+  document.querySelectorAll('.tool input, .tool select').forEach(function (el) { el.addEventListener('input', calc); });
+  $('gl-q').addEventListener('input', glossary);
+  $('cy-m').addEventListener('click', function () { cycle = 'month'; pricing(); });
+  $('cy-y').addEventListener('click', function () { cycle = 'year'; pricing(); });
+  $('plans').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-plan]'); if (!b) return;
+    sub = { plan: b.getAttribute('data-plan'), cycle: cycle, since: new Date().toISOString() };
+    store.set("fz_sub", sub); pricing(); courses();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tangent Calculus</title>
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Sans+Devanagari:wght@400;500;600&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a sheet of graph paper. Ink text, one cobalt curve, one crimson tangent line. */
+:root{
+  --paper:#f2f5fa; --surface:#ffffff; --ink:#131a2e; --muted:#586179; --line:#d3dae8;
+  --curve:#1f45d8; --tangent:#d11f5a; --grid:rgba(31,69,216,.07);
+  --good:#12784a; --bad:#b3261e;
+  --display:"STIX Two Text","IBM Plex Sans Arabic","IBM Plex Sans Devanagari",Georgia,serif;
+  --body:"IBM Plex Sans","IBM Plex Sans Arabic","IBM Plex Sans Devanagari",system-ui,sans-serif;
+  --math:"STIX Two Text","Cambria Math","Noto Sans Math",Georgia,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0c1220; --surface:#141c30; --ink:#e8ecf7; --muted:#9aa5bf; --line:#27324d;
+    --curve:#86a2ff; --tangent:#ff7aa5; --grid:rgba(134,162,255,.07);
+    --good:#4cc38a; --bad:#ff8a80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0c1220; --surface:#141c30; --ink:#e8ecf7; --muted:#9aa5bf; --line:#27324d;
+  --curve:#86a2ff; --tangent:#ff7aa5; --grid:rgba(134,162,255,.07);
+  --good:#4cc38a; --bad:#ff8a80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background-color:var(--paper);color:var(--ink);font:400 16px/1.6 var(--body);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;padding-bottom:76px}
+a{color:var(--curve)}
+h1,h2{font-family:var(--display);font-weight:600;line-height:1.2;text-wrap:balance;margin:0}
+h1{font-size:clamp(1.8rem,5.5vw,2.9rem)}
+h2{font-size:1.3rem}
+p{margin:0}
+:focus-visible{outline:2px solid var(--tangent);outline-offset:2px}
+
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:16px;padding:10px 16px;
+  background:var(--surface);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:8px;font:600 1.25rem var(--display);color:var(--ink);text-decoration:none;margin-inline-end:auto}
+.brand svg{width:28px;height:28px}
+#lang{font:500 .95rem var(--body);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:7px 8px}
+#nav{position:fixed;inset-inline:0;bottom:0;z-index:6;display:flex;background:var(--surface);border-top:1px solid var(--line)}
+#nav a{flex:1;text-align:center;padding:14px 4px;font-weight:500;font-size:.92rem;color:var(--muted);text-decoration:none;border-top:3px solid transparent}
+#nav a[aria-current="page"]{color:var(--curve);border-top-color:var(--curve)}
+@media (min-width:760px){
+  body{padding-bottom:0}
+  #nav{position:static;border:0;background:none;gap:4px}
+  #nav a{flex:none;padding:8px 12px;border-top:0;border-bottom:3px solid transparent}
+  #nav a[aria-current="page"]{border-bottom-color:var(--curve)}
+}
+
+main{max-width:1080px;margin:0 auto;padding:24px 16px 40px}
+.view{display:none;flex-direction:column;gap:24px}
+.view.on{display:flex}
+.lede{color:var(--muted);max-width:60ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.hero,.two{display:grid;gap:24px;align-items:start}
+@media (min-width:880px){.hero{grid-template-columns:1fr 1.05fr;align-items:center}.two{grid-template-columns:1.05fr 1fr}}
+.hero-t{display:flex;flex-direction:column;gap:16px}
+.cta{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-block;font:600 1rem var(--body);padding:11px 18px;border-radius:9px;border:1px solid var(--curve);background:var(--curve);color:var(--surface);text-decoration:none;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--curve)}
+.btn:disabled{background:transparent;color:var(--muted);border-color:var(--line);cursor:default}
+.stats{display:flex;flex-wrap:wrap;gap:8px 28px;margin:0}
+.stats div{display:flex;align-items:baseline;gap:6px}
+.stats dt{order:2;color:var(--muted);font-size:.92rem}
+.stats dd{margin:0;font:600 1.5rem var(--display);font-variant-numeric:tabular-nums}
+
+canvas{display:block;width:100%;aspect-ratio:4/3;border:1px solid var(--line);border-radius:8px;background:var(--surface);touch-action:pan-y}
+.ctl{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center}
+.ctl label{font-size:.9rem;color:var(--muted)}
+.ctl select{font:400 1rem var(--math);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:6px 8px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--curve)}
+.read{display:flex;flex-wrap:wrap;gap:6px 20px;font:400 1.05rem var(--math);font-variant-numeric:tabular-nums}
+.read span{color:var(--muted);font:400 .85rem var(--body);margin-inline-end:6px}
+.read b{font-weight:600}
+.read .tg{color:var(--tangent)}
+
+#path{margin:0;padding:0;list-style:none;display:flex;flex-direction:column}
+#path li{border-top:1px solid var(--line)}
+#path li:first-child{border-top:0}
+#path a{display:flex;align-items:center;gap:10px;padding:9px 0;color:var(--ink);text-decoration:none}
+.num{font:600 .95rem var(--math);color:var(--curve);min-width:1.7em;font-variant-numeric:tabular-nums}
+.grow{flex:1;min-width:0}
+.pill{font-size:.75rem;font-weight:600;padding:2px 9px;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.pill.pro{border-color:var(--tangent);color:var(--tangent)}
+
+.bar{height:10px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--curve);width:0}
+.prow{display:flex;justify-content:space-between;gap:12px;font-size:.92rem;color:var(--muted);font-variant-numeric:tabular-nums}
+#q{width:100%;font:400 1rem var(--body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:11px 14px}
+#units{display:flex;flex-direction:column;gap:10px}
+details.unit{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+details.unit>summary{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;list-style:none;font-weight:600}
+summary::-webkit-details-marker{display:none}
+.cnt{color:var(--muted);font-weight:400;font-size:.88rem;font-variant-numeric:tabular-nums}
+.ub{padding:0 16px 16px;display:flex;flex-direction:column;gap:8px}
+details.lesson{border:1px solid var(--line);border-radius:9px}
+details.lesson>summary{padding:11px 14px;cursor:pointer;list-style:none;display:flex;gap:10px}
+details.lesson[open]>summary{border-bottom:1px solid var(--line);font-weight:600}
+.lb{padding:14px;display:flex;flex-direction:column;gap:8px}
+.lab{font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.math{font:400 1.12rem/1.7 var(--math);overflow-x:auto;padding:10px 12px;border-radius:8px;background:var(--paper);border-inline-start:3px solid var(--curve);unicode-bidi:isolate;text-align:left}
+.math.ex{border-inline-start-color:var(--tangent)}
+.math sup,.math sub,.opt sup,.opt sub{font-size:.72em;line-height:0}
+.chk{display:flex;align-items:center;gap:10px;padding-top:4px;cursor:pointer}
+.chk input{width:20px;height:20px;accent-color:var(--good)}
+.locked{margin:0;padding-inline-start:1.4em;color:var(--muted)}
+.empty{color:var(--muted)}
+
+#quiz{max-width:640px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{font:400 1.1rem var(--math);padding:14px 10px;border-radius:9px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.opt.ok{border-color:var(--good);color:var(--good);font-weight:600}
+.opt.no{border-color:var(--bad);color:var(--bad);text-decoration:line-through}
+.fb{font-weight:600}
+.fb.ok{color:var(--good)}.fb.no{color:var(--bad)}
+.big{font:600 2rem var(--display)}
+
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--surface);align-self:flex-start}
+.seg button{font:500 .95rem var(--body);padding:9px 18px;border:0;background:none;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--curve);color:var(--surface)}
+#cards{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.plan.hi{border-color:var(--curve);border-width:2px}
+.plan h2{display:flex;align-items:center;gap:10px}
+.price{font:600 2.4rem var(--display);font-variant-numeric:tabular-nums;line-height:1.1}
+.per{color:var(--muted);font-size:.9rem}
+.plan ul{margin:0;padding-inline-start:1.2em;flex:1;display:flex;flex-direction:column;gap:4px}
+.note{border:1px dashed var(--line);border-radius:9px;padding:12px 14px;color:var(--muted);background:var(--surface);max-width:70ch}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#home" aria-label="Tangent">
+    <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M3 24 C10 24 16 20 25 4" fill="none" stroke="var(--curve)" stroke-width="2.4" stroke-linecap="round"/><path d="M6 27 L26 9" stroke="var(--tangent)" stroke-width="1.8" stroke-linecap="round"/><circle cx="17.2" cy="17" r="2.6" fill="var(--tangent)"/></svg>
+    Tangent
+  </a>
+  <nav id="nav" aria-label="Main">
+    <a href="#home" data-v="home" data-t="home"></a>
+    <a href="#course" data-v="course" data-t="course"></a>
+    <a href="#practice" data-v="practice" data-t="practice"></a>
+    <a href="#plans" data-v="plans" data-t="plans"></a>
+  </nav>
+  <select id="lang" aria-label="Language">
+    <option value="en">English</option><option value="ar">العربية</option><option value="fr">Français</option>
+    <option value="es">Español</option><option value="ur">اردو</option><option value="hi">हिन्दी</option>
+  </select>
+</header>
+
+<main>
+<section class="view" id="v-home">
+  <div class="hero">
+    <div class="hero-t">
+      <h1 data-t="heroT"></h1>
+      <p class="lede" data-t="heroS"></p>
+      <div class="cta"><a class="btn" href="#course" data-t="start"></a><a class="btn ghost" href="#plans" data-t="seePlans"></a></div>
+      <dl class="stats">
+        <div><dt data-t="units"></dt><dd>12</dd></div>
+        <div><dt data-t="lessons"></dt><dd>60</dd></div>
+        <div><dt data-t="langs"></dt><dd>6</dd></div>
+      </dl>
+    </div>
+    <article class="card">
+      <h2 data-t="tanT"></h2>
+      <p class="lede" data-t="tanS"></p>
+      <canvas id="cv1"></canvas>
+      <div class="ctl">
+        <label for="fn1" data-t="fn"></label>
+        <select id="fn1" dir="ltr"><option value="0">f(x) = x²</option><option value="1">f(x) = sin x</option><option value="2">f(x) = x³ − 3x</option><option value="3">f(x) = eˣ</option></select>
+        <label for="x0" data-t="point"></label>
+        <input type="range" id="x0" min="-3" max="3" step="0.01" value="1">
+      </div>
+      <div class="read" dir="ltr" id="r1"></div>
+    </article>
+  </div>
+  <div class="two">
+    <article class="card">
+      <h2 data-t="areaT"></h2>
+      <p class="lede" data-t="areaS"></p>
+      <canvas id="cv2"></canvas>
+      <div class="ctl">
+        <label for="fn2" data-t="fn"></label>
+        <select id="fn2" dir="ltr"><option value="0">x² on [0, 2]</option><option value="1">sin x on [0, π]</option><option value="2">√x on [0, 4]</option></select>
+        <label for="nn" data-t="rects"></label>
+        <input type="range" id="nn" min="1" max="60" step="1" value="6">
+      </div>
+      <div class="read" id="r2"></div>
+    </article>
+    <article class="card">
+      <h2 data-t="path"></h2>
+      <ol id="path"></ol>
+    </article>
+  </div>
+</section>
+
+<section class="view" id="v-course">
+  <h1 data-t="course"></h1>
+  <div class="card">
+    <div class="prow"><span data-t="progress"></span><span id="pc"></span></div>
+    <div class="bar"><i id="pb"></i></div>
+  </div>
+  <input type="search" id="q" data-tp="search" aria-label="Search">
+  <div id="units"></div>
+</section>
+
+<section class="view" id="v-practice">
+  <h1 data-t="practice"></h1>
+  <p class="lede" data-t="practiceS"></p>
+  <div class="card" id="quiz"></div>
+</section>
+
+<section class="view" id="v-plans">
+  <h1 data-t="plans"></h1>
+  <p class="lede" data-t="plansS"></p>
+  <div class="seg" role="group">
+    <button type="button" id="bm" data-t="monthly"></button>
+    <button type="button" id="by" data-t="yearly"></button>
+  </div>
+  <div id="cards"></div>
+  <p class="note" data-t="notice"></p>
+</section>
+</main>
+
+<script>
+/* order of every translated array: en, ar, fr, es, ur, hi */
+const LANGS=["en","ar","fr","es","ur","hi"];
+const T={
+home:["Home","الرئيسية","Accueil","Inicio","ہوم","होम"],
+course:["Course","المنهج","Cours","Curso","کورس","पाठ्यक्रम"],
+practice:["Practice","تمرين","Exercices","Práctica","مشق","अभ्यास"],
+plans:["Plans","الباقات","Offres","Planes","پلانز","प्लान"],
+heroT:["Calculus, from the first limit to Stokes' theorem","التفاضل والتكامل، من أول نهاية إلى مبرهنة ستوكس","Le calcul, de la première limite au théorème de Stokes","Cálculo, del primer límite al teorema de Stokes","کیلکولس، پہلی حد سے اسٹوکس کے مسئلے تک","कैलकुलस, पहली सीमा से स्टोक्स प्रमेय तक"],
+heroS:["12 units and 60 lessons with formulas, worked examples and live graphs, in six languages.","12 وحدة و60 درسًا مع القوانين والأمثلة المحلولة والرسوم التفاعلية، بست لغات.","12 unités et 60 leçons avec formules, exemples résolus et graphiques interactifs, en six langues.","12 unidades y 60 lecciones con fórmulas, ejemplos resueltos y gráficas interactivas, en seis idiomas.","12 یونٹ اور 60 اسباق، فارمولوں، حل شدہ مثالوں اور انٹرایکٹو گراف کے ساتھ، چھ زبانوں میں۔","12 इकाइयाँ और 60 पाठ, सूत्रों, हल किए गए उदाहरणों और इंटरैक्टिव ग्राफ़ के साथ, छह भाषाओं में।"],
+start:["Start the course","ابدأ المنهج","Commencer le cours","Empezar el curso","کورس شروع کریں","पाठ्यक्रम शुरू करें"],
+seePlans:["See plans","عرض الباقات","Voir les offres","Ver planes","پلانز دیکھیں","प्लान देखें"],
+tanT:["Tangent explorer","مستكشف المماس","Explorateur de tangente","Explorador de tangentes","مماس ایکسپلورر","स्पर्शरेखा एक्सप्लोरर"],
+tanS:["Drag the point. The slope of the tangent line is the derivative.","اسحب النقطة. ميل المماس هو المشتقة.","Déplacez le point. La pente de la tangente est la dérivée.","Arrastra el punto. La pendiente de la tangente es la derivada.","نقطے کو گھسیٹیں۔ مماس کی ڈھلوان ہی مشتق ہے۔","बिंदु को खींचें। स्पर्शरेखा की ढाल ही अवकलज है।"],
+areaT:["Area explorer","مستكشف المساحة","Explorateur d'aire","Explorador de áreas","رقبہ ایکسپلورر","क्षेत्रफल एक्सप्लोरर"],
+areaS:["Add rectangles. The Riemann sum closes in on the integral.","أضف مستطيلات. مجموع ريمان يقترب من التكامل.","Ajoutez des rectangles. La somme de Riemann s'approche de l'intégrale.","Añade rectángulos. La suma de Riemann se acerca a la integral.","مستطیلیں بڑھائیں۔ ریمان مجموعہ تکمل کے قریب آتا جاتا ہے۔","आयत बढ़ाएँ। रीमान योग समाकल के पास पहुँचता जाता है।"],
+fn:["Function","الدالة","Fonction","Función","تفاعل","फलन"],
+point:["Point","النقطة","Point","Punto","نقطہ","बिंदु"],
+slope:["Slope","الميل","Pente","Pendiente","ڈھلوان","ढाल"],
+rects:["Rectangles","المستطيلات","Rectangles","Rectángulos","مستطیلیں","आयत"],
+sum:["Riemann sum","مجموع ريمان","Somme de Riemann","Suma de Riemann","ریمان مجموعہ","रीमान योग"],
+exact:["Exact area","المساحة الدقيقة","Aire exacte","Área exacta","درست رقبہ","सटीक क्षेत्रफल"],
+error:["Error","الخطأ","Erreur","Error","فرق","त्रुटि"],
+units:["Units","وحدات","Unités","Unidades","یونٹ","इकाइयाँ"],
+lessons:["Lessons","دروس","Leçons","Lecciones","اسباق","पाठ"],
+langs:["Languages","لغات","Langues","Idiomas","زبانیں","भाषाएँ"],
+path:["The full path","المسار الكامل","Le parcours complet","El recorrido completo","مکمل راستہ","पूरा मार्ग"],
+progress:["Your progress","تقدّمك","Votre progression","Tu progreso","آپ کی پیش رفت","आपकी प्रगति"],
+done:["lessons done","دروس مكتملة","leçons terminées","lecciones completadas","اسباق مکمل","पाठ पूरे"],
+search:["Search lessons and formulas","ابحث في الدروس والقوانين","Rechercher leçons et formules","Buscar lecciones y fórmulas","اسباق اور فارمولے تلاش کریں","पाठ और सूत्र खोजें"],
+free:["Free","مجاني","Gratuit","Gratis","مفت","मुफ़्त"],
+formula:["Key formula","القانون الأساسي","Formule clé","Fórmula clave","اہم فارمولا","मुख्य सूत्र"],
+example:["Worked example","مثال محلول","Exemple résolu","Ejemplo resuelto","حل شدہ مثال","हल किया गया उदाहरण"],
+mark:["Mark as done","تحديد كمكتمل","Marquer comme terminé","Marcar como hecha","مکمل نشان زد کریں","पूरा चिह्नित करें"],
+locked:["Included in Pro","ضمن باقة Pro","Inclus dans Pro","Incluido en Pro","Pro میں شامل","Pro में शामिल"],
+none:["No lessons match.","لا توجد دروس مطابقة.","Aucune leçon ne correspond.","Ninguna lección coincide.","کوئی سبق نہیں ملا۔","कोई पाठ नहीं मिला।"],
+question:["Question","سؤال","Question","Pregunta","سوال","प्रश्न"],
+right:["Correct","صحيح","Correct","Correcto","درست","सही"],
+wrong:["Not quite. Answer:","ليس تمامًا. الجواب:","Pas tout à fait. Réponse :","No del todo. Respuesta:","بالکل نہیں۔ جواب:","पूरी तरह नहीं। उत्तर:"],
+next:["Next","التالي","Suivant","Siguiente","اگلا","अगला"],
+score:["Score","النتيجة","Score","Puntuación","اسکور","स्कोर"],
+again:["Try again","أعد المحاولة","Recommencer","Reintentar","دوبارہ کوشش کریں","फिर से प्रयास करें"],
+practiceS:["Twelve questions, one from each unit.","اثنا عشر سؤالًا، واحد من كل وحدة.","Douze questions, une par unité.","Doce preguntas, una de cada unidad.","بارہ سوال، ہر یونٹ سے ایک۔","बारह प्रश्न, हर इकाई से एक।"],
+plansS:["Start free. Upgrade when you reach Unit 4.","ابدأ مجانًا. قم بالترقية عند الوصول إلى الوحدة 4.","Commencez gratuitement. Passez à Pro à l'unité 4.","Empieza gratis. Mejora al llegar a la unidad 4.","مفت شروع کریں۔ یونٹ 4 پر پہنچ کر اپ گریڈ کریں۔","मुफ़्त शुरू करें। इकाई 4 पर पहुँचकर अपग्रेड करें।"],
+monthly:["Monthly","شهري","Mensuel","Mensual","ماہانہ","मासिक"],
+yearly:["Yearly","سنوي","Annuel","Anual","سالانہ","वार्षिक"],
+perMonth:["per month","شهريًا","par mois","al mes","ماہانہ","प्रति माह"],
+perStudent:["per student, per month","لكل طالب شهريًا","par élève, par mois","por estudiante al mes","فی طالب علم، ماہانہ","प्रति छात्र, प्रति माह"],
+billedY:["billed yearly","تُدفع سنويًا","facturé annuellement","facturado anualmente","سالانہ بل","वार्षिक बिलिंग"],
+save:["Save 37%","وفّر 37%","Économisez 37 %","Ahorra 37 %","37% بچت","37% बचत"],
+choose:["Choose","اختيار","Choisir","Elegir","منتخب کریں","चुनें"],
+current:["Current plan","الباقة الحالية","Offre actuelle","Plan actual","موجودہ پلان","वर्तमान प्लान"],
+classroom:["Classroom","الصف","Classe","Aula","کلاس روم","कक्षा"],
+f1:["Units 1–3: foundations, limits, derivatives","الوحدات 1–3: الأساسيات والنهايات والمشتقات","Unités 1–3 : bases, limites, dérivées","Unidades 1–3: fundamentos, límites, derivadas","یونٹ 1–3: بنیادیں، حدود، مشتقات","इकाई 1–3: आधार, सीमाएँ, अवकलज"],
+f2:["Both graph explorers","مستكشفا الرسوم","Les deux explorateurs graphiques","Los dos exploradores gráficos","دونوں گراف ایکسپلورر","दोनों ग्राफ़ एक्सप्लोरर"],
+f3:["Practice quiz","اختبار تدريبي","Quiz d'entraînement","Cuestionario de práctica","مشقی کوئز","अभ्यास क्विज़"],
+p1:["All 12 units and 60 lessons","جميع الوحدات الـ12 والدروس الـ60","Les 12 unités et 60 leçons","Las 12 unidades y 60 lecciones","تمام 12 یونٹ اور 60 اسباق","सभी 12 इकाइयाँ और 60 पाठ"],
+p2:["Integrals, series and multivariable calculus","التكامل والمتسلسلات وحساب المتغيرات المتعددة","Intégrales, séries et calcul à plusieurs variables","Integrales, series y cálculo multivariable","تکملات، سلسلے اور کثیر متغیر کیلکولس","समाकलन, श्रेणियाँ और बहुचर कैलकुलस"],
+p3:["Everything in Free","كل ما في الباقة المجانية","Tout le contenu Gratuit","Todo lo del plan Gratis","مفت پلان کی ہر چیز","मुफ़्त प्लान की हर चीज़"],
+c1:["Everything in Pro for each student","كل مزايا Pro لكل طالب","Tout Pro pour chaque élève","Todo Pro para cada estudiante","ہر طالب علم کے لیے Pro کی ہر چیز","हर छात्र के लिए Pro की हर चीज़"],
+c2:["For groups of 10 or more","للمجموعات من 10 فأكثر","Pour les groupes de 10 ou plus","Para grupos de 10 o más","10 یا زیادہ کے گروپس کے لیے","10 या अधिक के समूहों के लिए"],
+notice:["Checkout is not connected yet. Your choice unlocks the lessons on this device as a preview.","الدفع غير مفعّل بعد. اختيارك يفتح الدروس على هذا الجهاز كمعاينة.","Le paiement n'est pas encore connecté. Votre choix débloque les leçons sur cet appareil en aperçu.","El pago aún no está conectado. Tu elección desbloquea las lecciones en este dispositivo como vista previa.","ادائیگی ابھی منسلک نہیں۔ آپ کا انتخاب اس ڈیوائس پر اسباق کو پیش نظارہ کے طور پر کھول دیتا ہے۔","भुगतान अभी जुड़ा नहीं है। आपका चुनाव इस डिवाइस पर पाठों को पूर्वावलोकन के रूप में खोल देता है।"]
+};
+
+/* Curriculum: unit title, then lessons as [titles, key formula, worked example]. ^ and _ mark super/subscripts. */
+const U=[
+{t:["Functions & foundations","الدوال والأساسيات","Fonctions et bases","Funciones y fundamentos","تفاعلات اور بنیادیں","फलन और आधार"],L:[
+[["Functions and graphs","الدوال وتمثيلها البياني","Fonctions et graphes","Funciones y gráficas","تفاعلات اور گراف","फलन और ग्राफ़"],"f : D → ℝ,   x ↦ f(x)","f(x) = √(x − 2)  ⇒  D = [2, ∞)"],
+[["Exponentials and logarithms","الدوال الأسية واللوغاريتمية","Exponentielles et logarithmes","Exponenciales y logaritmos","قوت نمائی اور لوگارتھم","चरघातांकी और लघुगणक"],"ln(xy) = ln x + ln y,   e^{ln x} = x","ln(e^3) = 3,   e^{2 ln 3} = 9"],
+[["Trigonometric functions","الدوال المثلثية","Fonctions trigonométriques","Funciones trigonométricas","مثلثیاتی تفاعلات","त्रिकोणमितीय फलन"],"sin^2 x + cos^2 x = 1,   tan x = sin x / cos x","sin(π/6) = 1/2,   cos(π/3) = 1/2"],
+[["Inverse functions","الدوال العكسية","Fonctions réciproques","Funciones inversas","معکوس تفاعلات","प्रतिलोम फलन"],"f(f^{−1}(x)) = x","f(x) = 2x + 3  ⇒  f^{−1}(x) = (x − 3)/2"],
+[["Average rate of change","متوسط معدل التغير","Taux de variation moyen","Tasa de variación media","اوسط شرح تبدیلی","औसत परिवर्तन दर"],"Δy/Δx = (f(b) − f(a)) / (b − a)","f(x) = x^2, [1, 3]:  (9 − 1)/(3 − 1) = 4"]]},
+{t:["Limits & continuity","النهايات والاتصال","Limites et continuité","Límites y continuidad","حدود اور تسلسل","सीमाएँ और सांतत्य"],L:[
+[["The idea of a limit","مفهوم النهاية","La notion de limite","La idea de límite","حد کا تصور","सीमा की अवधारणा"],"lim_{x→a} f(x) = L","lim_{x→2} (x^2 − 4)/(x − 2) = lim_{x→2} (x + 2) = 4"],
+[["Limit laws","قوانين النهايات","Opérations sur les limites","Leyes de los límites","حدود کے قوانین","सीमा के नियम"],"lim (f + g) = lim f + lim g,   lim (f·g) = lim f · lim g","lim_{x→3} (x^2 + 2x) = 9 + 6 = 15"],
+[["One-sided and infinite limits","النهايات من جهة واحدة والنهايات اللانهائية","Limites à gauche, à droite et infinies","Límites laterales e infinitos","یک طرفہ اور لامتناہی حدود","एकपक्षीय और अनंत सीमाएँ"],"lim_{x→0^+} 1/x = +∞,   lim_{x→0^−} 1/x = −∞","lim_{x→∞} (3x^2 + 1)/(x^2 − 5) = 3"],
+[["Continuity","الاتصال","Continuité","Continuidad","تسلسل","सांतत्य"],"lim_{x→a} f(x) = f(a)","f(x) = (x^2 − 1)/(x − 1),  f(1) := 2  ⇒  f ∈ C(ℝ)"],
+[["Squeeze theorem and ε–δ","مبرهنة الحصر وتعريف ε–δ","Théorème des gendarmes et ε–δ","Teorema del sándwich y ε–δ","سینڈوچ مسئلہ اور ε–δ","सैंडविच प्रमेय और ε–δ"],"∀ε > 0 ∃δ > 0:  0 < |x − a| < δ ⇒ |f(x) − L| < ε","cos x ≤ (sin x)/x ≤ 1  ⇒  lim_{x→0} (sin x)/x = 1"]]},
+{t:["Derivatives","المشتقات","Dérivées","Derivadas","مشتقات","अवकलज"],L:[
+[["Definition of the derivative","تعريف المشتقة","Définition de la dérivée","Definición de derivada","مشتق کی تعریف","अवकलज की परिभाषा"],"f′(x) = lim_{h→0} (f(x + h) − f(x)) / h","f(x) = x^2:  ((x + h)^2 − x^2)/h = 2x + h → 2x"],
+[["Power, sum and constant rules","قواعد القوة والجمع والثابت","Règles de puissance, de somme et de constante","Reglas de potencia, suma y constante","قوت، مجموعہ اور مستقل کے قواعد","घात, योग और अचर नियम"],"d/dx x^n = n x^{n−1},   (f + g)′ = f′ + g′","d/dx (3x^4 − 5x) = 12x^3 − 5"],
+[["Product and quotient rules","قاعدتا الضرب والقسمة","Règles du produit et du quotient","Reglas del producto y del cociente","حاصل ضرب اور خارج قسمت کے قواعد","गुणन और भागफल नियम"],"(fg)′ = f′g + fg′,   (f/g)′ = (f′g − fg′)/g^2","d/dx (x^2 sin x) = 2x sin x + x^2 cos x"],
+[["Chain rule","قاعدة السلسلة","Dérivée d'une composée","Regla de la cadena","زنجیری قاعدہ","श्रृंखला नियम"],"d/dx f(g(x)) = f′(g(x)) · g′(x)","d/dx sin(x^2) = 2x cos(x^2)"],
+[["Exponential, log and trig derivatives","مشتقات الدوال الأسية واللوغاريتمية والمثلثية","Dérivées des exponentielles, logarithmes et fonctions trigonométriques","Derivadas exponenciales, logarítmicas y trigonométricas","قوت نمائی، لوگارتھمی اور مثلثیاتی مشتقات","चरघातांकी, लघुगणकीय और त्रिकोणमितीय अवकलज"],"(e^x)′ = e^x,  (ln x)′ = 1/x,  (sin x)′ = cos x,  (cos x)′ = −sin x","d/dx (e^{3x} ln x) = 3e^{3x} ln x + e^{3x}/x"]]},
+{t:["Applications of derivatives","تطبيقات المشتقات","Applications des dérivées","Aplicaciones de la derivada","مشتقات کے اطلاقات","अवकलज के अनुप्रयोग"],L:[
+[["Implicit differentiation and related rates","الاشتقاق الضمني والمعدلات المرتبطة","Dérivation implicite et taux liés","Derivación implícita y tasas relacionadas","مضمر تفریق اور متعلقہ شرحیں","अस्पष्ट अवकलन और संबंधित दरें"],"d/dx F(x, y(x)) = F_x + F_y · dy/dx","x^2 + y^2 = 25  ⇒  2x + 2y y′ = 0  ⇒  y′ = −x/y"],
+[["Maxima, minima and curve sketching","القيم العظمى والصغرى ورسم المنحنيات","Extremums et étude de courbes","Máximos, mínimos y trazado de curvas","عظمیٰ، صغریٰ اور منحنی کی ترسیم","उच्चिष्ठ, निम्निष्ठ और वक्र आरेखण"],"f′(c) = 0, f″(c) > 0 ⇒ min;   f′(c) = 0, f″(c) < 0 ⇒ max","f(x) = x^3 − 3x:  f′ = 3x^2 − 3 = 0 ⇒ x = ±1;  min: x = 1,  max: x = −1"],
+[["Mean value theorem","مبرهنة القيمة المتوسطة","Théorème des accroissements finis","Teorema del valor medio","اوسط قدر کا مسئلہ","माध्यमान प्रमेय"],"∃c ∈ (a, b):  f′(c) = (f(b) − f(a)) / (b − a)","f(x) = x^2, [0, 2]:  2c = 2  ⇒  c = 1"],
+[["Optimization","مسائل الأمثلية","Optimisation","Optimización","بہترین قدر کے مسائل","इष्टतमीकरण"],"max / min f(x):  f′(x) = 0","2x + 2y = 20,  A = x(10 − x):  A′ = 10 − 2x = 0 ⇒ x = 5,  A = 25"],
+[["L'Hôpital's rule and linear approximation","قاعدة لوبيتال والتقريب الخطي","Règle de L'Hôpital et approximation affine","Regla de L'Hôpital y aproximación lineal","لوپیٹال کا قاعدہ اور خطی تقریب","लोपिताल नियम और रैखिक सन्निकटन"],"lim f/g = lim f′/g′  (0/0, ∞/∞),   f(x) ≈ f(a) + f′(a)(x − a)","lim_{x→0} (e^x − 1)/x = lim_{x→0} e^x/1 = 1;   √4.1 ≈ 2 + 0.1/4 = 2.025"]]},
+{t:["Integrals","التكامل","Intégrales","Integrales","تکملات","समाकलन"],L:[
+[["Antiderivatives","الدوال الأصلية","Primitives","Antiderivadas","ضد مشتقات","प्रतिअवकलज"],"∫ x^n dx = x^{n+1}/(n + 1) + C   (n ≠ −1)","∫ (3x^2 + 2) dx = x^3 + 2x + C"],
+[["Riemann sums","مجاميع ريمان","Sommes de Riemann","Sumas de Riemann","ریمان مجموعے","रीमान योग"],"∫_a^b f(x) dx = lim_{n→∞} Σ_{i=1}^n f(x_i) Δx,   Δx = (b − a)/n","f(x) = x, [0, 1], n = 4:  (1/4)(1/4 + 2/4 + 3/4 + 1) = 5/8"],
+[["Properties of the definite integral","خواص التكامل المحدد","Propriétés de l'intégrale définie","Propiedades de la integral definida","معین تکمل کی خصوصیات","निश्चित समाकल के गुण"],"∫_a^b f = ∫_a^c f + ∫_c^b f,   ∫_a^b f = −∫_b^a f","∫_0^2 f = 5,  ∫_2^3 f = −1  ⇒  ∫_0^3 f = 4"],
+[["Fundamental theorem of calculus","المبرهنة الأساسية في التفاضل والتكامل","Théorème fondamental de l'analyse","Teorema fundamental del cálculo","کیلکولس کا بنیادی مسئلہ","कैलकुलस का मूलभूत प्रमेय"],"∫_a^b f(x) dx = F(b) − F(a),   d/dx ∫_a^x f(t) dt = f(x)","∫_0^1 x^2 dx = [x^3/3]_0^1 = 1/3"],
+[["Substitution","التكامل بالتعويض","Changement de variable","Integración por sustitución","تکمل بذریعہ تبدیلیِ متغیر","प्रतिस्थापन द्वारा समाकलन"],"∫ f(g(x)) g′(x) dx = ∫ f(u) du,   u = g(x)","∫ 2x cos(x^2) dx = ∫ cos u du = sin(x^2) + C"]]},
+{t:["Techniques of integration","طرق التكامل","Techniques d'intégration","Técnicas de integración","تکمل کے طریقے","समाकलन की विधियाँ"],L:[
+[["Integration by parts","التكامل بالتجزئة","Intégration par parties","Integración por partes","تکمل بالحصص","खंडशः समाकलन"],"∫ u dv = uv − ∫ v du","∫ x e^x dx = x e^x − ∫ e^x dx = (x − 1)e^x + C"],
+[["Trigonometric integrals","التكاملات المثلثية","Intégrales trigonométriques","Integrales trigonométricas","مثلثیاتی تکملات","त्रिकोणमितीय समाकल"],"sin^2 x = (1 − cos 2x)/2,   cos^2 x = (1 + cos 2x)/2","∫ sin^2 x dx = x/2 − (sin 2x)/4 + C"],
+[["Trigonometric substitution","التعويض المثلثي","Substitution trigonométrique","Sustitución trigonométrica","مثلثیاتی تبدیلی","त्रिकोणमितीय प्रतिस्थापन"],"√(a^2 − x^2): x = a sin θ;   √(a^2 + x^2): x = a tan θ","∫ dx/√(1 − x^2) = arcsin x + C"],
+[["Partial fractions","الكسور الجزئية","Décomposition en éléments simples","Fracciones parciales","جزوی کسور","आंशिक भिन्न"],"P(x)/((x − a)(x − b)) = A/(x − a) + B/(x − b)","∫ dx/(x^2 − 1) = (1/2) ln |(x − 1)/(x + 1)| + C"],
+[["Improper integrals","التكاملات المعتلة","Intégrales impropres","Integrales impropias","غیر مناسب تکملات","अनंत समाकल"],"∫_a^∞ f(x) dx = lim_{b→∞} ∫_a^b f(x) dx","∫_1^∞ dx/x^2 = lim_{b→∞} (1 − 1/b) = 1"]]},
+{t:["Applications of integration","تطبيقات التكامل","Applications de l'intégration","Aplicaciones de la integral","تکمل کے اطلاقات","समाकलन के अनुप्रयोग"],L:[
+[["Area between curves","المساحة بين منحنيين","Aire entre deux courbes","Área entre curvas","منحنیات کے درمیان رقبہ","वक्रों के बीच क्षेत्रफल"],"A = ∫_a^b (f(x) − g(x)) dx","y = x, y = x^2, [0, 1]:  ∫_0^1 (x − x^2) dx = 1/2 − 1/3 = 1/6"],
+[["Volumes by disks and washers","الحجوم بطريقة الأقراص والحلقات","Volumes par disques et rondelles","Volúmenes por discos y arandelas","قرص اور واشر سے حجم","डिस्क और वॉशर विधि से आयतन"],"V = π ∫_a^b (R(x)^2 − r(x)^2) dx","y = √x, [0, 4]:  V = π ∫_0^4 x dx = 8π"],
+[["Volumes by cylindrical shells","الحجوم بطريقة القشور الأسطوانية","Volumes par coquilles cylindriques","Volúmenes por capas cilíndricas","استوانی خول سے حجم","बेलनाकार कोश विधि से आयतन"],"V = 2π ∫_a^b x f(x) dx","y = x^2, [0, 1]:  V = 2π ∫_0^1 x^3 dx = π/2"],
+[["Arc length and surface area","طول القوس ومساحة السطح","Longueur d'arc et aire de surface","Longitud de arco y área de superficie","قوس کی لمبائی اور سطحی رقبہ","चाप की लंबाई और पृष्ठीय क्षेत्रफल"],"L = ∫_a^b √(1 + f′(x)^2) dx,   S = 2π ∫_a^b f(x) √(1 + f′(x)^2) dx","y = (2/3) x^{3/2}, [0, 3]:  L = ∫_0^3 √(1 + x) dx = 14/3"],
+[["Work and average value","الشغل والقيمة المتوسطة","Travail et valeur moyenne","Trabajo y valor medio","کام اور اوسط قدر","कार्य और औसत मान"],"W = ∫_a^b F(x) dx,   f_{avg} = (1/(b − a)) ∫_a^b f(x) dx","f(x) = x^2, [0, 3]:  (1/3) ∫_0^3 x^2 dx = 3"]]},
+{t:["Differential equations","المعادلات التفاضلية","Équations différentielles","Ecuaciones diferenciales","تفرقی مساواتیں","अवकल समीकरण"],L:[
+[["Slope fields and Euler's method","حقول الميل وطريقة أويلر","Champs de pentes et méthode d'Euler","Campos de pendientes y método de Euler","ڈھلوان کے میدان اور اویلر کا طریقہ","ढाल क्षेत्र और ऑयलर विधि"],"y_{n+1} = y_n + h · f(x_n, y_n)","y′ = y, y(0) = 1, h = 0.5:  y_1 = 1.5,  y_2 = 2.25"],
+[["Separable equations","المعادلات القابلة للفصل","Équations à variables séparables","Ecuaciones separables","قابلِ علیحدگی مساواتیں","पृथक्करणीय समीकरण"],"dy/dx = g(x) h(y)  ⇒  ∫ dy/h(y) = ∫ g(x) dx","dy/dx = xy  ⇒  ln |y| = x^2/2 + C  ⇒  y = C e^{x²/2}"],
+[["Exponential growth and decay","النمو والاضمحلال الأسي","Croissance et décroissance exponentielles","Crecimiento y decaimiento exponencial","قوت نمائی اضافہ اور زوال","चरघातांकी वृद्धि और क्षय"],"dy/dt = ky  ⇒  y = y_0 e^{kt}","t_{1/2} = (ln 2)/|k|"],
+[["Logistic growth","النمو اللوجستي","Croissance logistique","Crecimiento logístico","لاجسٹک نمو","लॉजिस्टिक वृद्धि"],"dP/dt = kP(1 − P/K)","P(t) = K / (1 + A e^{−kt}),   A = (K − P_0)/P_0"],
+[["First-order linear equations","المعادلات الخطية من الرتبة الأولى","Équations linéaires du premier ordre","Ecuaciones lineales de primer orden","پہلے درجے کی خطی مساواتیں","प्रथम कोटि के रैखिक समीकरण"],"y′ + p(x) y = q(x),   μ(x) = e^{∫ p dx}","y′ + y = 1:  (e^x y)′ = e^x  ⇒  y = 1 + C e^{−x}"]]},
+{t:["Sequences & series","المتتاليات والمتسلسلات","Suites et séries","Sucesiones y series","ترتیبیں اور سلسلے","अनुक्रम और श्रेणियाँ"],L:[
+[["Sequences and convergence","المتتاليات وتقاربها","Suites et convergence","Sucesiones y convergencia","ترتیبیں اور تقارب","अनुक्रम और अभिसरण"],"lim_{n→∞} a_n = L","lim_{n→∞} (1 + 1/n)^n = e"],
+[["Geometric series","المتسلسلة الهندسية","Séries géométriques","Series geométricas","ہندسی سلسلے","गुणोत्तर श्रेणी"],"Σ_{n=0}^∞ a r^n = a/(1 − r),   |r| < 1","Σ_{n=0}^∞ (1/2)^n = 1/(1 − 1/2) = 2"],
+[["Convergence tests","اختبارات التقارب","Critères de convergence","Criterios de convergencia","تقارب کے امتحانات","अभिसरण परीक्षण"],"lim |a_{n+1}/a_n| < 1 ⇒ Σ |a_n| < ∞;   Σ 1/n^p < ∞ ⇔ p > 1","Σ 1/n^2 = π^2/6;   Σ 1/n = ∞"],
+[["Power series","متسلسلات القوى","Séries entières","Series de potencias","قوتی سلسلے","घात श्रेणी"],"Σ_{n=0}^∞ c_n (x − a)^n,   |x − a| < R","Σ_{n=0}^∞ x^n = 1/(1 − x),   |x| < 1"],
+[["Taylor and Maclaurin series","متسلسلات تايلور وماكلورين","Séries de Taylor et de Maclaurin","Series de Taylor y Maclaurin","ٹیلر اور میکلارن سلسلے","टेलर और मैक्लॉरिन श्रेणी"],"f(x) = Σ_{n=0}^∞ f^{(n)}(a)/n! · (x − a)^n","e^x = Σ x^n/n!,   sin x = x − x^3/3! + x^5/5! − …"]]},
+{t:["Parametric, polar & vectors","المعادلات الوسيطية والقطبية والمتجهات","Courbes paramétrées, polaires et vecteurs","Paramétricas, polares y vectores","پیرامیٹرک، قطبی اور سمتیے","प्राचलिक, ध्रुवीय और सदिश"],L:[
+[["Parametric curves","المنحنيات الوسيطية","Courbes paramétrées","Curvas paramétricas","پیرامیٹرک منحنیات","प्राचलिक वक्र"],"dy/dx = (dy/dt) / (dx/dt)","x = t^2, y = t^3  ⇒  dy/dx = 3t^2/(2t) = 3t/2"],
+[["Polar coordinates and area","الإحداثيات القطبية والمساحة","Coordonnées polaires et aire","Coordenadas polares y área","قطبی محدد اور رقبہ","ध्रुवीय निर्देशांक और क्षेत्रफल"],"x = r cos θ,  y = r sin θ,   A = (1/2) ∫_α^β r^2 dθ","r = 1, [0, 2π]:  A = (1/2) · 2π = π"],
+[["Vectors, dot and cross products","المتجهات والضرب القياسي والاتجاهي","Vecteurs, produit scalaire et produit vectoriel","Vectores, producto escalar y vectorial","سمتیے، نقطہ اور صلیبی حاصل ضرب","सदिश, अदिश और सदिश गुणनफल"],"a · b = |a||b| cos θ,   |a × b| = |a||b| sin θ","(1, 2, 3) · (4, −5, 6) = 4 − 10 + 18 = 12"],
+[["Vector-valued functions","الدوال المتجهة","Fonctions vectorielles","Funciones vectoriales","سمتی قدر والے تفاعلات","सदिश-मान फलन"],"r(t) = (x(t), y(t), z(t)),   r′(t) = (x′(t), y′(t), z′(t))","r(t) = (cos t, sin t, t)  ⇒  r′(t) = (−sin t, cos t, 1),  |r′| = √2"],
+[["Arc length and curvature","طول القوس والانحناء","Longueur d'arc et courbure","Longitud de arco y curvatura","قوس کی لمبائی اور انحنا","चाप की लंबाई और वक्रता"],"L = ∫_a^b |r′(t)| dt,   κ = |r′ × r″| / |r′|^3","r(t) = (R cos t, R sin t)  ⇒  κ = 1/R"]]},
+{t:["Partial derivatives","المشتقات الجزئية","Dérivées partielles","Derivadas parciales","جزوی مشتقات","आंशिक अवकलज"],L:[
+[["Functions of several variables","الدوال في عدة متغيرات","Fonctions de plusieurs variables","Funciones de varias variables","کئی متغیرات کے تفاعلات","बहुचर फलन"],"f : ℝ^2 → ℝ,   lim_{(x,y)→(a,b)} f(x, y) = L","f(x, y) = x^2 + y^2 = c  ⇒  r = √c"],
+[["Partial derivatives","المشتقات الجزئية","Dérivées partielles","Derivadas parciales","جزوی مشتقات","आंशिक अवकलज"],"∂f/∂x = lim_{h→0} (f(x + h, y) − f(x, y)) / h","f = x^2 y  ⇒  f_x = 2xy,  f_y = x^2,  f_{xy} = f_{yx} = 2x"],
+[["Gradient and directional derivative","التدرج والمشتقة الاتجاهية","Gradient et dérivée directionnelle","Gradiente y derivada direccional","گریڈیئنٹ اور سمتی مشتق","प्रवणता और दिक्-अवकलज"],"∇f = (f_x, f_y),   D_u f = ∇f · u,  |u| = 1","f = x^2 + y^2, (1, 1):  ∇f = (2, 2),  max D_u f = |∇f| = 2√2"],
+[["Chain rule and tangent planes","قاعدة السلسلة والمستويات المماسة","Dérivation en chaîne et plans tangents","Regla de la cadena y planos tangentes","زنجیری قاعدہ اور مماس مستوی","श्रृंखला नियम और स्पर्श तल"],"dz/dt = f_x x′(t) + f_y y′(t),   z = f(a, b) + f_x (x − a) + f_y (y − b)","z = x^2 + y^2, (1, 1, 2):  z = 2 + 2(x − 1) + 2(y − 1)"],
+[["Extrema and Lagrange multipliers","القيم القصوى ومضاعفات لاغرانج","Extremums et multiplicateurs de Lagrange","Extremos y multiplicadores de Lagrange","انتہائی اقدار اور لاگرانج ضارب","चरम मान और लग्रांज गुणक"],"∇f = λ ∇g,   g(x, y) = c","max xy,  x + y = 10:  (y, x) = λ(1, 1)  ⇒  x = y = 5,  xy = 25"]]},
+{t:["Multiple integrals & vector calculus","التكاملات المتعددة وحساب المتجهات","Intégrales multiples et analyse vectorielle","Integrales múltiples y cálculo vectorial","متعدد تکملات اور سمتی کیلکولس","बहु समाकल और सदिश कैलकुलस"],L:[
+[["Double integrals","التكاملات الثنائية","Intégrales doubles","Integrales dobles","دوہرے تکملات","द्विशः समाकल"],"∬_R f dA = ∫_a^b ∫_c^d f(x, y) dy dx","∫_0^1 ∫_0^2 xy dy dx = ∫_0^1 2x dx = 1"],
+[["Polar, cylindrical and spherical coordinates","الإحداثيات القطبية والأسطوانية والكروية","Coordonnées polaires, cylindriques et sphériques","Coordenadas polares, cilíndricas y esféricas","قطبی، استوانی اور کروی محدد","ध्रुवीय, बेलनाकार और गोलीय निर्देशांक"],"dA = r dr dθ,   dV = r dz dr dθ = ρ^2 sin φ dρ dφ dθ","∬ e^{−x²−y²} dA = ∫_0^{2π} ∫_0^∞ e^{−r²} r dr dθ = π"],
+[["Triple integrals and change of variables","التكاملات الثلاثية وتغيير المتغيرات","Intégrales triples et changement de variables","Integrales triples y cambio de variables","تہرے تکملات اور تبدیلیِ متغیرات","त्रिशः समाकल और चर परिवर्तन"],"∭_E f dV,   dx dy = |∂(x, y)/∂(u, v)| du dv","∫_0^{2π} ∫_0^π ∫_0^R ρ^2 sin φ dρ dφ dθ = (4/3)πR^3"],
+[["Line integrals and Green's theorem","التكاملات الخطية ومبرهنة غرين","Intégrales curvilignes et théorème de Green","Integrales de línea y teorema de Green","خطی تکملات اور گرین کا مسئلہ","रेखा समाकल और ग्रीन प्रमेय"],"∮_C P dx + Q dy = ∬_D (∂Q/∂x − ∂P/∂y) dA","∮_C (−y dx + x dy) = ∬_D 2 dA = 2 · A(D)"],
+[["Divergence and Stokes' theorems","مبرهنتا التباعد وستوكس","Théorèmes de la divergence et de Stokes","Teoremas de la divergencia y de Stokes","ڈائیورجنس اور اسٹوکس کے مسائل","डाइवर्जेंस और स्टोक्स प्रमेय"],"∬_S F · dS = ∭_E ∇·F dV,   ∮_C F · dr = ∬_S (∇ × F) · dS","F = (x, y, z),  x^2 + y^2 + z^2 ≤ 1:  ∭ 3 dV = 3 · (4/3)π = 4π"]]}
+];
+
+/* One symbolic question per unit, so the quiz reads the same in every language. */
+const QS=[
+{q:"ln(e^3) = ?",o:["e^3","3","1/3","0"],a:1},
+{q:"lim_{x→2} (x^2 − 4)/(x − 2) = ?",o:["0","2","4","∞"],a:2},
+{q:"d/dx (x^3) = ?",o:["3x^2","x^2","3x","x^4/4"],a:0},
+{q:"lim_{x→0} (e^x − 1)/x = ?",o:["0","e","∞","1"],a:3},
+{q:"∫_0^1 x^2 dx = ?",o:["1/2","1/3","1","2/3"],a:1},
+{q:"∫ x e^x dx = ?",o:["x e^x + C","(x + 1)e^x + C","(x − 1)e^x + C","x^2 e^x/2 + C"],a:2},
+{q:"∫_0^1 (x − x^2) dx = ?",o:["1/6","1/3","1/2","1/12"],a:0},
+{q:"y′ = y,  y(0) = 2  ⇒  y = ?",o:["e^{2x}","e^x + 1","2x + 2","2e^x"],a:3},
+{q:"Σ_{n=0}^∞ (1/2)^n = ?",o:["1","2","1/2","∞"],a:1},
+{q:"(1, 2, 3) · (4, −5, 6) = ?",o:["32","−12","12","8"],a:2},
+{q:"f = x^2 y  ⇒  ∂f/∂x = ?",o:["2xy","x^2","2x","2y"],a:0},
+{q:"∫_0^1 ∫_0^2 xy dy dx = ?",o:["2","1/2","4","1"],a:3}
+];
+
+const $=s=>document.querySelector(s);
+let S={lang:"en",done:[],plan:"free",bill:"m"};
+try{Object.assign(S,JSON.parse(localStorage.getItem("tangent.v1"))||{})}catch(e){}
+if(!LANGS.includes(S.lang))S.lang="en";
+if(!Array.isArray(S.done))S.done=[];
+const save=()=>{try{localStorage.setItem("tangent.v1",JSON.stringify(S))}catch(e){}};
+const li=()=>LANGS.indexOf(S.lang);
+const t=k=>T[k][li()];
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const fmt=s=>esc(s).replace(/\^\{([^}]*)\}|\^([^\s{])|_\{([^}]*)\}|_([^\s{])/g,(m,a,b,c,d)=>a!==undefined||b!==undefined?"<sup>"+(a!==undefined?a:b)+"</sup>":"<sub>"+(c!==undefined?c:d)+"</sub>");
+const open=u=>u<3||S.plan!=="free";
+const pill=u=>u<3?`<span class="pill">${esc(t("free"))}</span>`:`<span class="pill pro">Pro</span>`;
+
+function applyText(){
+  const h=document.documentElement;h.lang=S.lang;h.dir=(S.lang==="ar"||S.lang==="ur")?"rtl":"ltr";
+  document.querySelectorAll("[data-t]").forEach(e=>e.textContent=t(e.dataset.t));
+  document.querySelectorAll("[data-tp]").forEach(e=>e.placeholder=t(e.dataset.tp));
+  $("#lang").value=S.lang;
+}
+function renderPath(){
+  $("#path").innerHTML=U.map((u,i)=>`<li><a href="#course"><span class="num">${i+1}</span><span class="grow">${esc(u.t[li()])}</span>${pill(i)}</a></li>`).join("");
+}
+function unitDone(i){return S.done.filter(k=>k.split("-")[0]==i).length}
+function progress(){
+  const n=S.done.length;$("#pc").textContent=n+" / 60 "+t("done");$("#pb").style.width=(n/60*100)+"%";
+  U.forEach((u,i)=>{const c=document.getElementById("c"+i);if(c)c.textContent=unitDone(i)+"/5"});
+}
+function renderCourse(){
+  const q=$("#q").value.trim().toLowerCase(),l=li();let out="";
+  U.forEach((u,i)=>{
+    const ls=u.L.map((x,j)=>({x,j})).filter(({x})=>!q||(x[0][l]+" "+x[0][0]+" "+x[1]+" "+x[2]+" "+u.t[l]+" "+u.t[0]).toLowerCase().includes(q));
+    if(!ls.length)return;
+    let body;
+    if(open(i))body=ls.map(({x,j})=>`<details class="lesson"><summary><span class="num">${i+1}.${j+1}</span><span class="grow">${esc(x[0][l])}</span></summary><div class="lb"><p class="lab">${esc(t("formula"))}</p><div class="math" dir="ltr">${fmt(x[1])}</div><p class="lab">${esc(t("example"))}</p><div class="math ex" dir="ltr">${fmt(x[2])}</div><label class="chk" for="d-${i}-${j}"><input type="checkbox" id="d-${i}-${j}" data-k="${i}-${j}"${S.done.includes(i+"-"+j)?" checked":""}>${esc(t("mark"))}</label></div></details>`).join("");
+    else body=`<ol class="locked">${ls.map(({x})=>`<li>${esc(x[0][l])}</li>`).join("")}</ol><a class="btn ghost" href="#plans">${esc(t("locked"))}</a>`;
+    out+=`<details class="unit"${q||i===0?" open":""}><summary><span class="num">${i+1}</span><span class="grow">${esc(u.t[l])}</span>${pill(i)}<span class="cnt" id="c${i}"></span></summary><div class="ub">${body}</div></details>`;
+  });
+  $("#units").innerHTML=out||`<p class="empty">${esc(t("none"))}</p>`;
+  progress();
+}
+$("#units").addEventListener("change",e=>{
+  const k=e.target.dataset.k;if(!k)return;
+  S.done=S.done.filter(x=>x!==k);if(e.target.checked)S.done.push(k);save();progress();
+});
+$("#q").addEventListener("input",renderCourse);
+
+let Q={i:0,s:0,p:null};
+function renderQuiz(){
+  const el=$("#quiz");
+  if(Q.i>=QS.length){el.innerHTML=`<p class="big">${esc(t("score"))}: ${Q.s} / ${QS.length}</p><div><button type="button" class="btn" data-act="again">${esc(t("again"))}</button></div>`;return}
+  const q=QS[Q.i],ans=Q.p!==null;
+  el.innerHTML=`<p class="lab">${esc(t("question"))} ${Q.i+1} / ${QS.length} · ${esc(U[Q.i].t[li()])}</p><div class="math" dir="ltr">${fmt(q.q)}</div><div class="opts" dir="ltr">${q.o.map((o,k)=>`<button type="button" class="opt${ans&&k===q.a?" ok":ans&&k===Q.p?" no":""}" data-k="${k}"${ans?" disabled":""}>${fmt(o)}</button>`).join("")}</div>`+
+  (ans?(Q.p===q.a?`<p class="fb ok">✓ ${esc(t("right"))}</p>`:`<p class="fb no">✗ ${esc(t("wrong"))} <span dir="ltr">${fmt(q.o[q.a])}</span></p>`)+`<div><button type="button" class="btn" data-act="next">${esc(t("next"))}</button></div>`:"");
+}
+$("#quiz").addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.act==="again")Q={i:0,s:0,p:null};
+  else if(b.dataset.act==="next"){Q.i++;Q.p=null}
+  else if(b.dataset.k!==undefined&&Q.p===null){Q.p=+b.dataset.k;if(Q.p===QS[Q.i].a)Q.s++}
+  renderQuiz();
+});
+
+function renderPlans(){
+  const y=S.bill==="y";
+  $("#bm").setAttribute("aria-pressed",!y);$("#by").setAttribute("aria-pressed",y);
+  const P=[{id:"free",n:t("free"),m:0,y:0,u:"perMonth",f:["f1","f2","f3"]},{id:"pro",n:"Pro",m:8,y:5,u:"perMonth",f:["p1","p2","p3"],hi:1},{id:"class",n:t("classroom"),m:4,y:3,u:"perStudent",f:["c1","c2"]}];
+  $("#cards").innerHTML=P.map(p=>{const cur=S.plan===p.id,pr=y?p.y:p.m;
+    return `<article class="card plan${p.hi?" hi":""}"><h2>${esc(p.n)}${p.hi&&y?`<span class="pill pro">${esc(t("save"))}</span>`:""}</h2><div><div class="price" dir="ltr">$${pr}</div><div class="per">${esc(t(p.u))}${y&&pr?" · "+esc(t("billedY")):""}</div></div><ul>${p.f.map(k=>`<li>${esc(t(k))}</li>`).join("")}</ul><button type="button" class="btn" data-p="${p.id}"${cur?" disabled":""}>${esc(t(cur?"current":"choose"))}</button></article>`}).join("");
+}
+$("#cards").addEventListener("click",e=>{const b=e.target.closest("button[data-p]");if(!b)return;S.plan=b.dataset.p;save();renderPlans();renderCourse()});
+$("#bm").addEventListener("click",()=>{S.bill="m";save();renderPlans()});
+$("#by").addEventListener("click",()=>{S.bill="y";save();renderPlans()});
+
+/* Graphs */
+const F1=[{f:x=>x*x,d:x=>2*x},{f:Math.sin,d:Math.cos},{f:x=>x*x*x-3*x,d:x=>3*x*x-3},{f:Math.exp,d:Math.exp}];
+const F2=[{f:x=>x*x,a:0,b:2,ex:8/3,top:4.4},{f:Math.sin,a:0,b:Math.PI,ex:2,top:1.3},{f:Math.sqrt,a:0,b:4,ex:16/3,top:2.4}];
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function prep(c){const r=c.getBoundingClientRect();if(r.width<2)return null;const d=window.devicePixelRatio||1;c.width=Math.round(r.width*d);c.height=Math.round(r.height*d);const g=c.getContext("2d");g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,r.width,r.height);return{g,w:r.width,h:r.height}}
+function frame(g,w,h,v){
+  const X=x=>(x-v.x0)/(v.x1-v.x0)*w,Y=y=>h-(y-v.y0)/(v.y1-v.y0)*h;
+  g.lineWidth=1;g.strokeStyle=css("--line");g.beginPath();
+  for(let x=Math.ceil(v.x0);x<=v.x1;x++){g.moveTo(X(x),0);g.lineTo(X(x),h)}
+  for(let y=Math.ceil(v.y0);y<=v.y1;y++){g.moveTo(0,Y(y));g.lineTo(w,Y(y))}
+  g.stroke();
+  g.strokeStyle=css("--muted");g.lineWidth=1.2;g.beginPath();g.moveTo(0,Y(0));g.lineTo(w,Y(0));g.moveTo(X(0),0);g.lineTo(X(0),h);g.stroke();
+  g.fillStyle=css("--muted");g.font="12px sans-serif";g.textAlign="center";g.textBaseline="top";
+  for(let x=Math.ceil(v.x0);x<=v.x1;x++)if(x!==0)g.fillText(x,X(x),Y(0)+4);
+  return{X,Y};
+}
+function curve(g,f,X,Y,a,b,col){g.strokeStyle=col;g.lineWidth=2.6;g.lineJoin="round";g.beginPath();for(let i=0;i<=240;i++){const x=a+(b-a)*i/240,y=f(x);i?g.lineTo(X(x),Y(y)):g.moveTo(X(x),Y(y))}g.stroke()}
+const V1={x0:-3.3,x1:3.3,y0:-3.2,y1:5.2};
+function draw1(){
+  const p=prep($("#cv1"));if(!p)return;const{g,w,h}=p,{X,Y}=frame(g,w,h,V1);
+  const F=F1[+$("#fn1").value],a=+$("#x0").value,fa=F.f(a),m=F.d(a);
+  curve(g,F.f,X,Y,V1.x0,V1.x1,css("--curve"));
+  g.strokeStyle=css("--tangent");g.lineWidth=2;g.beginPath();g.moveTo(X(V1.x0),Y(fa+m*(V1.x0-a)));g.lineTo(X(V1.x1),Y(fa+m*(V1.x1-a)));g.stroke();
+  g.fillStyle=css("--tangent");g.beginPath();g.arc(X(a),Y(fa),6,0,7);g.fill();
+  g.strokeStyle=css("--surface");g.lineWidth=2;g.stroke();
+  $("#r1").innerHTML=`<div><span>${esc(t("point"))}</span><b>x₀ = ${a.toFixed(2)}</b></div><div><b>f(x₀) = ${fa.toFixed(2)}</b></div><div><span>${esc(t("slope"))}</span><b class="tg">f′(x₀) = ${m.toFixed(2)}</b></div>`;
+}
+function draw2(){
+  const p=prep($("#cv2"));if(!p)return;const{g,w,h}=p,F=F2[+$("#fn2").value],n=+$("#nn").value;
+  const pad=(F.b-F.a)*.12,v={x0:F.a-pad,x1:F.b+pad,y0:-F.top*.14,y1:F.top},{X,Y}=frame(g,w,h,v);
+  const dx=(F.b-F.a)/n;let s=0;
+  g.fillStyle=css("--curve");g.strokeStyle=css("--curve");g.lineWidth=1;
+  for(let i=0;i<n;i++){const x=F.a+i*dx,y=F.f(x+dx/2);s+=y*dx;g.globalAlpha=.2;g.fillRect(X(x),Y(y),X(x+dx)-X(x),Y(0)-Y(y));g.globalAlpha=.7;g.strokeRect(X(x),Y(y),X(x+dx)-X(x),Y(0)-Y(y))}
+  g.globalAlpha=1;curve(g,F.f,X,Y,F.a,F.b,css("--tangent"));
+  $("#r2").innerHTML=`<div><span>${esc(t("rects"))}</span><b dir="ltr">n = ${n}</b></div><div><span>${esc(t("sum"))}</span><b dir="ltr">${s.toFixed(4)}</b></div><div><span>${esc(t("exact"))}</span><b dir="ltr">${F.ex.toFixed(4)}</b></div><div><span>${esc(t("error"))}</span><b class="tg" dir="ltr">${Math.abs(s-F.ex).toFixed(4)}</b></div>`;
+}
+function draw(){draw1();draw2()}
+["#fn1","#x0"].forEach(s=>$(s).addEventListener("input",draw1));
+["#fn2","#nn"].forEach(s=>$(s).addEventListener("input",draw2));
+(function(){const c=$("#cv1");let on=false;
+  const mv=e=>{const r=c.getBoundingClientRect();let x=V1.x0+(e.clientX-r.left)/r.width*(V1.x1-V1.x0);x=Math.max(-3,Math.min(3,x));$("#x0").value=x;draw1()};
+  c.addEventListener("pointerdown",e=>{on=true;try{c.setPointerCapture(e.pointerId)}catch(_){}mv(e)});
+  c.addEventListener("pointermove",e=>{if(on)mv(e)});
+  ["pointerup","pointercancel"].forEach(n=>c.addEventListener(n,()=>{on=false}));
+})();
+window.addEventListener("resize",draw);
+try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",draw)}catch(e){}
+new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+
+function route(){
+  let v=(location.hash||"#home").slice(1);if(!["home","course","practice","plans"].includes(v))v="home";
+  document.querySelectorAll(".view").forEach(s=>s.classList.toggle("on",s.id==="v-"+v));
+  document.querySelectorAll("#nav a").forEach(a=>{a.dataset.v===v?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current")});
+  if(v==="home")draw();window.scrollTo(0,0);
+}
+function renderAll(){applyText();renderPath();renderCourse();renderQuiz();renderPlans();draw()}
+$("#lang").addEventListener("change",e=>{S.lang=e.target.value;save();renderAll()});
+window.addEventListener("hashchange",route);
+renderAll();route();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
+</script>
+</body>
+</html>

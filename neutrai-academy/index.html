@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NeutrAI Academy</title>
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112,600;112,800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a quiet lab-notebook page around one bold element, a reactor-pool panel lit in Cherenkov blue. */
+:root{
+  --paper:#F2F5F9; --surface:#FFFFFF; --ink:#0D1B2A; --muted:#55657A; --line:#D5DDE8;
+  --glow:#0A6FD1; --glow-soft:#DCEBFA; --hot:#B4530B; --ok:#1B7F4B; --crit:#B3261E;
+  --pool:#051426; --pool-2:#0A2A4A; --pool-ink:#E8F3FF; --pool-muted:#8FB4D9; --pool-glow:#55BEFF;
+  --display:"Archivo","IBM Plex Sans Arabic","Segoe UI",system-ui,sans-serif;
+  --body:"IBM Plex Sans","IBM Plex Sans Arabic","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#061320; --surface:#0C1E31; --ink:#E6F0FA; --muted:#8FA6BF; --line:#1D3550;
+    --glow:#4DB5FF; --glow-soft:#0F2E4A; --hot:#F2A65A; --ok:#5BD197; --crit:#FF8A80;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#061320; --surface:#0C1E31; --ink:#E6F0FA; --muted:#8FA6BF; --line:#1D3550;
+  --glow:#4DB5FF; --glow-soft:#0F2E4A; --hot:#F2A65A; --ok:#5BD197; --crit:#FF8A80;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+[dir="rtl"] .track>h3,[dir="rtl"] .ex b,[dir="rtl"] .pool .eyebrow{letter-spacing:0;font-family:var(--body)}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+h1,h2,h3{font-family:var(--display);font-stretch:112%;font-weight:800;line-height:1.1;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(1.9rem,7vw,3.2rem)}
+h2{font-size:clamp(1.4rem,4.5vw,2rem)}
+h3{font-size:1.05rem;font-weight:600}
+p{margin:0}
+a{color:var(--glow)}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
+.wrap{max-width:1040px;margin-inline:auto;padding-inline:16px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+
+header.top{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--display);font-stretch:112%;font-weight:800;font-size:1.05rem;text-decoration:none;color:var(--ink)}
+.brand svg{width:26px;height:26px;flex:none}
+.brand span span{color:var(--glow)}
+.lang{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 8px;max-width:9.5rem}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs a{flex:none;text-decoration:none;color:var(--muted);padding:6px 12px;border-radius:999px;font-weight:500;font-size:.95rem}
+nav.tabs a[aria-current="page"]{background:var(--ink);color:var(--paper)}
+
+main{padding-block:20px 48px}
+.view{display:grid;gap:24px}
+.head{display:grid;gap:6px}
+.head p{color:var(--muted);max-width:60ch}
+
+/* hero pool */
+.pool{background:radial-gradient(120% 90% at 50% 110%,#0E4C86 0%,var(--pool-2) 38%,var(--pool) 78%);color:var(--pool-ink);border-radius:20px;padding:22px 18px;display:grid;gap:22px;overflow:hidden}
+.pool .eyebrow{font-family:var(--mono);font-size:.78rem;color:var(--pool-glow);letter-spacing:.02em}
+.pool .lede{color:var(--pool-muted);max-width:52ch;margin-top:10px}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid transparent;border-radius:10px;padding:10px 16px;font-weight:600;text-decoration:none;cursor:pointer;background:var(--glow);color:#fff;min-height:44px}
+:root[data-theme="dark"] .btn,.pool .btn{background:var(--pool-glow);color:#04121F}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{background:var(--pool-glow);color:#04121F}}
+.btn.ghost,.pool .btn.ghost{background:transparent;color:inherit;border-color:currentColor}
+.btn.small{min-height:36px;padding:6px 12px;font-size:.92rem}
+.btn[disabled]{opacity:.55;cursor:default}
+.explorer{background:rgba(3,14,27,.55);border:1px solid rgba(85,190,255,.25);border-radius:14px;padding:14px;display:grid;gap:10px}
+.explorer h3{color:var(--pool-ink)}
+.explorer canvas{width:100%;height:190px;display:block;touch-action:pan-y;cursor:crosshair}
+.readout{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px}
+.readout .nuc{font-family:var(--display);font-stretch:112%;font-weight:800;font-size:1.7rem;color:var(--pool-glow)}
+.readout .mono{font-size:.9rem;color:var(--pool-ink)}
+.explorer label{font-size:.85rem;color:var(--pool-muted);display:grid;gap:4px}
+.explorer .say{font-size:.95rem}
+.explorer .note{font-size:.78rem;color:var(--pool-muted)}
+input[type=range]{width:100%;accent-color:var(--glow);min-height:28px}
+.pool input[type=range]{accent-color:var(--pool-glow)}
+@media (min-width:820px){.pool{grid-template-columns:1fr 1fr;align-items:center;padding:36px}}
+
+/* courses */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:500;min-height:36px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.track{display:grid;gap:10px}
+.track>h3{display:flex;align-items:center;gap:8px;font-size:.82rem;font-family:var(--mono);font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.track>h3::after{content:"";flex:1;height:1px;background:var(--line)}
+.grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.course{text-align:start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;display:grid;gap:10px;align-content:space-between;min-height:118px}
+.course:hover{border-color:var(--glow)}
+.course .code{font-family:var(--mono);font-size:.75rem;color:var(--glow)}
+.course .name{font-family:var(--display);font-stretch:112%;font-weight:600;font-size:1.02rem;line-height:1.2}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:.8rem;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;border-radius:999px;padding:1px 8px;font-size:.74rem;font-weight:600;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.pill.free{color:var(--ok);border-color:var(--ok)}
+.pill.lock{color:var(--hot);border-color:var(--hot)}
+.pill.done{background:var(--ok);border-color:var(--ok);color:var(--paper)}
+.meter{height:4px;background:var(--line);border-radius:4px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--glow)}
+
+.detail{display:grid;gap:16px}
+.linkbtn{background:none;border:0;padding:0;color:var(--glow);cursor:pointer;font-weight:500;text-align:start}
+.split{display:grid;gap:16px}
+@media (min-width:820px){.split{grid-template-columns:300px 1fr;align-items:start}}
+.mods{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.mods button{width:100%;text-align:start;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;display:flex;gap:10px;align-items:center;justify-content:space-between}
+.mods button[aria-current="true"]{border-color:var(--glow);background:var(--glow-soft)}
+.mods .n{font-family:var(--mono);color:var(--muted);font-size:.8rem;margin-inline-end:8px}
+.lesson{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:14px}
+.lesson p{max-width:65ch}
+.eq{font-family:var(--mono);background:var(--glow-soft);border-inline-start:3px solid var(--glow);padding:10px 12px;border-radius:6px;overflow-x:auto;direction:ltr;text-align:left;white-space:nowrap}
+.ex{border:1px dashed var(--line);border-radius:10px;padding:12px;display:grid;gap:4px}
+.ex b{font-size:.78rem;font-family:var(--mono);font-weight:500;color:var(--hot);text-transform:uppercase;letter-spacing:.05em}
+.ai{white-space:pre-wrap;border-top:1px solid var(--line);padding-top:12px;max-width:65ch}
+.ainote{font-size:.8rem;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+/* lab */
+.panels{display:grid;gap:14px}
+@media (min-width:820px){.panels{grid-template-columns:1fr 1fr;align-items:start}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px}
+.panel canvas{width:100%;height:160px;display:block}
+.fields{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+.fields label,.sl label{display:grid;gap:4px;font-size:.82rem;color:var(--muted)}
+.fields select,.fields input{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:8px;width:100%;min-width:0}
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.out div{background:var(--paper);border-radius:8px;padding:8px 10px}
+.out small{display:block;color:var(--muted);font-size:.75rem}
+.out b{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums}
+.sl{display:grid;gap:8px;grid-template-columns:1fr 1fr}
+.sl label span{display:flex;justify-content:space-between;gap:6px;direction:ltr}
+.sl label b{font-family:var(--mono);font-weight:500;color:var(--ink)}
+.kbox{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.kbox .k{font-family:var(--display);font-stretch:112%;font-weight:800;font-size:2rem;direction:ltr}
+.state{border-radius:999px;padding:3px 12px;font-weight:600;font-size:.85rem;color:var(--paper)}
+.state.sub{background:var(--muted)} .state.crit{background:var(--ok)} .state.sup{background:var(--crit)}
+
+/* briefing */
+.news{list-style:none;margin:0;padding:0;display:grid;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.news li{display:grid;gap:4px;padding:12px 14px;border-top:1px solid var(--line)}
+.news li:first-child{border-top:0}
+.news a{color:var(--ink);font-weight:500;text-decoration:none}
+.news a:hover{color:var(--glow);text-decoration:underline}
+
+/* tutor */
+.chat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:12px}
+.msgs{display:grid;gap:10px;max-height:52vh;overflow-y:auto}
+.msg{padding:10px 12px;border-radius:12px;white-space:pre-wrap;max-width:65ch;overflow-wrap:anywhere}
+.msg.u{background:var(--ink);color:var(--paper);justify-self:end}
+.msg.a{background:var(--glow-soft)}
+.ask{display:flex;gap:8px}
+.ask input{flex:1;min-width:0;border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:10px 12px}
+.notice{background:var(--glow-soft);border-radius:10px;padding:10px 12px;font-size:.92rem}
+
+/* pricing */
+.toggles{display:flex;flex-wrap:wrap;gap:10px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:8px 12px;cursor:pointer;font-weight:500;min-height:40px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.plans{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px;align-content:start}
+.plan.pick{border:2px solid var(--glow)}
+.price{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.price b{font-family:var(--display);font-stretch:112%;font-weight:800;font-size:2rem;direction:ltr}
+.price span{color:var(--muted);font-size:.85rem}
+.plan ul{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:.92rem}
+.plan li{padding-inline-start:18px;position:relative}
+.plan li::before{content:"";position:absolute;inset-inline-start:0;top:.55em;width:8px;height:8px;border-radius:50%;background:var(--glow)}
+.plan .btn{width:100%}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);padding:20px;max-width:min(420px,calc(100vw - 32px))}
+dialog::backdrop{background:rgba(3,14,27,.6)}
+dialog .stack{display:grid;gap:12px}
+footer{border-top:1px solid var(--line);padding-block:16px;color:var(--muted);font-size:.85rem}
+@media (prefers-reduced-motion:no-preference){.course,.chip,.btn{transition:border-color .15s,background-color .15s}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="bar">
+      <a class="brand" href="#home" aria-label="NeutrAI Academy">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="4" fill="currentColor"/><g fill="none" stroke="var(--glow)" stroke-width="1.6"><ellipse cx="16" cy="16" rx="14" ry="5.5"/><ellipse cx="16" cy="16" rx="14" ry="5.5" transform="rotate(60 16 16)"/><ellipse cx="16" cy="16" rx="14" ry="5.5" transform="rotate(120 16 16)"/></g></svg>
+        <span>Neutr<span>AI</span> Academy</span>
+      </a>
+      <select class="lang" id="lang" aria-label="Language">
+        <option value="en">English</option>
+        <option value="ar">العربية</option>
+        <option value="fr">Français</option>
+        <option value="es">Español</option>
+        <option value="zh">中文</option>
+      </select>
+    </div>
+    <nav class="tabs" id="tabs" aria-label="Sections">
+      <a href="#home" data-v="home" data-i="nav_home"></a>
+      <a href="#courses" data-v="courses" data-i="nav_courses"></a>
+      <a href="#lab" data-v="lab" data-i="nav_lab"></a>
+      <a href="#briefing" data-v="briefing" data-i="nav_brief"></a>
+      <a href="#tutor" data-v="tutor" data-i="nav_tutor"></a>
+      <a href="#pricing" data-v="pricing" data-i="nav_pricing"></a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- HOME -->
+  <section class="view" id="v-home">
+    <div class="pool">
+      <div>
+        <div class="eyebrow" data-i="hero_eyebrow"></div>
+        <h1 data-i="hero_h" style="margin-top:10px"></h1>
+        <p class="lede" data-i="hero_p"></p>
+        <div class="cta">
+          <a class="btn" href="#pricing" data-i="cta_start"></a>
+          <a class="btn ghost" href="#courses" data-i="cta_browse"></a>
+        </div>
+      </div>
+      <div class="explorer">
+        <h3 data-i="be_title"></h3>
+        <canvas id="beC" aria-label="Binding energy curve"></canvas>
+        <div class="readout">
+          <span class="nuc" id="beNuc" dir="ltr"></span>
+          <span class="mono" id="beVal" dir="ltr"></span>
+        </div>
+        <label><span data-i="be_mass"></span>
+          <input type="range" id="beA" min="8" max="260" step="1" value="56">
+        </label>
+        <p class="say" id="beSay"></p>
+        <p class="note" data-i="be_note"></p>
+      </div>
+    </div>
+    <div id="homeCourses"></div>
+  </section>
+
+  <!-- COURSES -->
+  <section class="view" id="v-courses" hidden>
+    <div id="courseList" class="view"></div>
+    <div id="courseDetail" class="detail" hidden></div>
+  </section>
+
+  <!-- LAB -->
+  <section class="view" id="v-lab" hidden>
+    <div class="head"><h2 data-i="nav_lab"></h2><p data-i="lab_p"></p></div>
+    <div class="panels">
+      <div class="panel">
+        <h3 data-i="decay_h"></h3>
+        <div class="fields">
+          <label><span data-i="iso"></span><select id="dIso"></select></label>
+          <label><span data-i="a0"></span><input id="dA0" type="number" min="0" step="any" value="1000000" inputmode="decimal"></label>
+        </div>
+        <canvas id="dC" aria-label="Decay curve"></canvas>
+        <label class="muted" style="font-size:.82rem;display:grid;gap:4px"><span data-i="elapsed"></span>
+          <input type="range" id="dT" min="0" max="6" step="0.05" value="1">
+        </label>
+        <div class="out">
+          <div><small data-i="halflife"></small><b id="dHL" dir="ltr"></b></div>
+          <div><small data-i="elapsed"></small><b id="dEl" dir="ltr"></b></div>
+          <div><small data-i="remaining"></small><b id="dRem" dir="ltr"></b></div>
+          <div><small data-i="activity"></small><b id="dAct" dir="ltr"></b></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 data-i="ff_h"></h3>
+        <p class="muted" style="font-size:.9rem" data-i="ff_p"></p>
+        <div class="eq">k = η · f · p · ε · P_FNL · P_TNL</div>
+        <div class="sl" id="ffS"></div>
+        <div class="kbox">
+          <span class="k mono" id="ffK"></span>
+          <span class="state" id="ffState"></span>
+          <span class="mono muted" id="ffRho" dir="ltr"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BRIEFING -->
+  <section class="view" id="v-briefing" hidden>
+    <div class="head"><h2 data-i="nav_brief"></h2><p data-i="brief_p"></p></div>
+    <ul class="news" id="news"></ul>
+    <div class="row"><button class="btn small ghost" id="newsTr" data-i="brief_tr" hidden></button></div>
+    <div class="lesson" id="newsOut" hidden><div class="ai" style="border:0;padding:0"></div><p class="ainote" data-i="ai_label"></p></div>
+  </section>
+
+  <!-- TUTOR -->
+  <section class="view" id="v-tutor" hidden>
+    <div class="head"><h2 data-i="nav_tutor"></h2><p data-i="tutor_p"></p></div>
+    <div class="notice" id="aiOff" data-i="ai_off"></div>
+    <div class="chat">
+      <div class="msgs" id="msgs" aria-live="polite"></div>
+      <div class="chips" id="quick"></div>
+      <form class="ask" id="ask">
+        <input id="q" autocomplete="off">
+        <button class="btn" type="submit" data-i="send"></button>
+      </form>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="view" id="v-pricing" hidden>
+    <div class="head"><h2 data-i="nav_pricing"></h2><p data-i="pricing_p"></p></div>
+    <div class="toggles">
+      <div class="seg" id="segScope">
+        <button data-s="phys" data-i="scope_phys"></button>
+        <button data-s="full" data-i="scope_full"></button>
+      </div>
+      <div class="seg" id="segBill">
+        <button data-b="m" data-i="monthly"></button>
+        <button data-b="y" data-i="yearly"></button>
+      </div>
+    </div>
+    <div class="plans" id="plans"></div>
+  </section>
+</main>
+
+<dialog id="co">
+  <div class="stack">
+    <h3 data-i="co_h"></h3>
+    <p class="mono" id="coLine" dir="ltr"></p>
+    <p data-i="co_p"></p>
+    <div class="row">
+      <button class="btn" id="coGo" data-i="co_go"></button>
+      <button class="btn ghost" id="coNo" data-i="cancel"></button>
+    </div>
+  </div>
+</dialog>
+
+<footer><div class="wrap" data-i="foot"></div></footer>
+
+<script>
+"use strict";
+/* ---------- translations ---------- */
+const KEYS = ["nav_home","nav_courses","nav_lab","nav_brief","nav_tutor","nav_pricing","hero_eyebrow","hero_h","hero_p","cta_start","cta_browse","be_title","be_note","be_mass","be_fus","be_peak","be_fis","t_phys","t_nphys","t_neng","courses_p","all","lvl_school","lvl_uni","lvl_pro","lessons","back","free","locked","done","mark_done","example","translate_btn","generate_btn","ai_label","ai_off","ai_err","thinking","lock_msg","see_plans","lab_p","decay_h","iso","a0","elapsed","halflife","remaining","activity","ff_h","ff_p","sub","crit","sup","brief_p","brief_tr","tutor_p","tutor_ph","send","q1","q2","q3","pricing_p","scope_phys","scope_full","monthly","yearly","per_mo","per_yr","per_seat","p_free","p_student","p_pro","p_inst","f_first","f_lab","f_brief","f_all","f_tutor","f_prog","f_student","f_prolvl","f_prio","f_pro","f_admin","f_cohort","min10","choose","current","use_free","co_h","co_p","co_go","cancel","foot"];
+const T = {
+en:["Home","Courses","Lab","Briefing","AI tutor","Pricing","Physics · Nuclear physics · Nuclear engineering","From Newton's laws to a critical reactor.","Twelve courses in three tracks, with working calculators, an AI tutor and lessons in your language.","Start 7-day free trial","Browse courses","Binding energy per nucleon","Semi-empirical mass formula, most stable isobar for each A. Approximate for light nuclei.","Mass number A","Below the iron peak. Fusing nuclei like this releases energy.","At the iron peak. These are the most tightly bound nuclei.","Above the iron peak. Splitting nuclei like this releases energy.","Physics","Nuclear physics","Nuclear engineering","The first lesson of every course is free.","All","School","University","Professional","lessons","All courses","Free","Subscribers","Done","Mark as done","Worked example","Translate this lesson with AI","Write this lesson with AI","Written by AI. Check it against your textbook.","AI features work when this page is opened in Claude.","The AI request did not go through. Try again in a moment.","Thinking…","This lesson is included in paid plans.","See plans","Calculators you can use alongside any lesson.","Radioactive decay","Isotope","Initial activity (Bq)","Elapsed time","Half-life","Remaining","Activity","Multiplication factor","Six-factor formula. Move the sliders and watch the reactor cross criticality.","Subcritical","Critical","Supercritical","Recent headlines from the nuclear field, checked on 13 November 2026. Each one links to its publisher.","Translate headlines with AI","Ask about anything in the three tracks. Answers come in the language you selected.","Ask a question","Send","Why are delayed neutrons essential for reactor control?","Explain quantum tunnelling in alpha decay.","Give me three practice problems on half-life.","Every paid plan starts with a 7-day free trial.","Physics + Nuclear physics","All three tracks","Monthly","Yearly","/month","/year","per seat, monthly","Free","Student","Professional","Institution","First lesson of every course","All lab calculators","Field briefing","Every lesson in your tracks","AI tutor and AI translation","Progress tracking","Everything in Student","Professional-level courses","Longer tutor sessions","Everything in Professional","Seat management for teachers","Class progress reports","10-seat minimum","Start free trial","Current plan","Switch to Free","Checkout preview","Payments are not connected in this prototype, so no card is taken. Continue to unlock this plan on this device.","Continue in preview","Cancel","Prototype for study use. It does not replace licensed nuclear training."],
+ar:["الرئيسية","الدورات","المختبر","المستجدات","المعلّم الذكي","الأسعار","الفيزياء · الفيزياء النووية · الهندسة النووية","من قوانين نيوتن إلى مفاعل حرِج.","اثنتا عشرة دورة في ثلاثة مسارات، مع حاسبات تفاعلية ومعلّم ذكي ودروس بلغتك.","ابدأ تجربة مجانية لمدة 7 أيام","تصفّح الدورات","طاقة الربط لكل نوكليون","صيغة الكتلة شبه التجريبية، لأكثر الأيزوبارات استقرارًا عند كل A. تقريبية للأنوية الخفيفة.","العدد الكتلي A","دون قمة الحديد. اندماج مثل هذه الأنوية يحرّر طاقة.","عند قمة الحديد. هذه أشدّ الأنوية ترابطًا.","فوق قمة الحديد. انشطار مثل هذه الأنوية يحرّر طاقة.","الفيزياء","الفيزياء النووية","الهندسة النووية","الدرس الأول من كل دورة مجاني.","الكل","المدرسة","الجامعة","احترافي","دروس","كل الدورات","مجاني","للمشتركين","مكتمل","علّمه كمكتمل","مثال محلول","ترجم هذا الدرس بالذكاء الاصطناعي","اكتب هذا الدرس بالذكاء الاصطناعي","كُتب بالذكاء الاصطناعي. راجعه مع كتابك المقرّر.","تعمل ميزات الذكاء الاصطناعي عند فتح هذه الصفحة في Claude.","تعذّر تنفيذ طلب الذكاء الاصطناعي. حاول مجددًا بعد قليل.","جارٍ التفكير…","هذا الدرس متاح ضمن الخطط المدفوعة.","عرض الخطط","حاسبات يمكنك استخدامها مع أي درس.","الاضمحلال الإشعاعي","النظير","النشاط الابتدائي (Bq)","الزمن المنقضي","عمر النصف","المتبقي","النشاط","معامل التضاعف","صيغة العوامل الستة. حرّك المنزلقات وراقب المفاعل يعبر الحرجية.","دون الحرج","حرِج","فوق الحرج","أحدث عناوين المجال النووي، تم التحقق منها في 13 نوفمبر 2026. كل عنوان يقود إلى ناشره.","ترجم العناوين بالذكاء الاصطناعي","اسأل عن أي موضوع في المسارات الثلاثة. تأتي الإجابات باللغة التي اخترتها.","اطرح سؤالًا","إرسال","لماذا تُعدّ النيوترونات المتأخرة أساسية للتحكم في المفاعل؟","اشرح النفق الكمومي في اضمحلال ألفا.","أعطني ثلاث مسائل تدريبية عن عمر النصف.","كل خطة مدفوعة تبدأ بتجربة مجانية لمدة 7 أيام.","الفيزياء + الفيزياء النووية","المسارات الثلاثة","شهري","سنوي","/شهر","/سنة","لكل مقعد شهريًا","مجاني","طالب","محترف","مؤسسة","الدرس الأول من كل دورة","جميع حاسبات المختبر","مستجدات المجال","كل الدروس في مساراتك","المعلّم الذكي والترجمة بالذكاء الاصطناعي","متابعة التقدّم","كل ما في خطة الطالب","دورات المستوى الاحترافي","جلسات أطول مع المعلّم الذكي","كل ما في خطة المحترف","إدارة المقاعد للمعلّمين","تقارير تقدّم الصف","10 مقاعد كحد أدنى","ابدأ التجربة المجانية","خطتك الحالية","التحويل إلى المجاني","معاينة الدفع","المدفوعات غير مفعّلة في هذا النموذج الأولي، ولن تُطلب أي بطاقة. تابع لفتح هذه الخطة على هذا الجهاز.","المتابعة في وضع المعاينة","إلغاء","نموذج أولي لأغراض الدراسة. لا يغني عن التدريب النووي المرخّص."],
+fr:["Accueil","Cours","Labo","Actualités","Tuteur IA","Tarifs","Physique · Physique nucléaire · Génie nucléaire","Des lois de Newton au réacteur critique.","Douze cours répartis en trois parcours, avec des calculateurs interactifs, un tuteur IA et des leçons dans votre langue.","Essai gratuit de 7 jours","Voir les cours","Énergie de liaison par nucléon","Formule semi-empirique de masse, isobare le plus stable pour chaque A. Approximative pour les noyaux légers.","Nombre de masse A","Sous le pic du fer. La fusion de tels noyaux libère de l'énergie.","Au pic du fer. Ce sont les noyaux les plus liés.","Au-delà du pic du fer. La fission de tels noyaux libère de l'énergie.","Physique","Physique nucléaire","Génie nucléaire","La première leçon de chaque cours est gratuite.","Tous","Lycée","Université","Professionnel","leçons","Tous les cours","Gratuit","Abonnés","Terminé","Marquer comme terminé","Exemple résolu","Traduire cette leçon avec l'IA","Rédiger cette leçon avec l'IA","Rédigé par l'IA. Vérifiez avec votre manuel.","Les fonctions IA sont disponibles lorsque cette page est ouverte dans Claude.","La requête IA n'a pas abouti. Réessayez dans un instant.","Réflexion…","Cette leçon est incluse dans les formules payantes.","Voir les formules","Des calculateurs à utiliser avec n'importe quelle leçon.","Décroissance radioactive","Isotope","Activité initiale (Bq)","Temps écoulé","Demi-vie","Restant","Activité","Facteur de multiplication","Formule des six facteurs. Déplacez les curseurs et observez le réacteur franchir la criticité.","Sous-critique","Critique","Surcritique","Titres récents du secteur nucléaire, vérifiés le 13 novembre 2026. Chaque titre renvoie vers son éditeur.","Traduire les titres avec l'IA","Posez vos questions sur les trois parcours. Les réponses arrivent dans la langue choisie.","Posez une question","Envoyer","Pourquoi les neutrons retardés sont-ils essentiels au pilotage d'un réacteur ?","Explique l'effet tunnel dans la désintégration alpha.","Donne-moi trois exercices sur la demi-vie.","Chaque formule payante commence par un essai gratuit de 7 jours.","Physique + Physique nucléaire","Les trois parcours","Mensuel","Annuel","/mois","/an","par poste, par mois","Gratuit","Étudiant","Professionnel","Établissement","Première leçon de chaque cours","Tous les calculateurs du labo","Actualités du secteur","Toutes les leçons de vos parcours","Tuteur IA et traduction IA","Suivi de progression","Tout le contenu Étudiant","Cours de niveau professionnel","Sessions de tutorat plus longues","Tout le contenu Professionnel","Gestion des postes pour les enseignants","Rapports de progression de classe","10 postes minimum","Commencer l'essai","Formule actuelle","Passer à Gratuit","Aperçu du paiement","Les paiements ne sont pas connectés dans ce prototype : aucune carte n'est demandée. Continuez pour débloquer cette formule sur cet appareil.","Continuer en aperçu","Annuler","Prototype à usage d'étude. Il ne remplace pas une formation nucléaire agréée."],
+es:["Inicio","Cursos","Laboratorio","Actualidad","Tutor IA","Precios","Física · Física nuclear · Ingeniería nuclear","De las leyes de Newton a un reactor crítico.","Doce cursos en tres itinerarios, con calculadoras interactivas, un tutor de IA y lecciones en tu idioma.","Prueba gratuita de 7 días","Ver los cursos","Energía de enlace por nucleón","Fórmula semiempírica de masas, isóbaro más estable para cada A. Aproximada para núcleos ligeros.","Número másico A","Por debajo del pico del hierro. Fusionar núcleos así libera energía.","En el pico del hierro. Son los núcleos más ligados.","Por encima del pico del hierro. Fisionar núcleos así libera energía.","Física","Física nuclear","Ingeniería nuclear","La primera lección de cada curso es gratis.","Todos","Escuela","Universidad","Profesional","lecciones","Todos los cursos","Gratis","Suscriptores","Hecho","Marcar como hecho","Ejemplo resuelto","Traducir esta lección con IA","Redactar esta lección con IA","Escrito por IA. Compruébalo con tu libro de texto.","Las funciones de IA están disponibles al abrir esta página en Claude.","La solicitud de IA no se completó. Inténtalo de nuevo en un momento.","Pensando…","Esta lección está incluida en los planes de pago.","Ver planes","Calculadoras para usar junto a cualquier lección.","Desintegración radiactiva","Isótopo","Actividad inicial (Bq)","Tiempo transcurrido","Periodo de semidesintegración","Restante","Actividad","Factor de multiplicación","Fórmula de los seis factores. Mueve los controles y observa cómo el reactor cruza la criticidad.","Subcrítico","Crítico","Supercrítico","Titulares recientes del sector nuclear, comprobados el 13 de noviembre de 2026. Cada uno enlaza con su editor.","Traducir titulares con IA","Pregunta sobre cualquier tema de los tres itinerarios. Las respuestas llegan en el idioma elegido.","Haz una pregunta","Enviar","¿Por qué los neutrones retardados son esenciales para controlar un reactor?","Explica el efecto túnel en la desintegración alfa.","Dame tres problemas de práctica sobre el periodo de semidesintegración.","Todos los planes de pago empiezan con una prueba gratuita de 7 días.","Física + Física nuclear","Los tres itinerarios","Mensual","Anual","/mes","/año","por puesto al mes","Gratis","Estudiante","Profesional","Institución","Primera lección de cada curso","Todas las calculadoras","Actualidad del sector","Todas las lecciones de tus itinerarios","Tutor IA y traducción IA","Seguimiento del progreso","Todo lo de Estudiante","Cursos de nivel profesional","Sesiones de tutor más largas","Todo lo de Profesional","Gestión de puestos para docentes","Informes de progreso de la clase","Mínimo 10 puestos","Empezar la prueba","Plan actual","Cambiar a Gratis","Vista previa del pago","Los pagos no están conectados en este prototipo y no se pide tarjeta. Continúa para desbloquear este plan en este dispositivo.","Continuar en vista previa","Cancelar","Prototipo para estudio. No sustituye la formación nuclear acreditada."],
+zh:["首页","课程","实验室","动态","AI 导师","价格","物理 · 核物理 · 核工程","从牛顿定律到临界反应堆。","三个方向共十二门课程，配有交互式计算器、AI 导师和你的母语课程。","开始 7 天免费试用","浏览课程","比结合能","半经验质量公式，每个 A 取最稳定的同量异位素。轻核仅为近似。","质量数 A","位于铁峰之下，这类原子核聚变会释放能量。","位于铁峰，这是结合最紧密的原子核。","位于铁峰之上，这类原子核裂变会释放能量。","物理","核物理","核工程","每门课程的第一课免费。","全部","中学","大学","专业","课","全部课程","免费","订阅者","已完成","标记为已完成","例题","用 AI 翻译本课","用 AI 生成本课","由 AI 撰写，请对照教材核对。","在 Claude 中打开本页面即可使用 AI 功能。","AI 请求未成功，请稍后重试。","思考中…","本课包含在付费方案中。","查看方案","可配合任何课程使用的计算器。","放射性衰变","同位素","初始活度 (Bq)","经过时间","半衰期","剩余","活度","增殖因数","六因子公式。拖动滑块，观察反应堆越过临界。","次临界","临界","超临界","核领域近期要闻，核对日期为 2026 年 11 月 13 日。每条均链接至发布方。","用 AI 翻译标题","可就三个方向的任何内容提问，回答使用你选择的语言。","输入问题","发送","为什么缓发中子对反应堆控制至关重要？","解释 α 衰变中的量子隧穿。","给我三道关于半衰期的练习题。","所有付费方案均含 7 天免费试用。","物理 + 核物理","全部三个方向","按月","按年","/月","/年","每席位每月","免费版","学生版","专业版","机构版","每门课程的第一课","全部实验室计算器","行业动态","所选方向的全部课程","AI 导师与 AI 翻译","学习进度跟踪","包含学生版全部内容","专业级课程","更长的导师会话","包含专业版全部内容","教师席位管理","班级进度报告","最少 10 个席位","开始试用","当前方案","切换到免费版","结账预览","本原型尚未接入支付，不会收取银行卡信息。继续即可在本设备上解锁该方案。","以预览模式继续","取消","学习用原型，不能替代持证核专业培训。"]
+};
+const LANGNAME = {en:"English",ar:"Arabic",fr:"French",es:"Spanish",zh:"Simplified Chinese"};
+const LI = {en:0,ar:1,fr:2,es:3,zh:4};
+
+/* ---------- courses ---------- */
+const TRACKS = [["phys","t_phys"],["nphys","t_nphys"],["neng","t_neng"]];
+const COURSES = [
+ {id:"p1",code:"PHY 101",track:"phys",lvl:"school",t:["Mechanics and Waves","الميكانيكا والأمواج","Mécanique et ondes","Mecánica y ondas","力学与波"],
+  m:["Newton's laws of motion","Work, energy and power","Momentum and collisions","Circular motion and gravitation","Simple harmonic motion and waves"],
+  l:[["p","A force is a push or pull that changes how an object moves. Newton's second law says the net force on an object equals the rate of change of its momentum. When the mass stays constant this becomes the familiar form below."],["eq","F = m a"],["p","Always start with a free-body diagram: draw every force acting on the object, pick axes, and apply the law along each axis separately. Force is measured in newtons, where 1 N = 1 kg·m/s²."],["ex","A 1,200 kg car speeds up from rest to 27 m/s in 9.0 s. Acceleration a = 27 / 9.0 = 3.0 m/s². Net force F = 1,200 × 3.0 = 3,600 N."]]},
+ {id:"p2",code:"PHY 201",track:"phys",lvl:"uni",t:["Electromagnetism","الكهرومغناطيسية","Électromagnétisme","Electromagnetismo","电磁学"],
+  m:["Electric charge and Coulomb's law","Gauss's law","Electric potential and capacitance","Magnetic fields and Ampère's law","Induction and Maxwell's equations"],
+  l:[["p","Electric charges exert forces on each other. Like charges repel and opposite charges attract. Coulomb's law gives the size of the force between two point charges separated by a distance r."],["eq","F = k q₁q₂ / r²,   k = 8.99 × 10⁹ N·m²/C²"],["p","The force falls with the square of the distance, so halving the separation makes it four times stronger. Gravity follows the same inverse-square rule, but the electric force between two protons is about 10³⁶ times stronger than their gravitational attraction."],["ex","Two protons (q = 1.602 × 10⁻¹⁹ C) sit 1.0 fm apart inside a nucleus. F = 8.99 × 10⁹ × (1.602 × 10⁻¹⁹)² / (1.0 × 10⁻¹⁵)² ≈ 230 N. That is an enormous force on one proton, which is why a stronger attractive force is needed to hold nuclei together."]]},
+ {id:"p3",code:"PHY 301",track:"phys",lvl:"uni",t:["Quantum Mechanics","ميكانيكا الكم","Mécanique quantique","Mecánica cuántica","量子力学"],
+  m:["Wave-particle duality","The Schrödinger equation","Particle in a box and tunnelling","The hydrogen atom","Spin and identical particles"],
+  l:[["p","Light behaves as a wave and as a particle. De Broglie proposed that matter does too: every particle with momentum p has a wavelength. Electron and neutron diffraction confirmed it."],["eq","λ = h / p,   h = 6.626 × 10⁻³⁴ J·s"],["p","The wavelength matters when it is comparable to the size of what the particle meets. For everyday objects it is immeasurably small. For slow neutrons it is about the spacing of atoms in a crystal, which is why neutrons are used to study materials."],["ex","A thermal neutron (m = 1.675 × 10⁻²⁷ kg) moves at 2,200 m/s. λ = 6.626 × 10⁻³⁴ / (1.675 × 10⁻²⁷ × 2,200) = 1.80 × 10⁻¹⁰ m, or 1.80 Å."]]},
+ {id:"p4",code:"PHY 302",track:"phys",lvl:"uni",t:["Thermal and Statistical Physics","الفيزياء الحرارية والإحصائية","Physique thermique et statistique","Física térmica y estadística","热学与统计物理"],
+  m:["The first law and heat engines","Entropy and the second law","Kinetic theory of gases","The Boltzmann distribution","Quantum statistics"],
+  l:[["p","The first law of thermodynamics is energy conservation for heat and work. The internal energy of a system rises by the heat added to it and falls by the work it does on its surroundings."],["eq","ΔU = Q − W"],["p","A heat engine takes heat from a hot source, turns part of it into work and rejects the rest to a cold sink. No engine working between two temperatures can beat the Carnot efficiency, η = 1 − T_cold / T_hot, with temperatures in kelvin."],["ex","A pressurised water reactor makes steam at about 558 K and condenses it at about 306 K. The Carnot limit is 1 − 306 / 558 = 0.45. Real plants reach roughly 33%, so about two thirds of the reactor's heat leaves through the condenser."]]},
+ {id:"n1",code:"NPH 101",track:"nphys",lvl:"school",t:["The Atomic Nucleus","نواة الذرّة","Le noyau atomique","El núcleo atómico","原子核"],
+  m:["Protons, neutrons and isotopes","Mass defect and binding energy","The strong nuclear force","Stability and the chart of nuclides","Measuring nuclear masses"],
+  l:[["p","A nucleus contains Z protons and N neutrons. Their sum A = Z + N is the mass number. A nuclide is written with A as a superscript, for example ²³⁸U, which has Z = 92 and N = 146. Isotopes share Z and differ in N."],["eq","R ≈ r₀ A^(1/3),   r₀ ≈ 1.2 fm"],["p","Nuclear radius grows with the cube root of A, so nuclear volume is proportional to the number of nucleons. Every nucleus therefore has nearly the same density, about 2.3 × 10¹⁷ kg/m³."],["ex","For ²³⁸U, A^(1/3) = 6.20, so R ≈ 1.2 × 6.20 = 7.4 fm. The uranium atom is more than 20,000 times wider than its nucleus."]]},
+ {id:"n2",code:"NPH 201",track:"nphys",lvl:"uni",t:["Radioactivity and Decay","النشاط الإشعاعي والاضمحلال","Radioactivité et décroissance","Radiactividad y desintegración","放射性与衰变"],
+  m:["The decay law and half-life","Alpha decay","Beta decay and neutrinos","Gamma emission","Decay chains and equilibrium"],
+  l:[["p","An unstable nucleus has a fixed probability of decaying per unit time, the decay constant λ. In a large sample this gives exponential decay. The half-life T½ is the time for half of the nuclei to decay."],["eq","N(t) = N₀ e^(−λt),   T½ = ln 2 / λ,   A = λN"],["p","Activity A is the number of decays per second, measured in becquerels. It falls with the same half-life as the number of nuclei. Try it in the Lab."],["ex","Caesium-137 has a half-life of 30.05 years. After 90 years the remaining fraction is 2^(−90/30.05) = 0.125, so 12.5% of the original activity is left."]]},
+ {id:"n3",code:"NPH 301",track:"nphys",lvl:"uni",t:["Nuclear Reactions and Cross Sections","التفاعلات النووية والمقاطع العرضية","Réactions nucléaires et sections efficaces","Reacciones nucleares y secciones eficaces","核反应与截面"],
+  m:["Q-values and reaction energetics","Microscopic cross sections","Resonances and the Breit-Wigner formula","Fission","Fusion"],
+  l:[["p","In a nuclear reaction the total mass before and after is not the same. The difference appears as kinetic energy of the products. This energy is the Q-value."],["eq","Q = (m_initial − m_final) c²,   1 u = 931.494 MeV/c²"],["p","A positive Q means the reaction releases energy. A negative Q means the incoming particle must bring at least a threshold energy."],["ex","D + T → ⁴He + n. Masses in u: 2.014102 + 3.016049 = 5.030151 before, 4.002603 + 1.008665 = 5.011268 after. The difference of 0.018883 u gives Q = 17.59 MeV. Momentum conservation hands the neutron 14.1 MeV of it."]]},
+ {id:"n4",code:"NPH 401",track:"nphys",lvl:"pro",t:["Nuclear Models and Structure","النماذج النووية والبنية","Modèles et structure nucléaires","Modelos y estructura nuclear","核模型与核结构"],
+  m:["The liquid drop model","The shell model and magic numbers","Collective rotation and vibration","Electromagnetic moments","Selection rules for transitions"],
+  l:[["p","The liquid drop model treats the nucleus as a drop of incompressible fluid. Its binding energy is a sum of five terms: volume, surface, Coulomb repulsion, neutron-proton asymmetry and pairing."],["eq","B = a_V A − a_S A^(2/3) − a_C Z(Z−1)/A^(1/3) − a_A (A−2Z)²/A + δ"],["p","The formula reproduces the overall shape of the binding energy curve, including the peak near iron. It misses the extra stability at the magic numbers 2, 8, 20, 28, 50, 82 and 126, which the shell model explains."],["ex","Open the home page and move the mass number slider. The curve there is this formula evaluated with a_V = 15.75, a_S = 17.8, a_C = 0.711, a_A = 23.7 and a pairing strength of 11.18, all in MeV."]]},
+ {id:"e1",code:"NE 201",track:"neng",lvl:"uni",t:["Reactor Physics","فيزياء المفاعلات","Physique des réacteurs","Física de reactores","反应堆物理"],
+  m:["The chain reaction and k","Neutron diffusion","Moderation and slowing down","Kinetics and delayed neutrons","Reactivity feedback and control"],
+  l:[["p","Each fission releases two or three neutrons. A reactor is controlled by the balance between neutrons produced and neutrons lost. The effective multiplication factor k is the ratio of neutrons in one generation to the generation before."],["eq","k = η f p ε P_FNL P_TNL,   ρ = (k − 1) / k"],["p","The reactor is critical when k = 1, subcritical below and supercritical above. Reactivity ρ measures the distance from critical and is often quoted in pcm (10⁻⁵). Try the six factors in the Lab."],["ex","If k = 1.002, then ρ = 0.002 / 1.002 = 0.00200, or 200 pcm. For ²³⁵U fuel the delayed neutron fraction is about 0.0065, so this is 0.31 of a dollar and the power rises slowly enough to control."]]},
+ {id:"e2",code:"NE 301",track:"neng",lvl:"uni",t:["Reactor Thermal-Hydraulics","الهيدروليكا الحرارية للمفاعلات","Thermohydraulique des réacteurs","Termohidráulica de reactores","反应堆热工水力"],
+  m:["Heat generation and conduction in fuel","Convective heat transfer","Boiling and critical heat flux","Pressure drop and pumping","Natural circulation"],
+  l:[["p","Fission heat is produced inside the fuel pellet and must travel through the pellet, the gap and the cladding to reach the coolant. The linear heat rate q′ is the power produced per metre of fuel rod."],["eq","T_centre − T_surface = q′ / (4π k)"],["p","For a solid pellet with uniform heating, the temperature rise from surface to centre depends only on q′ and the fuel's thermal conductivity k, not on the pellet radius."],["ex","With q′ = 20 kW/m and k = 3.0 W/m·K for UO₂, the rise is 20,000 / (4π × 3.0) = 530 K. The low conductivity of oxide fuel is why its centre runs so much hotter than the coolant."]]},
+ {id:"e3",code:"NE 401",track:"neng",lvl:"pro",t:["Radiation Protection and Shielding","الوقاية من الإشعاع والتدريع","Radioprotection et blindage","Protección radiológica y blindaje","辐射防护与屏蔽"],
+  m:["Dose quantities and units","Time, distance and shielding","Gamma attenuation and build-up","Neutron shielding","Dose limits and ALARA"],
+  l:[["p","Absorbed dose is the energy deposited by radiation per kilogram of tissue, in gray (1 Gy = 1 J/kg). Different radiations do different biological damage for the same energy, so absorbed dose is multiplied by a radiation weighting factor to give equivalent dose in sievert."],["eq","H = w_R D    (photons and electrons: 1, alpha particles: 20)"],["p","Effective dose adds a tissue weighting for each organ and is the quantity used for limits. ICRP recommends 20 mSv per year averaged over five years for workers and 1 mSv per year for the public."],["ex","An organ receives 2 mGy from alpha particles. Equivalent dose H = 20 × 2 = 40 mSv. The same 2 mGy from gamma rays would be 2 mSv."]]},
+ {id:"e4",code:"NE 402",track:"neng",lvl:"pro",t:["Reactor Safety and Regulation","أمان المفاعلات والتنظيم الرقابي","Sûreté et réglementation des réacteurs","Seguridad y regulación de reactores","反应堆安全与监管"],
+  m:["Defence in depth","Design basis accidents","Decay heat removal","Probabilistic safety assessment","Licensing and IAEA safety standards"],
+  l:[["p","Reactor safety rests on three functions: control the reactivity, cool the fuel, and confine the radioactive material. Defence in depth protects them with five successive levels, from preventing abnormal operation to emergency response off site."],["eq","fuel matrix → cladding → coolant pressure boundary → containment"],["p","Cooling matters after shutdown too. Fission products keep releasing decay heat: about 6% of full power at the moment of shutdown and still about 0.5% a day later."],["ex","A 3,000 MW(thermal) reactor still produces about 0.005 × 3,000 = 15 MW of heat one day after shutdown. Removing it reliably is a central design requirement."]]}
+];
+const NEWS = [
+ ["9 Nov 2026","Canada reviews what it can contribute to space reactors","ANS Nuclear News","https://www.ans.org/news/"],
+ ["9 Nov 2026","Copenhagen Atomics and Urenco team up on a planned deconversion facility","ANS Nuclear News","https://www.ans.org/news/"],
+ ["5 Nov 2026","Salem plant plans a 200 MW power uprate","ANS Nuclear News","https://www.ans.org/news/"],
+ ["5 Nov 2026","3D-printed tungsten tiles go through testing at the DIII-D tokamak","ANS Nuclear News","https://www.ans.org/news/topic-fusion"],
+ ["4 Nov 2026","NSUF selects 18 Super Rapid Turnaround Experiments","ANS Nuclear News","https://www.ans.org/news/"],
+ ["2 Nov 2026","Texas SMR plant reaches the final permitting stage","World Nuclear News","https://world-nuclear-news.org/"],
+ ["31 Oct 2026","US DOE conditionally commits up to $5 billion for Constellation reactor uprates","Neutron Bytes","https://neutronbytes.com/2026/10/31/doe-loans-5b-to-constellation-for-reactor-uprates/"],
+ ["9 Sep 2026","ITER reports substantial progress on assembly and installation","ANS Nuclear News","https://www.ans.org/news/topic-fusion"]
+];
+const PRICE = {phys:{student:[5,50],pro:[19,190],inst:10},full:{student:[9,90],pro:[29,290],inst:15}};
+
+/* ---------- state ---------- */
+const store = {
+  get(k,d){try{const v=localStorage.getItem("na_"+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem("na_"+k,JSON.stringify(v))}catch(e){}}
+};
+const S = {
+  lang: store.get("lang","en"), plan: store.get("plan","free"), planScope: store.get("planScope","full"),
+  scope:"full", bill:"m", done: store.get("done",{}), filter:"all", course:null, mod:0, pending:null
+};
+if(!(S.lang in LI)) S.lang="en";
+const $ = s => document.querySelector(s);
+const t = k => { const i=KEYS.indexOf(k); return (T[S.lang]&&T[S.lang][i]) || T.en[i] || k; };
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ct = c => c.t[LI[S.lang]] || c.t[0];
+const nf = (v,d=3) => new Intl.NumberFormat("en-US",{maximumSignificantDigits:d}).format(v);
+
+/* ---------- AI ---------- */
+let sample = null;
+(async()=>{ try{ sample = (await window.claude?.use?.("sample")) || null }catch(e){ sample=null } aiReady(); })();
+function aiReady(){
+  $("#aiOff").hidden = !!sample;
+  $("#newsTr").hidden = !sample || S.lang==="en";
+  $("#ask").querySelector("button").disabled = !sample;
+  if(S.course) renderCourse();
+}
+async function askAI(prompt, el, opts={}){
+  el.textContent = t("thinking");
+  try{
+    const r = await sample(prompt,{onText:({text})=>{el.textContent=text}, ...opts});
+    el.textContent = r.text; return r.text;
+  }catch(e){ el.textContent = t("ai_err"); return null; }
+}
+
+/* ---------- binding energy (hero) ---------- */
+const SYM = "n H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Rf Db Sg Bh Hs Mt Ds".split(" ");
+function semf(A,Z){
+  const N=A-Z; let d=0;
+  if(A%2===0) d = (Z%2===0?1:-1)*11.18/Math.sqrt(A);
+  return 15.75*A - 17.8*Math.pow(A,2/3) - 0.711*Z*(Z-1)/Math.cbrt(A) - 23.7*(N-Z)*(N-Z)/A + d;
+}
+function best(A){ let bz=1,bb=-1e9; for(let Z=1;Z<A;Z++){const b=semf(A,Z); if(b>bb){bb=b;bz=Z}} return {Z:bz,B:bb}; }
+const BE = []; for(let A=8;A<=260;A++){ const r=best(A); BE.push({A,Z:r.Z,B:r.B,ba:r.B/A}); }
+function fit(c){ const r=c.getBoundingClientRect(), d=Math.min(window.devicePixelRatio||1,2); c.width=Math.round(r.width*d); c.height=Math.round(r.height*d); const g=c.getContext("2d"); g.setTransform(d,0,0,d,0,0); return {g,w:r.width,h:r.height}; }
+function drawBE(){
+  const c=$("#beC"); if(!c.offsetParent) return; const {g,w,h}=fit(c); const A=+$("#beA").value;
+  const L=30,R=8,Tp=10,B=22, X=a=>L+(a/260)*(w-L-R), Y=v=>Tp+(1-v/9)*(h-Tp-B);
+  g.clearRect(0,0,w,h); g.font="11px 'IBM Plex Mono',monospace"; g.fillStyle="#8FB4D9"; g.strokeStyle="rgba(143,180,217,.18)"; g.lineWidth=1;
+  g.textAlign="right"; g.textBaseline="middle";
+  [0,3,6,9].forEach(v=>{ g.beginPath(); g.moveTo(L,Y(v)); g.lineTo(w-R,Y(v)); g.stroke(); g.fillText(v,L-6,Y(v)); });
+  g.textAlign="center"; g.textBaseline="top";
+  [50,100,150,200,250].forEach(a=>g.fillText(a,X(a),h-B+6));
+  const grad=g.createLinearGradient(0,Tp,0,h-B); grad.addColorStop(0,"rgba(85,190,255,.45)"); grad.addColorStop(1,"rgba(85,190,255,0)");
+  g.beginPath(); BE.forEach((p,i)=> i? g.lineTo(X(p.A),Y(p.ba)) : g.moveTo(X(p.A),Y(p.ba)));
+  g.strokeStyle="#55BEFF"; g.lineWidth=2; g.lineJoin="round"; g.stroke();
+  g.lineTo(X(260),Y(0)); g.lineTo(X(8),Y(0)); g.closePath(); g.fillStyle=grad; g.fill();
+  const p=BE[A-8]; g.strokeStyle="rgba(232,243,255,.6)"; g.lineWidth=1; g.setLineDash([3,3]); g.beginPath(); g.moveTo(X(A),Y(0)); g.lineTo(X(A),Y(p.ba)); g.stroke(); g.setLineDash([]);
+  g.beginPath(); g.arc(X(A),Y(p.ba),5,0,7); g.fillStyle="#E8F3FF"; g.fill(); g.strokeStyle="#55BEFF"; g.lineWidth=2; g.stroke();
+  $("#beNuc").textContent = SYM[p.Z]+"-"+A;
+  $("#beVal").textContent = "Z "+p.Z+" · N "+(A-p.Z)+" · B/A "+p.ba.toFixed(2)+" MeV · B "+Math.round(p.B)+" MeV";
+  $("#beSay").textContent = t(A<50?"be_fus":A<=70?"be_peak":"be_fis");
+}
+$("#beA").addEventListener("input",drawBE);
+$("#beC").addEventListener("pointerdown",e=>{ const r=e.currentTarget.getBoundingClientRect(); const a=Math.round(((e.clientX-r.left-30)/(r.width-38))*260); $("#beA").value=Math.max(8,Math.min(260,a)); drawBE(); });
+
+/* ---------- courses ---------- */
+function unlocked(c,i){
+  if(i===0) return true;
+  if(S.plan==="free") return false;
+  if(c.track==="neng" && S.planScope!=="full") return false;
+  if(c.lvl==="pro" && S.plan==="student") return false;
+  return true;
+}
+function doneCount(c){ return c.m.filter((_,i)=>S.done[c.id+"."+i]).length; }
+function courseCard(c){
+  const n=doneCount(c);
+  return `<button class="course" data-c="${c.id}"><span><span class="code">${c.code}</span><br><span class="name">${esc(ct(c))}</span></span>
+  <span style="display:grid;gap:8px"><span class="meta"><span class="pill">${t("lvl_"+c.lvl)}</span><span>${c.m.length} ${t("lessons")}</span>${n?`<span class="mono">${n}/${c.m.length}</span>`:""}</span>
+  <span class="meter"><i style="width:${100*n/c.m.length}%"></i></span></span></button>`;
+}
+function tracksHTML(filter){
+  return TRACKS.filter(x=>filter==="all"||x[0]===filter).map(([id,key])=>
+    `<div class="track"><h3>${t(key)}</h3><div class="grid">${COURSES.filter(c=>c.track===id).map(courseCard).join("")}</div></div>`).join("");
+}
+function renderLists(){
+  $("#homeCourses").innerHTML = `<div class="view"><div class="head"><h2>${t("nav_courses")}</h2><p>${t("courses_p")}</p></div>${tracksHTML("all")}</div>`;
+  $("#courseList").innerHTML = `<div class="head"><h2>${t("nav_courses")}</h2><p>${t("courses_p")}</p></div>
+   <div class="chips">${[["all","all"],...TRACKS].map(([id,key])=>`<button class="chip" data-f="${id}" aria-pressed="${S.filter===id}">${t(key)}</button>`).join("")}</div>${tracksHTML(S.filter)}`;
+}
+function renderCourse(){
+  const c = COURSES.find(x=>x.id===S.course); const box=$("#courseDetail");
+  if(!c){ box.hidden=true; $("#courseList").hidden=false; return; }
+  $("#courseList").hidden=true; box.hidden=false;
+  const i=S.mod, open=unlocked(c,i), key=c.id+"."+i;
+  const mods = c.m.map((m,j)=>{
+    const st = S.done[c.id+"."+j] ? `<span class="pill done">${t("done")}</span>` : unlocked(c,j) ? (j===0&&S.plan==="free"?`<span class="pill free">${t("free")}</span>`:"") : `<span class="pill lock">${t("locked")}</span>`;
+    return `<li><button data-m="${j}" aria-current="${j===i}"><span><span class="n">${String(j+1).padStart(2,"0")}</span><span dir="auto">${esc(m)}</span></span>${st}</button></li>`;
+  }).join("");
+  let body;
+  if(!open){
+    body = `<p>${t("lock_msg")}</p><div class="row"><a class="btn small" href="#pricing">${t("see_plans")}</a></div>`;
+  } else if(i===0){
+    body = c.l.map(([k,v])=> k==="p"?`<p dir="auto">${esc(v)}</p>` : k==="eq"?`<div class="eq">${esc(v)}</div>` : `<div class="ex"><b>${t("example")}</b><p dir="auto">${esc(v)}</p></div>`).join("")
+      + `<div class="row"><button class="btn small" id="mk">${S.done[key]?t("done")+" ✓":t("mark_done")}</button>${sample&&S.lang!=="en"?`<button class="btn small ghost" id="tr">${t("translate_btn")}</button>`:""}</div>
+         <div id="aiBox" hidden><div class="ai" id="aiTxt" dir="auto"></div><p class="ainote">${t("ai_label")}</p></div>`;
+  } else {
+    body = (sample ? `<div class="row"><button class="btn small" id="gen">${t("generate_btn")}</button><button class="btn small ghost" id="mk">${S.done[key]?t("done")+" ✓":t("mark_done")}</button></div>` : `<p class="notice">${t("ai_off")}</p>`)
+      + `<div id="aiBox" hidden><div class="ai" id="aiTxt" dir="auto"></div><p class="ainote">${t("ai_label")}</p></div>`;
+  }
+  box.innerHTML = `<button class="linkbtn" id="bk">← ${t("back")}</button>
+    <div class="head"><span class="mono" style="color:var(--glow);font-size:.8rem">${c.code} · ${t(TRACKS.find(x=>x[0]===c.track)[1])} · ${t("lvl_"+c.lvl)}</span><h2>${esc(ct(c))}</h2></div>
+    <div class="split"><ol class="mods">${mods}</ol><article class="lesson"><h3 dir="auto">${String(i+1).padStart(2,"0")} · ${esc(c.m[i])}</h3>${body}</article></div>`;
+  if(S.lang==="ar") $("#bk").textContent = "→ "+t("back");
+  const mk=$("#mk"); if(mk) mk.onclick=()=>{ S.done[key]=!S.done[key]; store.set("done",S.done); renderCourse(); renderLists(); };
+  const tr=$("#tr"); if(tr) tr.onclick=async()=>{ tr.disabled=true; $("#aiBox").hidden=false;
+    const text = c.m[0]+"\n\n"+c.l.map(([k,v])=>(k==="ex"?"Worked example: ":"")+v).join("\n\n");
+    await askAI(`Translate this lesson into ${LANGNAME[S.lang]} for a student. Keep every equation, symbol, number and unit exactly as written. Use the standard technical terms of that language. Output plain text only, no markdown.\n\n${text}`, $("#aiTxt")); tr.disabled=false; };
+  const gen=$("#gen"); if(gen) gen.onclick=async()=>{ gen.disabled=true; $("#aiBox").hidden=false;
+    await askAI(`You are writing one lesson for an online academy.\nCourse: ${c.t[0]} (${c.code}), level: ${c.lvl==="school"?"secondary school":c.lvl==="uni"?"undergraduate":"professional"}.\nLesson title: ${c.m[i]}.\nWrite it in ${LANGNAME[S.lang]}. About 280 words: a clear explanation, the key equation written in plain Unicode on its own line, and one worked example with real numbers and SI units. Be accurate and do not invent data. Plain text only, no markdown.`, $("#aiTxt"), {modelTier:"default"}); gen.disabled=false; };
+  $("#bk").onclick=()=>{ S.course=null; renderCourse(); };
+}
+document.addEventListener("click",e=>{
+  const c=e.target.closest("[data-c]"); if(c){ S.course=c.dataset.c; S.mod=0; if(location.hash!=="#courses") location.hash="courses"; else route(); window.scrollTo(0,0); return; }
+  const f=e.target.closest("[data-f]"); if(f){ S.filter=f.dataset.f; renderLists(); return; }
+  const m=e.target.closest("[data-m]"); if(m){ S.mod=+m.dataset.m; renderCourse(); return; }
+});
+
+/* ---------- lab: decay ---------- */
+const ISO = [["H-3",12.32,"y"],["C-14",5730,"y"],["Co-60",5.271,"y"],["Sr-90",28.91,"y"],["Tc-99m",6.007,"h"],["I-131",8.025,"d"],["Cs-137",30.05,"y"],["Am-241",432.6,"y"],["Pu-239",24110,"y"],["U-235",7.04e8,"y"],["U-238",4.468e9,"y"]];
+$("#dIso").innerHTML = ISO.map((x,i)=>`<option value="${i}"${x[0]==="Cs-137"?" selected":""}>${x[0]}</option>`).join("");
+function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function drawDecay(){
+  const c=$("#dC"); const iso=ISO[+$("#dIso").value], n=+$("#dT").value, a0=Math.max(0,+$("#dA0").value||0), frac=Math.pow(2,-n);
+  $("#dHL").textContent = nf(iso[1],4)+" "+iso[2];
+  $("#dEl").textContent = nf(iso[1]*n,3)+" "+iso[2]+"  ("+n.toFixed(2)+" T½)";
+  $("#dRem").textContent = (frac*100).toFixed(frac<.1?2:1)+" %";
+  $("#dAct").textContent = nf(a0*frac,4)+" Bq";
+  if(!c.offsetParent) return; const {g,w,h}=fit(c);
+  const L=34,R=8,Tp=8,B=22, X=x=>L+(x/6)*(w-L-R), Y=v=>Tp+(1-v)*(h-Tp-B);
+  g.clearRect(0,0,w,h); g.font="11px 'IBM Plex Mono',monospace"; g.fillStyle=css("--muted"); g.strokeStyle=css("--line"); g.lineWidth=1;
+  g.textAlign="right"; g.textBaseline="middle"; [[0,"0"],[.5,"50%"],[1,"100%"]].forEach(([v,l])=>{ g.beginPath(); g.moveTo(L,Y(v)); g.lineTo(w-R,Y(v)); g.stroke(); g.fillText(l,L-4,Y(v)); });
+  g.textAlign="center"; g.textBaseline="top"; for(let x=0;x<=6;x++) g.fillText(x,X(x),h-B+6);
+  g.beginPath(); for(let x=0;x<=6.001;x+=.05){ const y=Math.pow(2,-x); x? g.lineTo(X(x),Y(y)) : g.moveTo(X(x),Y(y)); }
+  g.strokeStyle=css("--glow"); g.lineWidth=2; g.stroke();
+  g.lineTo(X(6),Y(0)); g.lineTo(X(0),Y(0)); g.closePath(); g.globalAlpha=.12; g.fillStyle=css("--glow"); g.fill(); g.globalAlpha=1;
+  g.beginPath(); g.arc(X(n),Y(frac),5,0,7); g.fillStyle=css("--surface"); g.fill(); g.strokeStyle=css("--hot"); g.lineWidth=2.5; g.stroke();
+}
+["dIso","dT","dA0"].forEach(id=>$("#"+id).addEventListener("input",drawDecay));
+
+/* ---------- lab: six factor ---------- */
+const FF = [["η",1.2,2.2,.01,1.84],["f",.5,1,.005,.71],["p",.5,1,.005,.77],["ε",1,1.1,.005,1.04],["P_FNL",.8,1,.005,.97],["P_TNL",.8,1,.005,.985]];
+$("#ffS").innerHTML = FF.map((x,i)=>`<label><span><span>${x[0]}</span><b id="ffv${i}"></b></span><input type="range" id="ff${i}" min="${x[1]}" max="${x[2]}" step="${x[3]}" value="${x[4]}" aria-label="${x[0]}"></label>`).join("");
+function calcFF(){
+  let k=1; FF.forEach((x,i)=>{ const v=+$("#ff"+i).value; k*=v; $("#ffv"+i).textContent=v.toFixed(3); });
+  const rho=(k-1)/k*1e5, st = Math.abs(k-1)<5e-4?"crit":k<1?"sub":"sup";
+  $("#ffK").textContent="k = "+k.toFixed(4);
+  $("#ffState").className="state "+st; $("#ffState").textContent=t(st);
+  $("#ffRho").textContent="ρ = "+(rho>=0?"+":"−")+Math.abs(rho).toFixed(0)+" pcm";
+}
+$("#ffS").addEventListener("input",calcFF);
+
+/* ---------- briefing ---------- */
+function renderNews(){
+  $("#news").innerHTML = NEWS.map(n=>`<li><a href="${n[3]}" target="_blank" rel="noopener" dir="ltr" style="text-align:start">${esc(n[1])}</a><span class="meta"><span class="mono">${n[0]}</span><span>${esc(n[2])}</span></span></li>`).join("");
+  $("#newsOut").hidden=true;
+}
+$("#newsTr").onclick=async e=>{ const b=e.currentTarget; b.disabled=true; $("#newsOut").hidden=false;
+  await askAI(`Translate these news headlines into ${LANGNAME[S.lang]}. Keep names of organisations, plants and devices in their original form. One headline per line, each starting with its date. Plain text only.\n\n`+NEWS.map(n=>n[0]+" — "+n[1]+" ("+n[2]+")").join("\n"), $("#newsOut .ai")); b.disabled=false; };
+
+/* ---------- tutor ---------- */
+const chat=[];
+function renderQuick(){ $("#quick").innerHTML=["q1","q2","q3"].map(k=>`<button class="chip" data-q="${k}">${esc(t(k))}</button>`).join(""); $("#q").placeholder=t("tutor_ph"); $("#q").setAttribute("aria-label",t("tutor_ph")); }
+function bubble(role,text){ const d=document.createElement("div"); d.className="msg "+role; d.textContent=text; $("#msgs").appendChild(d); d.scrollIntoView({block:"nearest"}); return d; }
+async function ask(q){
+  q=q.trim(); if(!q||!sample) return;
+  bubble("u",q); chat.push({role:"user",content:q}); $("#q").value="";
+  const sys=`You are the tutor of NeutrAI Academy, which teaches physics, nuclear physics and nuclear engineering to school students, university students and professionals. Reply in ${LANGNAME[S.lang]}. Be accurate, show the key equation and units, and keep answers under 220 words unless asked for more. Plain text only, no markdown; write equations in Unicode. Teach peaceful, educational content only.\n\nStudent: `;
+  const input = chat.slice(-8).map((m,i)=> i===0 && m.role==="user" ? {role:"user",content:sys+m.content} : m);
+  if(input[0].role!=="user") input.shift(), input[0]={role:"user",content:sys+input[0].content};
+  const el=bubble("a",""); const out=await askAI(input, el, {cache:false});
+  if(out) chat.push({role:"assistant",content:out}); else chat.pop();
+}
+$("#ask").addEventListener("submit",e=>{ e.preventDefault(); ask($("#q").value); });
+$("#quick").addEventListener("click",e=>{ const b=e.target.closest("[data-q]"); if(b) ask(t(b.dataset.q)); });
+
+/* ---------- pricing ---------- */
+function renderPricing(){
+  document.querySelectorAll("#segScope button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.s===S.scope));
+  document.querySelectorAll("#segBill button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.b===S.bill));
+  const P=PRICE[S.scope], y=S.bill==="y";
+  const plans=[
+    ["free","p_free","$0","",["f_first","f_lab","f_brief"]],
+    ["student","p_student","$"+P.student[y?1:0],t(y?"per_yr":"per_mo"),["f_all","f_tutor","f_prog"]],
+    ["pro","p_pro","$"+P.pro[y?1:0],t(y?"per_yr":"per_mo"),["f_student","f_prolvl","f_prio"]],
+    ["inst","p_inst","$"+P.inst,t("per_seat"),["f_pro","f_admin","f_cohort"].concat(S.scope==="full"?["min10"]:[])]
+  ];
+  $("#plans").innerHTML = plans.map(([id,name,price,unit,fs])=>{
+    const cur = S.plan===id && (id==="free"||S.planScope===S.scope);
+    return `<div class="plan${id==="student"?" pick":""}"><h3>${t(name)}</h3><div class="price"><b>${price}</b><span>${unit}</span></div>
+     <ul>${fs.map(f=>`<li>${t(f)}</li>`).join("")}</ul>
+     <button class="btn${cur?" ghost":""}" data-p="${id}" data-line="${esc(T.en[KEYS.indexOf(name)]+" · "+price+(unit?" "+unit:""))}" ${cur?"disabled":""}>${cur?t("current"):id==="free"?t("use_free"):t("choose")}</button></div>`;
+  }).join("");
+}
+$("#segScope").onclick=e=>{ const b=e.target.closest("button"); if(b){ S.scope=b.dataset.s; renderPricing(); } };
+$("#segBill").onclick=e=>{ const b=e.target.closest("button"); if(b){ S.bill=b.dataset.b; renderPricing(); } };
+function setPlan(id,scope){ S.plan=id; S.planScope=scope; store.set("plan",id); store.set("planScope",scope); renderPricing(); renderLists(); if(S.course) renderCourse(); }
+$("#plans").onclick=e=>{ const b=e.target.closest("[data-p]"); if(!b) return;
+  if(b.dataset.p==="free"){ setPlan("free",S.planScope); return; }
+  S.pending=[b.dataset.p,S.scope]; $("#coLine").textContent=b.dataset.line+" · "+T.en[KEYS.indexOf(S.scope==="full"?"scope_full":"scope_phys")];
+  const d=$("#co"); d.showModal ? d.showModal() : d.setAttribute("open","");
+};
+$("#coGo").onclick=()=>{ if(S.pending) setPlan(S.pending[0],S.pending[1]); $("#co").close(); };
+$("#coNo").onclick=()=>$("#co").close();
+
+/* ---------- language + routing ---------- */
+function applyLang(){
+  document.documentElement.lang=S.lang; document.documentElement.dir = S.lang==="ar"?"rtl":"ltr";
+  document.querySelectorAll("[data-i]").forEach(el=>{ el.textContent=t(el.dataset.i); });
+  $("#lang").value=S.lang;
+  renderLists(); renderCourse(); renderNews(); renderQuick(); renderPricing(); calcFF(); drawBE(); drawDecay();
+  $("#newsTr").hidden = !sample || S.lang==="en";
+}
+$("#lang").addEventListener("change",e=>{ S.lang=e.target.value; store.set("lang",S.lang); applyLang(); });
+const VIEWS=["home","courses","lab","briefing","tutor","pricing"];
+function route(){
+  const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "home";
+  VIEWS.forEach(x=>{ $("#v-"+x).hidden = x!==v; });
+  document.querySelectorAll("#tabs a").forEach(a=> a.dataset.v===v ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
+  if(v==="home") drawBE(); if(v==="lab") drawDecay(); if(v==="courses") renderCourse();
+}
+window.addEventListener("hashchange",()=>{ route(); window.scrollTo(0,0); });
+window.addEventListener("resize",()=>{ drawBE(); drawDecay(); });
+new MutationObserver(drawDecay).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+try{ matchMedia("(prefers-color-scheme:dark)").addEventListener("change",drawDecay); }catch(e){}
+applyLang(); route(); aiReady();
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ drawBE(); drawDecay(); });
+</script>
+</body>
+</html>

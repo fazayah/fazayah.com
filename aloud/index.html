@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aloud</title>
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<style>:root{color-scheme:light;box-sizing:border-box}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Aloud — voice-first English tutor. Teal mist ground, amber "Ava orb" signature. Chat column, fixed input bar. */
+:root{
+  --bg1:#E9F1EE; --bg2:#DDE9E5; --fg:#12241E; --muted:#5B6B64; --faint:#8A968F;
+  --teal:#17715C; --amber:#F4A63A; --amber2:#EF8A3C;
+  --card:#FFFFFF; --line:#D5E2DD;
+  --user-bg:#17715C; --user-fg:#FFFFFF;
+  --fix-bg:#FCEFEC; --fix-line:#F3CFC6; --correct:#C94A2E; --good:#2E8B6B;
+  --header:#E9F1EEf0;
+  --disp:'Bricolage Grotesque',system-ui,sans-serif;
+  --body:'Inter',system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg1:#0E1A16; --bg2:#0A1411; --fg:#E7F0EC; --muted:#9DB0A8; --faint:#6E8077;
+  --teal:#3FA488; --amber:#F4A63A; --amber2:#E08E36;
+  --card:#16241F; --line:#263A32;
+  --user-bg:#2E7D66; --user-fg:#EAF5F0;
+  --fix-bg:#2A1B16; --fix-line:#48291E; --correct:#F0906F; --good:#5FC79E;
+  --header:#0E1A16e8; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg1:#0E1A16; --bg2:#0A1411; --fg:#E7F0EC; --muted:#9DB0A8; --faint:#6E8077;
+  --teal:#3FA488; --amber:#F4A63A; --amber2:#E08E36;
+  --card:#16241F; --line:#263A32;
+  --user-bg:#2E7D66; --user-fg:#EAF5F0;
+  --fix-bg:#2A1B16; --fix-line:#48291E; --correct:#F0906F; --good:#5FC79E;
+  --header:#0E1A16e8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:linear-gradient(170deg,var(--bg1),var(--bg2));color:var(--fg);font-family:var(--body);
+  font-size:15px;-webkit-tap-highlight-color:transparent}
+#app{height:100%;display:flex;flex-direction:column;max-width:520px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font-family:inherit}
+::-webkit-scrollbar{width:7px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+.disp{font-family:var(--disp);letter-spacing:-.02em}
+
+/* ---- Ava orb ---- */
+.orbwrap{position:relative;display:grid;place-items:center}
+.orbwrap.big{width:128px;height:128px}
+.orbwrap.mini{width:34px;height:34px}
+.orb{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;position:relative;
+  background:radial-gradient(circle at 32% 28%,#FFD37A 0%,var(--amber) 42%,var(--amber2) 78%,#E07A2E 100%);
+  box-shadow:0 16px 36px -14px rgba(239,138,60,.6),inset 0 -8px 20px rgba(201,105,31,.33),inset 0 6px 14px rgba(255,231,176,.66);
+  animation:breathe 4.2s ease-in-out infinite}
+.orbwrap.speaking .orb{animation:bob .5s ease-in-out infinite}
+.bars{display:flex;gap:6%;align-items:flex-end;height:34%}
+.orbwrap.mini .bars{height:40%;gap:8%}
+.bar{width:9%;min-width:2px;border-radius:99px;background:#3A2408;opacity:.82}
+.orbwrap.mini .bar{width:11%}
+.orbwrap.speaking .bar,.orbwrap.listening .bar{animation:eq .7s ease-in-out infinite}
+.ripple{position:absolute;inset:0;border-radius:50%;border:2px solid var(--amber);opacity:0}
+.orbwrap.listening .ripple{animation:ripple 1.8s ease-out infinite}
+.orbwrap.listening .r2{animation-delay:.7s}
+
+/* ---- landing ---- */
+#landing{height:100%;overflow-y:auto;padding:28px 2px 36px;display:flex;flex-direction:column}
+.brandrow{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.brand{font-family:var(--disp);font-weight:800;font-size:14px;color:var(--teal);letter-spacing:.16em;text-transform:uppercase}
+.brandrow .ln{height:1px;flex:1;background:var(--line)}
+.hero{display:grid;place-items:center;margin:18px 0 14px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(28px,8vw,36px);line-height:1.08;margin:6px 0 10px;text-align:center;text-wrap:balance}
+.lede{color:var(--muted);font-size:15.5px;line-height:1.5;text-align:center;margin:0 auto 24px;max-width:340px}
+.sectlabel{font-size:12px;font-weight:600;color:var(--faint);letter-spacing:.09em;text-transform:uppercase;margin:0 0 10px}
+#levelChips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.chip{padding:9px 15px;border-radius:99px;font-size:14px;font-weight:600;cursor:pointer;
+  border:1.5px solid var(--line);background:var(--card);color:var(--fg);transition:all .15s}
+.chip.on{border-color:var(--teal);background:var(--teal);color:#fff}
+#topicList{display:grid;gap:9px}
+.topic{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-radius:16px;cursor:pointer;
+  border:1px solid var(--line);background:var(--card);color:var(--fg);font-size:16px;font-weight:600;text-align:left;
+  box-shadow:0 2px 10px -6px rgba(18,36,30,.18);transition:transform .12s}
+.topic:active{transform:scale(.98)}
+.topic .go{color:var(--teal);font-size:20px}
+
+/* ---- chat ---- */
+#chat{height:100%;display:flex;flex-direction:column}
+.header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 2px;
+  border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);background:var(--header);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg1);z-index:10}
+.hleft{display:flex;align-items:center;gap:9px;min-width:0}
+.hname{font-family:var(--disp);font-weight:700;font-size:16px}
+.hstatus{font-size:11.5px;color:var(--muted);margin-top:-1px}
+.hright{display:flex;align-items:center;gap:8px}
+.iconbtn{width:40px;height:40px;border-radius:12px;cursor:pointer;border:1px solid var(--line);
+  background:var(--teal);color:#fff;font-size:17px}
+.iconbtn.off{background:var(--card);color:var(--muted)}
+#levelSelect{appearance:none;-webkit-appearance:none;padding:9px 12px;border-radius:12px;font-size:13px;font-weight:600;
+  border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+
+#messages{flex:1;overflow-y:auto;padding:18px 2px 10px}
+.row{margin-bottom:15px;display:flex;flex-direction:column}
+.row.me{align-items:flex-end}.row.ava{align-items:flex-start}
+.bubble{max-width:84%;padding:12px 15px;font-size:15.5px;line-height:1.5;min-width:0;word-wrap:break-word;
+  box-shadow:0 2px 12px -8px rgba(18,36,30,.25)}
+.bubble.ava{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:18px 18px 18px 5px}
+.bubble.me{background:var(--user-bg);color:var(--user-fg);border-radius:18px 18px 5px 18px}
+.tip{margin-top:7px;max-width:88%;display:flex;gap:7px;align-items:flex-start;font-size:13.5px;color:var(--muted)}
+.tiplabel{color:var(--amber2);font-weight:700}
+.fixes{margin-top:8px;max-width:90%;background:var(--fix-bg);border:1px solid var(--fix-line);border-radius:14px;padding:11px 13px}
+.fixlabel{font-size:11.5px;font-weight:700;color:var(--correct);letter-spacing:.05em;text-transform:uppercase;margin-bottom:7px}
+.fix{font-size:14px;line-height:1.45}.fix+.fix{margin-top:9px}
+.fix .old{text-decoration:line-through;color:var(--correct);opacity:.8}
+.fix .arr{margin:0 6px;color:var(--faint)}
+.fix .new{font-weight:600;color:var(--good)}
+.fix .note{color:var(--muted);font-size:13px;margin-top:2px}
+.typing{display:flex;gap:5px;padding:12px 15px;width:fit-content;background:var(--card);border:1px solid var(--line);border-radius:18px 18px 18px 5px}
+.typing span{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:dots 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.18s}.typing span:nth-child(3){animation-delay:.36s}
+.retrybtn{margin-top:8px;padding:9px 16px;border-radius:99px;border:1.5px solid var(--teal);background:transparent;
+  color:var(--teal);font-size:14px;font-weight:600;cursor:pointer}
+.retrybtn:active{background:var(--teal);color:#fff}
+
+#notice{margin:0 0 8px;padding:10px 13px;background:rgba(244,166,58,.14);border:1px solid rgba(244,166,58,.4);
+  border-radius:12px;font-size:13px;color:var(--fg)}
+.inputbar{display:flex;align-items:center;gap:10px;padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));
+  border-top:1px solid var(--line)}
+#micBtn{flex-shrink:0;width:52px;height:52px;border-radius:50%;cursor:pointer;border:none;color:#3A2408;font-size:22px;
+  display:grid;place-items:center;background:radial-gradient(circle at 32% 28%,#FFD37A,var(--amber) 55%,var(--amber2));
+  box-shadow:0 8px 20px -8px var(--amber2)}
+#micBtn.rec{background:var(--correct);color:#fff;animation:pulse 1.1s ease-in-out infinite}
+#textInput{flex:1;min-width:0;padding:14px 16px;border-radius:99px;font-size:15.5px;border:1px solid var(--line);
+  background:var(--card);color:var(--fg);outline:none}
+#textInput::placeholder{color:var(--faint)}
+#textInput:focus{border-color:var(--teal)}
+#sendBtn{flex-shrink:0;width:46px;height:46px;border-radius:50%;cursor:pointer;border:none;background:var(--teal);
+  color:#fff;font-size:19px;display:grid;place-items:center}
+#sendBtn:disabled{background:var(--line);cursor:default}
+
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+@keyframes bob{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1) translateY(-4px)}}
+@keyframes eq{0%,100%{transform:scaleY(.6)}50%{transform:scaleY(1.15)}}
+@keyframes ripple{0%{transform:scale(.9);opacity:.55}100%{transform:scale(1.7);opacity:0}}
+@keyframes dots{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:rise .32s ease both}
+@media (prefers-reduced-motion:reduce){.orb,.bar,.ripple,.fade,#micBtn.rec{animation:none!important}}
+</style>
+<div id="app">
+  <section id="landing">
+    <div class="brandrow"><span class="brand">Aloud</span><span class="ln"></span></div>
+    <div class="hero"><div id="heroOrb"></div></div>
+    <h1 class="title">Learn English by<br>talking, out loud.</h1>
+    <p class="lede">Speak or type with Ava, your AI tutor. She replies out loud, gently fixes your mistakes, and adapts to you.</p>
+    <p class="sectlabel">Your level</p>
+    <div id="levelChips"></div>
+    <p class="sectlabel">Pick something to talk about</p>
+    <div id="topicList"></div>
+  </section>
+
+  <section id="chat" hidden>
+    <div class="header">
+      <div class="hleft">
+        <div id="avaOrb"></div>
+        <div><div class="hname disp">Ava</div><div class="hstatus" id="status">Ready</div></div>
+      </div>
+      <div class="hright">
+        <button class="iconbtn" id="voiceBtn" title="Ava's voice">🔊</button>
+        <select id="levelSelect" aria-label="Level"></select>
+      </div>
+    </div>
+    <div id="messages"></div>
+    <div id="notice" hidden></div>
+    <div class="inputbar">
+      <button id="micBtn" aria-label="Speak">🎙</button>
+      <input id="textInput" type="text" autocomplete="off" placeholder="Type or tap the mic…">
+      <button id="sendBtn" aria-label="Send" disabled>↑</button>
+    </div>
+  </section>
+</div>
+<script>
+/* Aloud — AI English conversation tutor */
+(function () {
+  "use strict";
+
+  var hasClaude = typeof window !== "undefined" && window.claude && window.claude.use;
+
+  // ---------- state ----------
+  var level = "auto";
+  var voiceOn = true;
+  var listening = false;
+  var speaking = false;
+  var loading = false;
+  var started = false;
+  var turns = []; // {role:'ava'|'learner', text, corrections:[], tip:''}
+
+  var TOPICS = [
+    { id: "free", label: "Free talk", seed: "a friendly open chat about anything" },
+    { id: "daily", label: "Everyday life", seed: "everyday small talk about my day, hobbies and the weekend" },
+    { id: "travel", label: "Travel", seed: "travel situations: airports, hotels, asking for directions" },
+    { id: "job", label: "Job interview", seed: "a practice job interview where you play the interviewer" },
+    { id: "food", label: "Ordering food", seed: "a restaurant roleplay where you are the waiter and I order food" },
+  ];
+  var LEVELS = [
+    { id: "auto", label: "Auto" },
+    { id: "beginner", label: "Beginner" },
+    { id: "intermediate", label: "Intermediate" },
+    { id: "advanced", label: "Advanced" },
+  ];
+
+  // ---------- capability resolvers (memoized) ----------
+  var _sample, _tts, _dict, _dictWired = false, _dictRef = null, _dictFinal = "";
+  function useCap(name) {
+    if (!hasClaude) return Promise.resolve(null);
+    try { return window.claude.use(name).catch(function () { return null; }); }
+    catch (e) { return Promise.resolve(null); }
+  }
+  function getSample() { if (_sample === undefined) _sample = useCap("sample"); return _sample; }
+  function getTts() { if (_tts === undefined) _tts = useCap("tts"); return _tts; }
+  function getDict() { if (_dict === undefined) _dict = useCap("dictation"); return _dict; }
+
+  // ---------- DOM ----------
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
+  // ---------- prompt building ----------
+  function sys() {
+    return "You are Ava, a warm, encouraging English conversation tutor.\n" +
+      "Learner level: " + level + (level === "auto" ? " (work out their level from how they write and match it)" : "") + ".\n" +
+      "Talk like a friendly human in a real conversation. Keep your spoken reply to 1 to 3 short, natural sentences and ALWAYS end with a simple question so the conversation keeps going. Match your vocabulary to the learner's level. Be kind and positive.\n" +
+      "Only point out meaningful mistakes (grammar, word choice, natural phrasing). Ignore tiny typos.\n" +
+      'Return ONLY a JSON object, no markdown, no backticks, no text around it, with exactly these keys:\n' +
+      '{"reply": string, "corrections": [{"original": string, "fixed": string, "note": string}], "tip": string}\n' +
+      'Use an empty array for "corrections" when there are no meaningful mistakes. Use "" for "tip" when none is needed.';
+  }
+  function transcriptText() {
+    return turns.map(function (t) { return (t.role === "ava" ? "Ava" : "Learner") + ": " + t.text; }).join("\n");
+  }
+  function openerPrompt(topic) {
+    return sys() + "\n\nStart an English conversation to help me practise. Topic: " + topic.seed +
+      ".\nGreet me warmly by name of the app (Aloud) is not needed; just be friendly, then ask your first question.";
+  }
+  function replyPrompt() {
+    return sys() + "\n\nConversation so far:\n" + transcriptText() + "\n\nRespond as Ava to the learner's last message now.";
+  }
+
+  function normalize(o) {
+    o = o || {};
+    return {
+      reply: typeof o.reply === "string" && o.reply.trim() ? o.reply.trim() : "Sorry, could you say that again?",
+      corrections: Array.isArray(o.corrections) ? o.corrections.filter(function (c) { return c && c.original && c.fixed; }) : [],
+      tip: typeof o.tip === "string" ? o.tip.trim() : "",
+    };
+  }
+  function looseParse(text) {
+    var t = String(text || "").replace(/```json/gi, "").replace(/```/g, "").trim();
+    var a = t.indexOf("{"), b = t.lastIndexOf("}");
+    if (a >= 0 && b > a) t = t.slice(a, b + 1);
+    try { return JSON.parse(t); } catch (e) { return { reply: String(text || "").trim() }; }
+  }
+  async function ask(prompt) {
+    var s = await getSample();
+    if (!s) { var e = new Error("nosample"); e.code = "nosample"; throw e; }
+    if (typeof s.json === "function") {
+      try { return normalize(await s.json(prompt, { modelTier: "default" })); } catch (e) { /* fall through */ }
+    }
+    var r = await s(prompt, { modelTier: "default" });
+    return normalize(looseParse(r && r.text));
+  }
+
+  // ---------- voice out ----------
+  async function speak(text) {
+    if (!voiceOn || !text) return;
+    var t = await getTts();
+    if (t && typeof t.speak === "function") {
+      try { setSpeaking(true); await t.speak(text); setSpeaking(false); return; }
+      catch (e) { setSpeaking(false); }
+    }
+    if (typeof window.speechSynthesis !== "undefined") {
+      try {
+        window.speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(text);
+        u.lang = "en-US"; u.rate = level === "beginner" ? 0.92 : 0.99; u.pitch = 1.03;
+        u.onstart = function () { setSpeaking(true); };
+        u.onend = function () { setSpeaking(false); };
+        u.onerror = function () { setSpeaking(false); };
+        window.speechSynthesis.speak(u);
+      } catch (e) { setSpeaking(false); }
+    }
+  }
+  function stopSpeaking() {
+    try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
+    setSpeaking(false);
+  }
+
+  // ---------- voice in ----------
+  async function onMic() {
+    if (listening) { stopListening(); return; }
+    stopSpeaking();
+    var d = await getDict();
+    if (d && typeof d.start === "function") { startDictation(d); return; }
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SR) { startSR(SR); return; }
+    notice("Voice input isn't available in this view. Please type — the mic works in Chrome on your phone, or once the app is on its own site.");
+  }
+  function wireDict(d) {
+    if (_dictWired) return;
+    _dictWired = true;
+    if (d.onPartial) d.onPartial(function (p) { setInput((_dictFinal + " " + (p && p.text || "")).trim()); });
+    if (d.onFinal) d.onFinal(function (p) { _dictFinal = (_dictFinal + " " + (p && p.text || "")).trim(); setInput(_dictFinal); });
+    if (d.onState) d.onState(function (st) {
+      var s = st && st.state;
+      if (s === "listening") { setListening(true); }
+      else if (listening) {
+        setListening(false);
+        var said = $("textInput").value.trim();
+        if (said) { send(said); }
+      }
+    });
+  }
+  function startDictation(d) {
+    _dictRef = d; _dictFinal = ""; setInput("");
+    wireDict(d);
+    setListening(true);
+    try {
+      var p = d.start();
+      if (p && p.catch) p.catch(function () { setListening(false); notice("Microphone is off. Tap the mic again to allow it, or just type."); });
+    } catch (e) { setListening(false); notice("Couldn't start the mic — please type instead."); }
+  }
+  var _sr = null;
+  function startSR(SR) {
+    try {
+      var rec = new SR(); _sr = rec;
+      rec.lang = "en-US"; rec.interimResults = true; rec.continuous = false;
+      var finalText = "";
+      rec.onstart = function () { setListening(true); setInput(""); notice(""); };
+      rec.onresult = function (e) {
+        var interim = "";
+        for (var i = e.resultIndex; i < e.results.length; i++) {
+          if (e.results[i].isFinal) finalText += e.results[i][0].transcript;
+          else interim += e.results[i][0].transcript;
+        }
+        setInput((finalText + interim).trim());
+      };
+      rec.onerror = function (ev) {
+        setListening(false);
+        if (ev && (ev.error === "not-allowed" || ev.error === "service-not-allowed"))
+          notice("Microphone is blocked here. Type instead — the mic works once the app is on your own site.");
+      };
+      rec.onend = function () {
+        setListening(false);
+        var said = finalText.trim();
+        if (said) send(said);
+      };
+      rec.start();
+    } catch (e) { setListening(false); notice("Couldn't start the mic — please type instead."); }
+  }
+  function stopListening() {
+    try { if (_dictRef && _dictRef.stop) _dictRef.stop(); } catch (e) {}
+    try { if (_sr && _sr.stop) _sr.stop(); } catch (e) {}
+    setListening(false);
+  }
+
+  // ---------- conversation ----------
+  var lastKind = null, lastTopic = null;
+
+  function pushErr(e) {
+    var msg = (e && e.code === "nosample")
+      ? "I can't reach the tutor AI in this view. If you're in a preview, open the shared link in a browser — then tap Try again."
+      : "That didn't go through. Tap Try again.";
+    turns.push({ role: "ava", text: msg, corrections: [], tip: "", retry: true });
+    setLoading(false); render();
+  }
+  function retry() {
+    while (turns.length && turns[turns.length - 1].retry) turns.pop();
+    render();
+    if (lastKind === "opener") doOpener();
+    else if (lastKind === "reply") doReply();
+  }
+  async function doOpener() {
+    setLoading(true); render();
+    try {
+      var out = await ask(openerPrompt(lastTopic));
+      turns.push({ role: "ava", text: out.reply, corrections: [], tip: out.tip });
+      setLoading(false); render(); speak(out.reply);
+    } catch (e) { pushErr(e); }
+  }
+  async function doReply() {
+    setLoading(true); render();
+    try {
+      var out = await ask(replyPrompt());
+      for (var i = turns.length - 1; i >= 0; i--) { if (turns[i].role === "learner") { turns[i].corrections = out.corrections; break; } }
+      turns.push({ role: "ava", text: out.reply, corrections: [], tip: out.tip });
+      setLoading(false); render(); speak(out.reply);
+    } catch (e) { pushErr(e); }
+  }
+  async function startConversation(topic) {
+    started = true; notice("");
+    $("landing").hidden = true; $("chat").hidden = false;
+    lastKind = "opener"; lastTopic = topic;
+    await doOpener();
+  }
+  async function send(text) {
+    var t = (text || "").trim();
+    if (!t || loading) return;
+    setInput("");
+    turns.push({ role: "learner", text: t, corrections: [] });
+    lastKind = "reply";
+    await doReply();
+  }
+
+  // ---------- state setters ----------
+  function setSpeaking(v) { speaking = v; updateOrbs(); setStatus(); }
+  function setListening(v) { listening = v; updateOrbs(); setStatus(); updateMic(); }
+  function setLoading(v) { loading = v; setStatus(); }
+  function setInput(v) { var el = $("textInput"); if (el) el.value = v; updateSend(); }
+  function notice(msg) {
+    var el = $("notice");
+    if (!el) return;
+    if (msg) { el.textContent = msg; el.hidden = false; } else { el.hidden = true; }
+  }
+  function setLevel(v) {
+    level = v;
+    var sel = $("levelSelect"); if (sel && sel.value !== v) sel.value = v;
+    Array.prototype.forEach.call(document.querySelectorAll("[data-level]"), function (b) {
+      b.classList.toggle("on", b.getAttribute("data-level") === v);
+    });
+  }
+
+  // ---------- rendering ----------
+  function orbHTML(cls) {
+    var bars = "";
+    [0.5, 0.85, 1, 0.7, 0.4].forEach(function (h, i) {
+      bars += '<span class="bar" style="height:' + (h * 100) + '%;animation-delay:' + (i * 0.12) + 's"></span>';
+    });
+    return '<div class="orbwrap ' + cls + '">' +
+      '<span class="ripple r1"></span><span class="ripple r2"></span>' +
+      '<div class="orb"><div class="bars">' + bars + "</div></div></div>";
+  }
+  function updateOrbs() {
+    Array.prototype.forEach.call(document.querySelectorAll(".orbwrap"), function (w) {
+      w.classList.toggle("speaking", speaking);
+      w.classList.toggle("listening", listening);
+    });
+  }
+  function setStatus() {
+    var el = $("status");
+    if (el) el.textContent = speaking ? "Speaking…" : listening ? "Listening…" : loading ? "Thinking…" : "Ready";
+  }
+  function updateMic() {
+    var b = $("micBtn");
+    if (b) { b.classList.toggle("rec", listening); b.textContent = listening ? "■" : "🎙"; b.setAttribute("aria-label", listening ? "Stop" : "Speak"); }
+    var ti = $("textInput"); if (ti) ti.placeholder = listening ? "Listening…" : "Type or tap the mic…";
+  }
+  function updateSend() {
+    var b = $("sendBtn"); var ti = $("textInput");
+    if (b && ti) b.disabled = !ti.value.trim() || loading;
+  }
+  function render() {
+    var box = $("messages");
+    if (!box) return;
+    var html = "";
+    turns.forEach(function (m) {
+      if (m.role === "ava") {
+        html += '<div class="row ava fade"><div class="bubble ava">' + esc(m.text) + "</div>";
+        if (m.tip) html += '<div class="tip"><span class="tiplabel">Tip</span><span>' + esc(m.tip) + "</span></div>";
+        if (m.retry) html += '<button class="retrybtn" data-retry="1">Try again</button>';
+        html += "</div>";
+      } else {
+        html += '<div class="row me fade"><div class="bubble me">' + esc(m.text) + "</div>";
+        if (m.corrections && m.corrections.length) {
+          html += '<div class="fixes"><div class="fixlabel">Small fixes</div>';
+          m.corrections.forEach(function (c) {
+            html += '<div class="fix"><span class="old">' + esc(c.original) + '</span><span class="arr">→</span><span class="new">' + esc(c.fixed) + "</span>" +
+              (c.note ? '<div class="note">' + esc(c.note) + "</div>" : "") + "</div>";
+          });
+          html += "</div>";
+        }
+        html += "</div>";
+      }
+    });
+    if (loading) html += '<div class="row ava"><div class="typing"><span></span><span></span><span></span></div></div>';
+    box.innerHTML = html;
+    box.scrollTop = box.scrollHeight;
+    updateSend();
+  }
+
+  // ---------- build landing + wire ----------
+  function build() {
+    $("heroOrb").innerHTML = orbHTML("big");
+    $("avaOrb").innerHTML = orbHTML("mini");
+
+    var chips = $("levelChips");
+    chips.innerHTML = LEVELS.map(function (l) {
+      return '<button class="chip" data-level="' + l.id + '">' + l.label + "</button>";
+    }).join("");
+    Array.prototype.forEach.call(chips.querySelectorAll("[data-level]"), function (b) {
+      b.addEventListener("click", function () { setLevel(b.getAttribute("data-level")); });
+    });
+
+    var tl = $("topicList");
+    tl.innerHTML = TOPICS.map(function (t) {
+      return '<button class="topic" data-topic="' + t.id + '"><span>' + t.label + '</span><span class="go">→</span></button>';
+    }).join("");
+    Array.prototype.forEach.call(tl.querySelectorAll("[data-topic]"), function (b) {
+      b.addEventListener("click", function () {
+        var topic = TOPICS.filter(function (x) { return x.id === b.getAttribute("data-topic"); })[0];
+        startConversation(topic);
+      });
+    });
+
+    var sel = $("levelSelect");
+    sel.innerHTML = LEVELS.map(function (l) { return '<option value="' + l.id + '">' + l.label + "</option>"; }).join("");
+    sel.addEventListener("change", function () { setLevel(sel.value); });
+
+    $("voiceBtn").addEventListener("click", function () {
+      voiceOn = !voiceOn;
+      if (!voiceOn) stopSpeaking();
+      var b = $("voiceBtn");
+      b.classList.toggle("off", !voiceOn);
+      b.textContent = voiceOn ? "🔊" : "🔇";
+    });
+
+    $("messages").addEventListener("click", function (e) {
+      var b = e.target && e.target.closest ? e.target.closest("[data-retry]") : null;
+      if (b) retry();
+    });
+    $("micBtn").addEventListener("click", onMic);
+    $("sendBtn").addEventListener("click", function () { send($("textInput").value); });
+    var ti = $("textInput");
+    ti.addEventListener("input", updateSend);
+    ti.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); send(ti.value); } });
+
+    setLevel("auto");
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", build);
+  else build();
+})();
+</script>
+</body>
+</html>

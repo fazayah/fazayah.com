@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI in Nuclear Engineering</title>
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<style>:root{color-scheme:light;box-sizing:border-box}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+</head>
+<body>
+<style>
+  /* Layout: a scannable field guide — context band up top, then grouped player cards */
+  :root {
+    --bg: #f3f6f7;
+    --surface: #ffffff;
+    --surface-2: #eef3f4;
+    --fg: #121a1e;
+    --muted: #5a6c74;
+    --border: #dce4e7;
+    --accent: #0a7c8c;       /* toned Cherenkov cyan, readable on light */
+    --accent-soft: #e3f3f5;
+    --glow: rgba(10,124,140,0.14);
+    --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b1014;
+      --surface: #141c22;
+      --surface-2: #101820;
+      --fg: #e7eef2;
+      --muted: #8ea2ac;
+      --border: #22303a;
+      --accent: #3dd6e0;
+      --accent-soft: #10262c;
+      --glow: rgba(61,214,224,0.16);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1014;
+    --surface: #141c22;
+    --surface-2: #101820;
+    --fg: #e7eef2;
+    --muted: #8ea2ac;
+    --border: #22303a;
+    --accent: #3dd6e0;
+    --accent-soft: #10262c;
+    --glow: rgba(61,214,224,0.16);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 40px 56px;
+  }
+
+  /* ---- header ---- */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 14px;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2rem, 7vw, 3rem);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    margin: 0 0 16px;
+  }
+  .lede {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 60ch;
+    margin: 0 0 32px;
+  }
+
+  /* ---- context stats ---- */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 48px;
+  }
+  .stat { background: var(--surface); padding: 20px 18px; min-width: 0; }
+  .stat .num {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+  }
+  .stat .lbl {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: 1fr; }
+  }
+
+  /* ---- category sections ---- */
+  section { margin-bottom: 44px; }
+  .cat-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+  .cat-num {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.35rem;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .cat-note {
+    color: var(--muted);
+    font-size: 0.92rem;
+    margin: 6px 0 20px;
+    max-width: 62ch;
+  }
+
+  .cards { display: grid; gap: 14px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .card.lead {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--glow);
+  }
+  .card-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 10px;
+    margin-bottom: 8px;
+  }
+  .name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  .flag {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 3px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .card p { margin: 0 0 14px; font-size: 0.95rem; }
+  .card p:last-child { margin-bottom: 0; }
+  .detail {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 0.85rem;
+    color: var(--muted);
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+  }
+  .detail .k {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    flex: none;
+    padding-top: 2px;
+    min-width: 0;
+  }
+
+  /* ---- takeaway ---- */
+  .takeaway {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .takeaway h2 { margin-bottom: 10px; }
+  .takeaway p { margin: 0; font-size: 0.98rem; }
+  .takeaway strong { color: var(--accent); font-weight: 600; }
+
+  footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    letter-spacing: 0.02em;
+  }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Competitive landscape · Nov 2026</p>
+    <h1>AI in Nuclear Engineering</h1>
+    <p class="lede">The platforms and companies actually building — or deploying — AI across the nuclear fuel cycle, from document search to reactor construction.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="num">$25.6B</div>
+        <div class="lbl">Projected AI-in-nuclear market by 2034</div>
+      </div>
+      <div class="stat">
+        <div class="num">18.2%</div>
+        <div class="lbl">Forecast annual growth rate (CAGR)</div>
+      </div>
+      <div class="stat">
+        <div class="num">53M+</div>
+        <div class="lbl">Pages in the NRC's ADAMS document archive</div>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <div class="cat-head"><span class="cat-num">01</span><h2>Document search &amp; regulatory AI</h2></div>
+    <p class="cat-note">The most mature category. Nuclear plants carry billions of pages of regulatory and technical documentation — the clearest, most fundable pain point.</p>
+    <div class="cards">
+
+      <article class="card lead">
+        <div class="card-top"><span class="name">Atomic Canyon</span><span class="flag">Live deployment</span></div>
+        <p>Its <strong style="color:var(--accent)">Neutron</strong> platform searches and interprets complex nuclear documents — scanned reports, handwritten notes, operational histories — trained on millions of pages of NRC data. The underlying FERMI embedding models were built with Oak Ridge National Lab on the Frontier supercomputer and open-sourced on Hugging Face.</p>
+        <div class="detail"><span class="k">In the field</span><span>Running at PG&amp;E's Diablo Canyon — the first on-site generative-AI deployment at a U.S. nuclear plant. Cuts document search from hours to seconds.</span></div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="name">Nuclearn</span><span class="flag">65+ reactors</span></div>
+        <p>An AI platform built by former Palo Verde plant staff, automating compliance-heavy plant work: outage prep, maintenance planning, documentation and reporting. Products include AtomAssist, CAP AI and Engineering AI, trained on nuclear-specific data and integrating with systems like Maximo and SAP.</p>
+        <div class="detail"><span class="k">Reach</span><span>Deployed across dozens of reactors in the U.S., Canada and the U.K. Secure, on-premise, and Part 810 export-control compliant.</span></div>
+      </article>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="cat-head"><span class="cat-num">02</span><h2>Construction &amp; lifecycle platforms</h2></div>
+    <p class="cat-note">Aimed at the bigger bottleneck — building reactors on time and on budget. In 30 years the U.S. has completed only two new plants (Vogtle 3 &amp; 4), both over budget.</p>
+    <div class="cards">
+
+      <article class="card">
+        <div class="card-top"><span class="name">Palantir × The Nuclear Company</span><span class="flag">NOS</span></div>
+        <p>A jointly built "nuclear operating system" on Palantir's Foundry, unifying siloed construction, supply-chain and workforce data to speed reactor builds. The Nuclear Company is targeting a 6 GW fleet of large plants by the mid-2030s.</p>
+        <div class="detail"><span class="k">Angle</span><span>Schedule certainty and cost control via sensors, digital twins and AI-powered document validation.</span></div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="name">Microsoft × NVIDIA</span><span class="flag">AI for nuclear</span></div>
+        <p>An end-to-end collaboration combining generative AI, digital-twin simulation and NVIDIA's Omniverse to streamline permitting, design and operations. Generative AI drafts and gap-checks the tens of thousands of pages a regulatory submission requires.</p>
+        <div class="detail"><span class="k">Ecosystem</span><span>Startups like Everstar and Atomic Canyon plug into Azure; Atomic Canyon's Neutron is on the Microsoft Marketplace.</span></div>
+      </article>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="cat-head"><span class="cat-num">03</span><h2>Industrial incumbents</h2></div>
+    <p class="cat-note">The large engineering firms embedding AI into existing plant operations rather than building standalone products.</p>
+    <div class="cards">
+      <article class="card">
+        <div class="card-top"><span class="name">ABB · GE Vernova · Siemens Energy · Hitachi</span></div>
+        <p>Integrating AI into utility-scale operations: predictive maintenance, anomaly detection and operational optimization. Hitachi has introduced a metaverse platform pairing AI with digital twins for plant maintenance and asset management.</p>
+        <div class="detail"><span class="k">Focus</span><span>Reactor safety, efficiency and asset-lifecycle management across operating fleets.</span></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="takeaway">
+    <h2>The pattern for NeutrAI</h2>
+    <p>Almost every player that reached a real deployment picked <strong>one narrow, painful problem</strong> — document search, construction scheduling, maintenance — and owned it, rather than pitching "AI for all of nuclear." The open lane tends to sit where a specific workflow is still manual, data is fragmented, and regulatory stakes make accuracy worth paying for.</p>
+  </section>
+
+  <footer>
+    Sources: market.us · Microsoft · ORNL · PG&amp;E · Nuclearn · NetZero Insights · PowerMag · DCD · Tom's Hardware. Figures as reported, Nov 2026.
+  </footer>
+</div>
+</body>
+</html>

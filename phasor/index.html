@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phasor Electrical Engineering</title>
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=IBM+Plex+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a bench instrument. Solder-mask green accent on a pale ground, a live oscilloscope screen as
+   the hero, resistor colour-code bands for the four years, mono type for every value. Phone-first with a bottom tab bar. */
+:root{
+  --bg:#EEF1EE; --surface:#FFFFFF; --ink:#13201C; --muted:#53645E; --line:#CBD5D0;
+  --accent:#0B6B50; --accent-ink:#FFFFFF; --hot:#B4571B;
+  --y1:#8B5A2B; --y2:#C8372D; --y3:#E8811C; --y4:#E3C01F;
+  --display:"Chakra Petch","IBM Plex Sans Arabic","IBM Plex Sans Devanagari","Arial Narrow",sans-serif;
+  --body:"IBM Plex Sans","IBM Plex Sans Arabic","IBM Plex Sans Devanagari",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1513; --surface:#17201D; --ink:#E5ECE9; --muted:#94A59E; --line:#2A3833;
+    --accent:#56D3A4; --accent-ink:#06140F; --hot:#F0A35E; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1513; --surface:#17201D; --ink:#E5ECE9; --muted:#94A59E; --line:#2A3833;
+  --accent:#56D3A4; --accent-ink:#06140F; --hot:#F0A35E; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;padding-bottom:76px;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:32px 32px;background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0;background:var(--bg);opacity:.86;z-index:-1}
+html[lang="ar"] body,html[lang="ur"] body,html[lang="hi"] body{line-height:1.75}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+h1,h2,h3{margin:0;text-wrap:balance}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(1.9rem,7vw,3.3rem);line-height:1.06;text-transform:uppercase;letter-spacing:.005em}
+h2{font-family:var(--display);font-weight:800;font-size:clamp(1.5rem,5vw,2.1rem);line-height:1.1;text-transform:uppercase}
+h3{font-size:1.05rem;font-weight:600}
+html:not([lang="en"]):not([lang="fr"]):not([lang="es"]) h1{font-size:clamp(1.9rem,7vw,3.2rem);line-height:1.3;font-weight:700}
+html:not([lang="en"]):not([lang="fr"]):not([lang="es"]) h2{font-size:clamp(1.5rem,5vw,2rem);line-height:1.4;font-weight:700}
+p{margin:0}
+.muted{color:var(--muted)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button,select,input{font:inherit;color:inherit}
+select,input[type=number],input[type=search]{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:10px 12px;min-height:44px;width:100%}
+label{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
+input[type=range]{width:100%;accent-color:var(--accent);min-height:32px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 20px;border-radius:4px;border:1px solid var(--ink);background:transparent;font-weight:600;text-decoration:none;color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:hover{filter:brightness(1.08)}
+
+/* top bar */
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:12px;min-height:56px}
+.brand{font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:1.35rem;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;color:var(--ink);display:flex;align-items:center;gap:8px}
+.brand svg{width:26px;height:26px}
+.topnav{display:none;gap:4px;margin-inline-start:auto}
+.topnav a{padding:8px 12px;text-decoration:none;color:var(--muted);font-weight:500;border-bottom:2px solid transparent}
+.topnav a[aria-current="page"]{color:var(--ink);border-color:var(--accent)}
+.lang{margin-inline-start:auto;width:auto;min-height:40px;padding:6px 10px}
+@media(min-width:820px){.topnav{display:flex}.lang{margin-inline-start:8px}body{padding-bottom:0}.tabs{display:none!important}}
+
+/* bottom tabs */
+.tabs{position:fixed;bottom:0;inset-inline:0;z-index:6;display:flex;background:var(--surface);border-top:1px solid var(--line)}
+.tabs a{flex:1;display:grid;justify-items:center;gap:2px;padding:8px 2px 10px;font-size:.68rem;text-decoration:none;color:var(--muted);min-width:0}
+.tabs a span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tabs svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tabs a[aria-current="page"]{color:var(--accent);font-weight:600}
+
+section.view{display:none;padding:28px 0 48px}
+section.view.on{display:block}
+.head{display:grid;gap:8px;margin-bottom:22px;max-width:65ch}
+
+/* hero */
+.hero{display:grid;gap:24px;align-items:center}
+@media(min-width:820px){.hero{grid-template-columns:1fr 1.05fr;gap:40px}}
+.hero .copy{display:grid;gap:16px}
+.hero .copy p{max-width:48ch;font-size:1.06rem}
+.row{display:flex;flex-wrap:wrap;gap:10px}
+.sheet{background:var(--surface);border:1.5px solid var(--ink);padding:12px 12px 0}
+.sheet svg{display:block;width:100%;height:auto}
+.sheet .ctrl{padding:4px 4px 10px;display:grid;gap:10px}
+.titleblock{display:grid;grid-template-columns:1.4fr 1fr 1fr;border-top:1.5px solid var(--ink);margin:0 -12px;font-family:var(--mono);font-size:.68rem;text-transform:uppercase;direction:ltr}
+.titleblock div{padding:6px 10px;border-inline-end:1px solid var(--ink)}
+.titleblock div:last-child{border:0}
+.titleblock b{display:block;font-weight:500;color:var(--muted);font-size:.6rem}
+.readouts{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:4px}
+.readouts div{background:var(--surface);padding:8px 10px;display:grid;gap:2px}
+.readouts small{color:var(--muted);font-size:.74rem;line-height:1.3}
+.readouts strong{font-family:var(--mono);font-weight:500;font-size:1.05rem;direction:ltr;unicode-bidi:isolate;text-align:start}
+svg .ink{stroke:var(--ink);fill:none;stroke-width:1.2}
+svg .solid{fill:var(--ink)}
+svg .dim{stroke:var(--muted);stroke-width:.8;fill:none}
+svg .hot{stroke:var(--hot);fill:var(--hot);stroke-width:2}
+svg .bmd{fill:var(--accent);fill-opacity:.16;stroke:var(--accent);stroke-width:1.4}
+svg text{font-family:var(--mono);font-size:10px;fill:var(--ink)}
+svg text.m{fill:var(--muted)} svg text.h{fill:var(--hot)} svg text.a{fill:var(--accent)}
+
+svg .scr{fill:#0B1512} svg .grd{stroke:#1F3B32;stroke-width:.6;fill:none} svg .axis{stroke:#35594C;stroke-width:1;fill:none}
+svg .tv{stroke:#5BE3A6;fill:none;stroke-width:2;stroke-linejoin:round} svg .ti{stroke:#F2B45A;fill:none;stroke-width:2;stroke-linejoin:round}
+svg text.sv{fill:#5BE3A6} svg text.si{fill:#F2B45A} svg text.sm{fill:#9DB5AC}
+.spec{font-family:var(--mono);font-size:.78rem;color:var(--muted);direction:ltr;text-align:start}
+.readouts .wide{grid-column:1/-1}
+.course details{padding:8px 10px}
+.course ol{margin:8px 0 0;padding-inline-start:22px;display:grid;gap:5px;font-size:.9rem}
+.four{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+textarea{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:10px 12px;width:100%;resize:vertical}
+.btn:disabled{opacity:.5;cursor:default}
+.ans{white-space:pre-wrap;border:1px solid var(--line);background:var(--bg);padding:12px;unicode-bidi:plaintext;overflow-wrap:anywhere}
+.eq{font-family:var(--mono);font-size:.92em;unicode-bidi:isolate;direction:ltr;display:inline-block}
+.lk{background:none;border:0;padding:4px 0;color:var(--accent);text-decoration:underline;cursor:pointer;text-align:start;min-height:32px}
+#les{width:min(94vw,560px);max-height:88vh;overflow:auto}
+#les>*+*{margin-top:12px}
+h4{margin:0;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.trio{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:36px}
+@media(min-width:700px){.trio{grid-template-columns:repeat(3,1fr)}}
+.trio a{background:var(--surface);padding:18px;text-decoration:none;color:var(--ink);display:grid;gap:6px}
+.trio .n{font-family:var(--display);font-weight:800;font-size:2.6rem;line-height:1;color:var(--accent)}
+.trio a:hover h3{text-decoration:underline}
+
+/* courses */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;min-height:38px;cursor:pointer;font-size:.9rem}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grid{display:grid;gap:12px}
+@media(min-width:640px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:960px){.grid{grid-template-columns:repeat(3,1fr)}}
+.course{background:var(--surface);border:1px solid var(--line);border-inline-start:6px solid var(--yc);padding:14px;display:grid;gap:8px;align-content:start}
+.course .top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.code{font-family:var(--mono);font-size:.78rem;color:var(--muted);direction:ltr}
+.tag{font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:3px;border:1px solid var(--line)}
+.tag.pro{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.meta{font-size:.84rem;color:var(--muted)}
+.terms{display:flex;flex-wrap:wrap;gap:6px}
+.terms button{border:1px dashed var(--line);background:transparent;border-radius:3px;padding:4px 8px;font-size:.8rem;cursor:pointer;min-height:32px}
+.terms button:hover{border-color:var(--accent);color:var(--accent)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:.8rem;color:var(--muted);margin-top:16px}
+.legend i{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-inline-end:5px}
+
+/* tools */
+.panel{background:var(--surface);border:1px solid var(--line);padding:16px;display:grid;gap:14px;margin-bottom:16px}
+.two{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+.three{display:grid;gap:12px}
+@media(min-width:640px){.three{grid-template-columns:repeat(3,1fr)}}
+.result{font-family:var(--mono);font-size:1.3rem;padding:12px;border:1px solid var(--line);background:var(--bg);direction:ltr;text-align:start;overflow-wrap:anywhere}
+.formulas{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+@media(min-width:640px){.formulas{grid-template-columns:1fr 1fr}}
+.formulas div{background:var(--surface);padding:10px 12px;display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.formulas code{font-family:var(--mono);direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+
+/* glossary */
+.gl{background:var(--surface);border:1px solid var(--line)}
+.gl .r{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);align-items:baseline}
+.gl .r:last-child{border:0}
+.gl .r span:first-child{font-weight:600}
+.gl .r small{grid-column:1/-1;color:var(--muted);font-size:.74rem}
+.gl .r.flash{background:color-mix(in srgb,var(--accent) 14%,var(--surface))}
+
+/* pricing */
+.toggles{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin-bottom:18px}
+.seg{display:inline-flex;border:1px solid var(--ink);border-radius:4px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:0 16px;min-height:44px;cursor:pointer;font-weight:500}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.plans{display:grid;gap:12px}
+@media(min-width:820px){.plans{grid-template-columns:repeat(3,1fr)}}
+.plan{background:var(--surface);border:1px solid var(--line);padding:18px;display:grid;gap:10px;align-content:start;position:relative}
+.plan.pop{border:2px solid var(--accent)}
+.plan .badge{position:absolute;top:-11px;inset-inline-start:14px;background:var(--accent);color:var(--accent-ink);font-size:.72rem;font-weight:600;padding:2px 10px;border-radius:3px}
+.plan .name{font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:1.45rem;text-transform:uppercase;line-height:1}
+.price{font-family:var(--mono);font-size:2rem;font-weight:500;line-height:1.1;direction:ltr;unicode-bidi:isolate;text-align:start}
+.price small{font-size:.8rem;color:var(--muted);font-family:var(--body)}
+.save{color:var(--accent);font-weight:600;font-size:.84rem}
+.tblwrap{overflow-x:auto;margin-top:8px;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.88rem;min-width:420px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:center}
+th:first-child,td:first-child{text-align:start}
+thead th{font-family:var(--mono);font-size:.74rem;text-transform:uppercase;color:var(--muted);font-weight:500}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--accent);font-weight:700} td.n{color:var(--muted)}
+.campus{display:grid;gap:16px;margin-top:16px}
+@media(min-width:820px){.campus{grid-template-columns:1fr 1fr;align-items:center}}
+.campus ul{margin:0;padding-inline-start:18px;display:grid;gap:4px}
+.note{font-size:.84rem;color:var(--muted);margin-top:14px;border-inline-start:3px solid var(--hot);padding-inline-start:10px}
+details{background:var(--surface);border:1px solid var(--line);padding:12px 14px}
+details+details{border-top:0}
+summary{cursor:pointer;font-weight:600}
+details p{margin-top:8px;color:var(--muted);max-width:65ch}
+h2.sub{margin:36px 0 14px}
+dialog{border:1.5px solid var(--ink);background:var(--surface);color:var(--ink);padding:20px;width:min(92vw,420px)}
+dialog::backdrop{background:rgba(10,14,18,.6)}
+dialog dl{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:16px 0}
+dialog dt{color:var(--muted)} dialog dd{margin:0;text-align:end;font-family:var(--mono)}
+@media(prefers-reduced-motion:no-preference){.gl .r{transition:background .6s}}
+</style>
+</head>
+<body>
+<header><div class="wrap bar">
+  <a class="brand" href="#home" aria-label="Phasor">
+    <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="10.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13L20.5 6.5" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/><circle cx="13" cy="13" r="2" fill="currentColor"/></svg>Phasor</a>
+  <nav class="topnav" id="topnav"></nav>
+  <select class="lang" id="lang" aria-label="Language"></select>
+</div></header>
+
+<main class="wrap">
+<section class="view" id="v-home">
+  <div class="hero">
+    <div class="copy">
+      <h1 data-t="hero_h"></h1>
+      <p class="muted" data-t="hero_p"></p>
+      <div class="row"><a class="btn primary" href="#courses" data-t="hero_c1"></a><a class="btn" href="#pricing" data-t="hero_c2"></a></div>
+    </div>
+    <div class="sheet">
+      <svg id="scope1" viewBox="0 0 360 200" role="img" aria-label="Oscilloscope: voltage and current"></svg>
+      <div class="ctrl">
+        <p class="spec" id="h_spec"></p>
+        <label><span data-t="b_try"></span><input type="range" id="h_f" min="20" max="500" step="1"></label>
+        <div class="readouts" id="ro1"></div>
+      </div>
+      <div class="titleblock"><div><b>Title</b>Series RLC circuit</div><div><b>Units</b>V, A, Hz</div><div><b>Drg no.</b>PHA-001</div></div>
+    </div>
+  </div>
+  <div class="trio">
+    <a href="#courses"><span class="n mono">12</span><h3 data-t="nav_courses"></h3><p class="muted" data-t="h_c"></p></a>
+    <a href="#tools"><span class="n mono">3</span><h3 data-t="nav_tools"></h3><p class="muted" data-t="h_t"></p></a>
+    <a href="#glossary"><span class="n mono">6</span><h3 data-t="nav_gloss"></h3><p class="muted" data-t="h_g"></p></a>
+  </div>
+</section>
+
+<section class="view" id="v-courses">
+  <div class="head"><h2 data-t="nav_courses"></h2><p class="muted" data-t="c_sub"></p></div>
+  <div class="chips" id="yearchips"></div>
+  <div class="grid" id="courselist"></div>
+  <p class="legend" id="legend"></p>
+</section>
+
+<section class="view" id="v-tools">
+  <div class="head"><h2 data-t="nav_tools"></h2><p class="muted" data-t="h_t"></p></div>
+  <div class="panel">
+    <h3 data-t="ai_title"></h3>
+    <label><span data-t="ai_ph"></span><textarea id="ai_q" rows="3"></textarea></label>
+    <div class="row"><button class="btn primary" type="button" id="ai_go" data-t="ai_ask" disabled></button></div>
+    <div class="ans" id="ai_out" aria-live="polite" hidden></div>
+    <p class="muted" style="font-size:.8rem" id="ai_note"></p>
+  </div>
+  <div class="panel">
+    <h3 data-t="t_beam"></h3>
+    <svg id="scope2" viewBox="0 0 360 200" role="img" aria-label="Oscilloscope: voltage and current" style="max-width:560px;width:100%"></svg>
+    <label><span><span data-g="freq"></span> <span class="mono" id="o_f"></span></span><input type="range" id="t_f" min="20" max="500" step="1"></label>
+    <div class="four">
+      <label><span><span data-g="resistance"></span> <span class="mono" id="o_R"></span></span><input type="range" id="t_R" min="5" max="500" step="5"></label>
+      <label><span><span data-g="induct"></span> <span class="mono" id="o_L"></span></span><input type="range" id="t_L" min="5" max="500" step="5"></label>
+      <label><span><span data-g="capac"></span> <span class="mono" id="o_C"></span></span><input type="range" id="t_C" min="1" max="100" step="1"></label>
+      <label><span><span data-g="voltage"></span> <span class="mono" id="o_V"></span></span><input type="range" id="t_V" min="1" max="240" step="1"></label>
+    </div>
+    <div class="readouts" id="ro2"></div>
+  </div>
+  <div class="panel">
+    <h3 data-t="t_conv"></h3>
+    <div class="two"><label><span data-t="u_cat"></span><select id="u_cat"></select></label><label><span data-t="u_val"></span><input type="number" id="u_val" value="1" step="any" inputmode="decimal"></label></div>
+    <div class="two"><label><span data-t="u_from"></span><select id="u_from"></select></label><label><span data-t="u_to"></span><select id="u_to"></select></label></div>
+    <div class="result" id="u_out" aria-live="polite"></div>
+  </div>
+  <div class="panel"><h3 data-t="t_form"></h3><div class="formulas" id="formulas"></div></div>
+</section>
+
+<section class="view" id="v-glossary">
+  <div class="head"><h2 data-t="g_title"></h2><p class="muted" data-t="g_sub"></p></div>
+  <div class="panel">
+    <div class="two"><label><span data-t="u_from"></span><select id="g_from"></select></label><label><span data-t="u_to"></span><select id="g_to"></select></label></div>
+    <div class="two"><label><span data-t="g_search"></span><input type="search" id="g_q"></label><label><span data-t="nav_courses"></span><select id="g_course"></select></label></div>
+  </div>
+  <div class="gl" id="glist"></div>
+</section>
+
+<section class="view" id="v-pricing">
+  <div class="head"><h2 data-t="p_title"></h2><p class="muted" data-t="p_sub"></p></div>
+  <div class="toggles">
+    <div class="seg" id="cycle"><button type="button" data-c="m" data-t="p_m"></button><button type="button" data-c="y" data-t="p_y"></button></div>
+    <label style="width:auto"><span data-t="p_cur"></span><select id="cur"></select></label>
+  </div>
+  <div class="plans" id="plans"></div>
+  <p class="muted" style="margin-top:14px;font-size:.9rem" data-t="p_terms"></p>
+  <p class="note" data-t="p_proto"></p>
+
+  <h2 class="sub" data-t="p_cmp"></h2>
+  <div class="tblwrap"><table id="cmp"></table></div>
+
+  <h2 class="sub">Campus</h2>
+  <div class="panel campus">
+    <div style="display:grid;gap:8px"><p data-t="cp_d"></p><ul id="cp_list"></ul></div>
+    <div style="display:grid;gap:10px">
+      <label><span><span data-t="cp_seats"></span> <span class="mono" id="o_seats"></span></span><input type="range" id="seats" min="20" max="500" step="10" value="60"></label>
+      <div class="readouts" id="cp_out"></div>
+    </div>
+  </div>
+
+  <h2 class="sub" data-t="p_faq"></h2>
+  <div id="faq"></div>
+</section>
+</main>
+
+<nav class="tabs" id="tabs"></nav>
+
+<dialog id="les">
+  <p class="code" id="les_code"></p>
+  <h3 id="les_t"></h3>
+  <p id="les_x"></p>
+  <div class="result" id="les_f" style="font-size:.92rem"></div>
+  <h4 data-t="l_ex"></h4>
+  <p id="les_e"></p>
+  <h4 data-t="l_chk"></h4>
+  <p id="les_q"></p>
+  <details id="les_d"><summary data-t="l_show"></summary><p id="les_a"></p></details>
+  <div class="row"><button class="btn primary" type="button" id="les_done"></button><button class="btn" type="button" id="les_close" data-t="co_close"></button></div>
+</dialog>
+
+<dialog id="dlg">
+  <h3 data-t="co_title"></h3>
+  <dl id="co"></dl>
+  <p class="note" style="margin:0 0 16px" data-t="p_proto"></p>
+  <button class="btn primary" type="button" id="dlg_x" style="width:100%" data-t="co_close"></button>
+</dialog>
+
+<script>
+const LANGS=[["en","English"],["ar","العربية"],["fr","Français"],["es","Español"],["ur","اردو"],["hi","हिन्दी"]];
+const RTL=["ar","ur"];
+// order: en, ar, fr, es, ur, hi
+const S={
+nav_home:["Home","الرئيسية","Accueil","Inicio","ہوم","होम"],
+nav_courses:["Courses","المقررات","Cours","Cursos","کورسز","पाठ्यक्रम"],
+nav_tools:["Tools","الأدوات","Outils","Herramientas","ٹولز","टूल"],
+nav_gloss:["Glossary","المصطلحات","Glossaire","Glosario","فرہنگ","शब्दावली"],
+nav_price:["Pricing","الأسعار","Tarifs","Precios","قیمتیں","मूल्य"],
+hero_h:["Mechanical engineering you can see move","هندسة ميكانيكية تراها تتحرك","Le génie mécanique que l’on voit bouger","Ingeniería mecánica que ves en movimiento","مکینیکل انجینئرنگ جسے آپ حرکت میں دیکھ سکیں","मैकेनिकल इंजीनियरिंग, जिसे आप चलते हुए देख सकें"],
+hero_p:["Twelve core courses, live calculators and a six-language technical glossary for engineering students.","اثنا عشر مقررًا أساسيًا وحاسبات تفاعلية ومسرد تقني بست لغات لطلاب الهندسة.","Douze cours fondamentaux, des calculateurs interactifs et un glossaire technique en six langues pour les étudiants en ingénierie.","Doce cursos troncales, calculadoras interactivas y un glosario técnico en seis idiomas para estudiantes de ingeniería.","انجینئرنگ کے طلبہ کے لیے بارہ بنیادی کورسز، لائیو کیلکولیٹر اور چھ زبانوں میں تکنیکی فرہنگ۔","इंजीनियरिंग छात्रों के लिए बारह मुख्य पाठ्यक्रम, लाइव कैलकुलेटर और छह भाषाओं की तकनीकी शब्दावली।"],
+hero_c1:["Browse courses","تصفح المقررات","Voir les cours","Ver los cursos","کورسز دیکھیں","पाठ्यक्रम देखें"],
+hero_c2:["See plans","عرض الخطط","Voir les offres","Ver los planes","پلان دیکھیں","प्लान देखें"],
+b_try:["Drag the load and watch the reactions change","حرّك الحمل وشاهد ردود الأفعال تتغير","Déplacez la charge et observez les réactions","Mueve la carga y observa cómo cambian las reacciones","بوجھ کو سرکائیں اور ردِعمل بدلتے دیکھیں","भार को खिसकाएँ और प्रतिक्रियाएँ बदलते देखें"],
+b_pos:["Load position","موضع الحمل","Position de la charge","Posición de la carga","بوجھ کا مقام","भार की स्थिति"],
+b_load:["Load","الحمل","Charge","Carga","بوجھ","भार"],
+b_span:["Span","طول البحر","Portée","Luz","اسپین","विस्तार"],
+b_mat:["Material","المادة","Matériau","Material","مواد","पदार्थ"],
+b_I:["Second moment of area","عزم القصور الذاتي للمساحة","Moment quadratique","Momento de inercia de área","رقبے کا دوسرا مومنٹ","क्षेत्रफल का द्वितीय आघूर्ण"],
+m_steel:["Steel","فولاذ","Acier","Acero","فولاد","इस्पात"],
+m_alu:["Aluminium","ألومنيوم","Aluminium","Aluminio","ایلومینیم","एल्युमिनियम"],
+m_wood:["Timber","خشب","Bois","Madera","لکڑی","लकड़ी"],
+r_a:["Left reaction","رد الفعل الأيسر","Réaction gauche","Reacción izquierda","بایاں ردِعمل","बायीं प्रतिक्रिया"],
+r_b:["Right reaction","رد الفعل الأيمن","Réaction droite","Reacción derecha","دایاں ردِعمل","दायीं प्रतिक्रिया"],
+r_m:["Maximum bending moment","أقصى عزم انحناء","Moment fléchissant maximal","Momento flector máximo","زیادہ سے زیادہ بینڈنگ مومنٹ","अधिकतम बंकन आघूर्ण"],
+r_d:["Maximum deflection","أقصى ترخيم","Flèche maximale","Flecha máxima","زیادہ سے زیادہ جھکاؤ","अधिकतम विक्षेप"],
+h_c:["Four years of core subjects, from statics to control systems.","أربع سنوات من المواد الأساسية، من الاستاتيكا إلى أنظمة التحكم.","Quatre années de matières fondamentales, de la statique à l’automatique.","Cuatro años de asignaturas troncales, de la estática a los sistemas de control.","چار سال کے بنیادی مضامین، سکونیات سے کنٹرول سسٹمز تک۔","चार वर्षों के मुख्य विषय, स्थैतिकी से नियंत्रण प्रणालियों तक।"],
+h_t:["A beam calculator, a unit converter and a formula sheet.","حاسبة كمرات ومحوّل وحدات وورقة قوانين.","Un calculateur de poutre, un convertisseur d’unités et un formulaire.","Calculadora de vigas, conversor de unidades y formulario.","بیم کیلکولیٹر، یونٹ کنورٹر اور فارمولا شیٹ۔","बीम कैलकुलेटर, इकाई परिवर्तक और सूत्र-पत्र।"],
+h_g:["Every key term in English, Arabic, French, Spanish, Urdu and Hindi.","كل مصطلح أساسي بالإنجليزية والعربية والفرنسية والإسبانية والأردية والهندية.","Chaque terme clé en anglais, arabe, français, espagnol, ourdou et hindi.","Cada término clave en inglés, árabe, francés, español, urdu e hindi.","ہر اہم اصطلاح انگریزی، عربی، فرانسیسی، ہسپانوی، اردو اور ہندی میں۔","हर मुख्य शब्द अंग्रेज़ी, अरबी, फ़्रेंच, स्पेनिश, उर्दू और हिन्दी में।"],
+c_sub:["The core mechanical engineering curriculum, year by year. Tap a key term to see it in another language.","منهج الهندسة الميكانيكية الأساسي سنة بسنة. اضغط على أي مصطلح لتراه بلغة أخرى.","Le programme de génie mécanique, année par année. Touchez un terme pour le voir dans une autre langue.","El plan de estudios de ingeniería mecánica, año por año. Toca un término para verlo en otro idioma.","مکینیکل انجینئرنگ کا بنیادی نصاب، سال بہ سال۔ کسی اصطلاح کو دوسری زبان میں دیکھنے کے لیے اس پر ٹیپ کریں۔","मैकेनिकल इंजीनियरिंग का मुख्य पाठ्यक्रम, वर्ष-दर-वर्ष। किसी शब्द को दूसरी भाषा में देखने के लिए उस पर टैप करें।"],
+c_all:["All","الكل","Tous","Todos","سب","सभी"],
+c_year:["Year","السنة","Année","Año","سال","वर्ष"],
+c_les:["lessons","درسًا","leçons","lecciones","اسباق","पाठ"],
+c_hrs:["hours","ساعة","heures","horas","گھنٹے","घंटे"],
+c_free:["Free","مجاني","Gratuit","Gratis","مفت","निःशुल्क"],
+c_leg:["Year colours follow steel temper colours, from pale straw to blue-grey.","ألوان السنوات تتبع ألوان مراجعة الفولاذ، من الأصفر الباهت إلى الأزرق الرمادي.","Les couleurs des années suivent les couleurs de revenu de l’acier, du jaune paille au gris-bleu.","Los colores de cada año siguen los colores de revenido del acero, del amarillo paja al gris azulado.","سالوں کے رنگ فولاد کے ٹیمپر رنگوں کے مطابق ہیں، ہلکے زرد سے نیلگوں سرمئی تک۔","वर्षों के रंग इस्पात के टेम्पर रंगों पर आधारित हैं, हल्के पीले से नीले-धूसर तक।"],
+t_beam:["Beam calculator","حاسبة الكمرات","Calculateur de poutre","Calculadora de vigas","بیم کیلکولیٹر","बीम कैलकुलेटर"],
+t_conv:["Unit converter","محوّل الوحدات","Convertisseur d’unités","Conversor de unidades","یونٹ کنورٹر","इकाई परिवर्तक"],
+t_form:["Formula sheet","ورقة القوانين","Formulaire","Formulario","فارمولا شیٹ","सूत्र-पत्र"],
+u_cat:["Quantity","الكمية","Grandeur","Magnitud","مقدار","राशि"],
+u_val:["Value","القيمة","Valeur","Valor","قدر","मान"],
+u_from:["From","من","De","De","سے","से"],
+u_to:["To","إلى","Vers","A","تک","में"],
+q_len:["Length","الطول","Longueur","Longitud","لمبائی","लंबाई"],
+q_for:["Force","القوة","Force","Fuerza","قوت","बल"],
+q_pre:["Pressure","الضغط","Pression","Presión","دباؤ","दाब"],
+q_tor:["Torque","عزم الدوران","Couple","Par","ٹارک","टॉर्क"],
+q_ene:["Energy","الطاقة","Énergie","Energía","توانائی","ऊर्जा"],
+q_pow:["Power","القدرة","Puissance","Potencia","طاقت","शक्ति"],
+g_title:["Technical glossary","المسرد التقني","Glossaire technique","Glosario técnico","تکنیکی فرہنگ","तकनीकी शब्दावली"],
+g_sub:["Pick two languages and compare engineering terms side by side.","اختر لغتين وقارن المصطلحات الهندسية جنبًا إلى جنب.","Choisissez deux langues et comparez les termes techniques côte à côte.","Elige dos idiomas y compara los términos técnicos lado a lado.","دو زبانیں منتخب کریں اور انجینئرنگ اصطلاحات کا ساتھ ساتھ موازنہ کریں۔","दो भाषाएँ चुनें और इंजीनियरिंग शब्दों की साथ-साथ तुलना करें।"],
+g_search:["Search terms","ابحث في المصطلحات","Rechercher un terme","Buscar términos","اصطلاحات تلاش کریں","शब्द खोजें"],
+g_none:["No terms match your search. Try a shorter word.","لا توجد مصطلحات مطابقة. جرّب كلمة أقصر.","Aucun terme ne correspond. Essayez un mot plus court.","Ningún término coincide. Prueba con una palabra más corta.","کوئی اصطلاح نہیں ملی۔ چھوٹا لفظ آزمائیں۔","कोई शब्द नहीं मिला। छोटा शब्द आज़माएँ।"],
+p_title:["Plans and pricing","الخطط والأسعار","Offres et tarifs","Planes y precios","پلان اور قیمتیں","प्लान और मूल्य"],
+p_sub:["Start free. Upgrade when your coursework needs more.","ابدأ مجانًا، وقم بالترقية عندما تحتاج دراستك إلى المزيد.","Commencez gratuitement. Passez à l’offre supérieure quand vos études l’exigent.","Empieza gratis. Mejora tu plan cuando tus estudios lo pidan.","مفت شروع کریں۔ جب پڑھائی کو زیادہ درکار ہو تو اپ گریڈ کریں۔","निःशुल्क शुरू करें। जब पढ़ाई को ज़्यादा चाहिए, तब अपग्रेड करें।"],
+p_m:["Monthly","شهري","Mensuel","Mensual","ماہانہ","मासिक"],
+p_y:["Yearly","سنوي","Annuel","Anual","سالانہ","वार्षिक"],
+p_cur:["Currency","العملة","Devise","Moneda","کرنسی","मुद्रा"],
+p_per:["per month","شهريًا","par mois","al mes","فی ماہ","प्रति माह"],
+p_bill:["Billed yearly: {x}","يُدفع سنويًا: {x}","Facturé annuellement : {x}","Facturado al año: {x}","سالانہ بل: {x}","वार्षिक बिल: {x}"],
+p_save:["Save {n}%","وفّر {n}%","Économisez {n} %","Ahorra {n} %","{n}% بچت","{n}% बचत"],
+p_pop:["Most popular","الأكثر اختيارًا","Le plus choisi","El más elegido","سب سے مقبول","सबसे लोकप्रिय"],
+p_choose:["Choose plan","اختر الخطة","Choisir cette offre","Elegir plan","پلان منتخب کریں","प्लान चुनें"],
+p_start:["Start free","ابدأ مجانًا","Commencer gratuitement","Empezar gratis","مفت شروع کریں","निःशुल्क शुरू करें"],
+d_free:["For trying the platform","لتجربة المنصة","Pour découvrir la plateforme","Para probar la plataforma","پلیٹ فارم آزمانے کے لیے","प्लेटफ़ॉर्म आज़माने के लिए"],
+d_pro:["For passing your courses","للنجاح في مقرراتك","Pour réussir vos cours","Para aprobar tus asignaturas","اپنے کورسز پاس کرنے کے لیے","अपने पाठ्यक्रम उत्तीर्ण करने के लिए"],
+d_plus:["For projects and certificates","للمشاريع والشهادات","Pour les projets et les certificats","Para proyectos y certificados","پروجیکٹس اور سرٹیفکیٹس کے لیے","प्रोजेक्ट और प्रमाणपत्रों के लिए"],
+p_terms:["7-day free trial on paid plans. Cancel any time. 14-day refund.","تجربة مجانية 7 أيام للخطط المدفوعة. إلغاء في أي وقت. استرداد خلال 14 يومًا.","Essai gratuit de 7 jours sur les offres payantes. Résiliation à tout moment. Remboursement sous 14 jours.","Prueba gratuita de 7 días en los planes de pago. Cancela cuando quieras. Reembolso en 14 días.","ادا شدہ پلانز پر 7 دن کا مفت ٹرائل۔ کسی بھی وقت منسوخ کریں۔ 14 دن میں رقم واپسی۔","सशुल्क प्लान पर 7 दिन का निःशुल्क ट्रायल। कभी भी रद्द करें। 14 दिन में धनवापसी।"],
+p_proto:["Proposed launch prices. Payment is not connected in this prototype.","أسعار مقترحة للإطلاق. الدفع غير مفعّل في هذا النموذج الأولي.","Prix de lancement proposés. Le paiement n’est pas connecté dans ce prototype.","Precios de lanzamiento propuestos. El pago no está conectado en este prototipo.","مجوزہ ابتدائی قیمتیں۔ اس پروٹوٹائپ میں ادائیگی منسلک نہیں ہے۔","प्रस्तावित लॉन्च मूल्य। इस प्रोटोटाइप में भुगतान जुड़ा नहीं है।"],
+p_cmp:["Compare plans","قارن الخطط","Comparer les offres","Comparar planes","پلانز کا موازنہ","प्लान की तुलना"],
+p_feat:["Feature","الميزة","Fonction","Función","فیچر","सुविधा"],
+f_courses:["Courses included","المقررات المتاحة","Cours inclus","Cursos incluidos","شامل کورسز","शामिल पाठ्यक्रम"],
+f_tools:["Calculators and unit converter","الحاسبات ومحوّل الوحدات","Calculateurs et convertisseur","Calculadoras y conversor","کیلکولیٹر اور یونٹ کنورٹر","कैलकुलेटर और इकाई परिवर्तक"],
+f_gloss:["Six-language glossary","مسرد بست لغات","Glossaire en six langues","Glosario en seis idiomas","چھ زبانوں کی فرہنگ","छह भाषाओं की शब्दावली"],
+f_prob:["Worked problems with full solutions","مسائل محلولة بالتفصيل","Exercices corrigés en détail","Problemas resueltos paso a paso","مکمل حل کے ساتھ مشقیں","पूर्ण हल सहित प्रश्न"],
+f_exam:["Exam practice sets","نماذج تدريب للامتحانات","Séries d’entraînement aux examens","Simulacros de examen","امتحانی مشق کے سیٹ","परीक्षा अभ्यास सेट"],
+f_off:["Offline downloads","تنزيل للاستخدام دون اتصال","Téléchargements hors ligne","Descargas sin conexión","آف لائن ڈاؤن لوڈ","ऑफ़लाइन डाउनलोड"],
+f_ai:["AI tutor questions per day","أسئلة المعلّم الذكي يوميًا","Questions au tuteur IA par jour","Preguntas al tutor de IA por día","روزانہ AI ٹیوٹر سوالات","प्रतिदिन AI ट्यूटर प्रश्न"],
+f_cert:["Completion certificates","شهادات إتمام","Certificats de réussite","Certificados de finalización","تکمیلی سرٹیفکیٹ","पूर्णता प्रमाणपत्र"],
+f_rev:["Project and report review","مراجعة المشاريع والتقارير","Relecture de projets et rapports","Revisión de proyectos e informes","پروجیکٹ اور رپورٹ کا جائزہ","प्रोजेक्ट और रिपोर्ट समीक्षा"],
+f_sup:["Priority support","دعم ذو أولوية","Assistance prioritaire","Soporte prioritario","ترجیحی سپورٹ","प्राथमिकता सहायता"],
+f_unl:["Unlimited","غير محدود","Illimité","Ilimitado","لامحدود","असीमित"],
+cp_d:["For universities and training centres. Billed yearly, minimum 20 seats.","للجامعات ومراكز التدريب. يُدفع سنويًا، بحد أدنى 20 مقعدًا.","Pour les universités et centres de formation. Facturation annuelle, 20 places minimum.","Para universidades y centros de formación. Facturación anual, mínimo 20 plazas.","یونیورسٹیوں اور تربیتی مراکز کے لیے۔ سالانہ بل، کم از کم 20 نشستیں۔","विश्वविद्यालयों और प्रशिक्षण केंद्रों के लिए। वार्षिक बिल, न्यूनतम 20 सीटें।"],
+cp_1:["Everything in Pro Plus for every student","كل مزايا Pro Plus لكل طالب","Tout Pro Plus pour chaque étudiant","Todo Pro Plus para cada estudiante","ہر طالب علم کے لیے Pro Plus کی تمام سہولیات","हर छात्र के लिए Pro Plus की सभी सुविधाएँ"],
+cp_2:["Instructor dashboard with class progress","لوحة للمحاضر تعرض تقدّم الصف","Tableau de bord enseignant avec suivi de la classe","Panel del docente con el progreso del grupo","کلاس کی پیش رفت کے ساتھ انسٹرکٹر ڈیش بورڈ","कक्षा की प्रगति सहित प्रशिक्षक डैशबोर्ड"],
+cp_3:["One invoice, bank transfer accepted","فاتورة واحدة مع قبول التحويل البنكي","Une seule facture, virement accepté","Una sola factura, se acepta transferencia","ایک انوائس، بینک ٹرانسفر قابلِ قبول","एक इनवॉइस, बैंक ट्रांसफ़र स्वीकार्य"],
+cp_seats:["Seats","المقاعد","Places","Plazas","نشستیں","सीटें"],
+cp_per:["Per seat, per month","لكل مقعد شهريًا","Par place, par mois","Por plaza, al mes","فی نشست، فی ماہ","प्रति सीट, प्रति माह"],
+cp_tot:["Total per year","الإجمالي السنوي","Total par an","Total al año","سالانہ کل","वार्षिक कुल"],
+p_faq:["Questions","أسئلة","Questions","Preguntas","سوالات","प्रश्न"],
+q1:["Can I switch plans later?","هل يمكنني تغيير الخطة لاحقًا؟","Puis-je changer d’offre plus tard ?","¿Puedo cambiar de plan más adelante?","کیا میں بعد میں پلان بدل سکتا ہوں؟","क्या मैं बाद में प्लान बदल सकता हूँ?"],
+a1:["Yes. Upgrade or downgrade at any time. The change applies from your next billing date.","نعم. يمكنك الترقية أو التخفيض في أي وقت، ويُطبَّق التغيير من تاريخ الفوترة التالي.","Oui. Vous pouvez changer à tout moment. Le changement s’applique à la prochaine date de facturation.","Sí. Puedes subir o bajar de plan cuando quieras. El cambio se aplica en la siguiente fecha de cobro.","جی ہاں۔ کسی بھی وقت اپ گریڈ یا ڈاؤن گریڈ کریں۔ تبدیلی اگلی بلنگ تاریخ سے لاگو ہوگی۔","हाँ। कभी भी अपग्रेड या डाउनग्रेड करें। बदलाव अगली बिलिंग तिथि से लागू होगा।"],
+q2:["What stays free?","ما الذي يبقى مجانيًا؟","Qu’est-ce qui reste gratuit ?","¿Qué sigue siendo gratis?","کیا چیز مفت رہے گی؟","क्या निःशुल्क रहेगा?"],
+a2:["Three first-year courses, the calculators, the unit converter and the full glossary stay free.","ثلاثة مقررات للسنة الأولى والحاسبات ومحوّل الوحدات والمسرد الكامل تبقى مجانية.","Trois cours de première année, les calculateurs, le convertisseur et tout le glossaire restent gratuits.","Tres cursos de primer año, las calculadoras, el conversor y todo el glosario siguen siendo gratis.","پہلے سال کے تین کورسز، کیلکولیٹر، یونٹ کنورٹر اور مکمل فرہنگ مفت رہیں گے۔","प्रथम वर्ष के तीन पाठ्यक्रम, कैलकुलेटर, इकाई परिवर्तक और पूरी शब्दावली निःशुल्क रहेंगे।"],
+q3:["Why do prices differ by currency?","لماذا تختلف الأسعار حسب العملة؟","Pourquoi les prix varient-ils selon la devise ?","¿Por qué cambian los precios según la moneda?","کرنسی کے لحاظ سے قیمتیں مختلف کیوں ہیں؟","मुद्रा के अनुसार मूल्य अलग क्यों हैं?"],
+a3:["Each currency has its own regional price so that the plan stays affordable for students in that region.","لكل عملة سعر إقليمي خاص حتى تبقى الخطة في متناول الطلاب في تلك المنطقة.","Chaque devise a son prix régional afin que l’offre reste abordable pour les étudiants de la région.","Cada moneda tiene su precio regional para que el plan sea asequible para los estudiantes de esa región.","ہر کرنسی کی اپنی علاقائی قیمت ہے تاکہ پلان اس خطے کے طلبہ کے لیے قابلِ استطاعت رہے۔","हर मुद्रा का अपना क्षेत्रीय मूल्य है ताकि प्लान उस क्षेत्र के छात्रों के लिए किफ़ायती रहे।"],
+co_title:["Order summary","ملخص الطلب","Récapitulatif","Resumen del pedido","آرڈر کا خلاصہ","ऑर्डर सारांश"],
+co_plan:["Plan","الخطة","Offre","Plan","پلان","प्लान"],
+co_bill:["Billing","الفوترة","Facturation","Facturación","بلنگ","बिलिंग"],
+co_today:["Due today","المستحق اليوم","À payer aujourd’hui","A pagar hoy","آج واجب الادا","आज देय"],
+co_after:["After the 7-day trial","بعد تجربة 7 أيام","Après l’essai de 7 jours","Tras la prueba de 7 días","7 دن کے ٹرائل کے بعد","7 दिन के ट्रायल के बाद"],
+co_close:["Close","إغلاق","Fermer","Cerrar","بند کریں","बंद करें"]
+};
+Object.assign(S,{
+hero_h:["Electrical engineering you can watch on the scope","هندسة كهربائية تراها على راسم الإشارة","Le génie électrique, visible à l’oscilloscope","Ingeniería eléctrica que ves en el osciloscopio","الیکٹریکل انجینئرنگ جسے آپ آسیلوسکوپ پر دیکھ سکیں","इलेक्ट्रिकल इंजीनियरिंग, जिसे आप ऑसिलोस्कोप पर देख सकें"],
+hero_p:["Twelve core courses with full syllabi, live circuit tools and a six-language technical glossary for engineering students.","اثنا عشر مقررًا أساسيًا بمناهج كاملة وأدوات دوائر تفاعلية ومسرد تقني بست لغات لطلاب الهندسة.","Douze cours fondamentaux avec programmes complets, des outils de circuits interactifs et un glossaire technique en six langues pour les étudiants en ingénierie.","Doce cursos troncales con temario completo, herramientas de circuitos interactivas y un glosario técnico en seis idiomas para estudiantes de ingeniería.","انجینئرنگ کے طلبہ کے لیے مکمل نصاب کے ساتھ بارہ بنیادی کورسز، لائیو سرکٹ ٹولز اور چھ زبانوں میں تکنیکی فرہنگ۔","इंजीनियरिंग छात्रों के लिए पूर्ण पाठ्य-विवरण सहित बारह मुख्य पाठ्यक्रम, लाइव परिपथ टूल और छह भाषाओं की तकनीकी शब्दावली।"],
+b_try:["Sweep the frequency and watch the current shift against the voltage","غيّر التردد وشاهد التيار ينزاح عن الجهد","Faites varier la fréquence et observez le courant se décaler par rapport à la tension","Varía la frecuencia y observa cómo la corriente se desfasa de la tensión","تعدد بدلیں اور کرنٹ کو وولٹیج کے مقابل سرکتے دیکھیں","आवृत्ति बदलें और धारा को वोल्टता के सापेक्ष खिसकते देखें"],
+h_c:["Four years of core subjects, from circuit analysis to communication systems.","أربع سنوات من المواد الأساسية، من تحليل الدوائر إلى أنظمة الاتصالات.","Quatre années de matières fondamentales, de l’analyse des circuits aux systèmes de communication.","Cuatro años de asignaturas troncales, del análisis de circuitos a los sistemas de comunicación.","چار سال کے بنیادی مضامین، سرکٹ تجزیے سے مواصلاتی نظام تک۔","चार वर्षों के मुख्य विषय, परिपथ विश्लेषण से संचार प्रणालियों तक।"],
+h_t:["A series RLC analyser, a unit converter and a formula sheet.","محلّل دائرة RLC على التوالي ومحوّل وحدات وورقة قوانين.","Un analyseur RLC série, un convertisseur d’unités et un formulaire.","Analizador RLC serie, conversor de unidades y formulario.","سیریز RLC اینالائزر، یونٹ کنورٹر اور فارمولا شیٹ۔","श्रेणी RLC विश्लेषक, इकाई परिवर्तक और सूत्र-पत्र।"],
+t_beam:["Series RLC analyser","محلّل دائرة RLC على التوالي","Analyseur RLC série","Analizador RLC serie","سیریز RLC اینالائزر","श्रेणी RLC विश्लेषक"],
+c_leg:["Year colours follow the resistor colour code: brown 1, red 2, orange 3, yellow 4.","ألوان السنوات تتبع ترميز ألوان المقاومات: بني 1، أحمر 2، برتقالي 3، أصفر 4.","Les couleurs des années suivent le code couleur des résistances : marron 1, rouge 2, orange 3, jaune 4.","Los colores de cada año siguen el código de colores de las resistencias: marrón 1, rojo 2, naranja 3, amarillo 4.","سالوں کے رنگ ریزسٹر کلر کوڈ کے مطابق ہیں: بھورا 1، سرخ 2، نارنجی 3، پیلا 4۔","वर्षों के रंग प्रतिरोधक रंग-कोड पर आधारित हैं: भूरा 1, लाल 2, नारंगी 3, पीला 4।"],
+c_syl:["Syllabus","المنهج","Programme","Temario","نصاب","पाठ्य-विवरण"],
+f_tools:["Circuit tools and unit converter","أدوات الدوائر ومحوّل الوحدات","Outils de circuits et convertisseur","Herramientas de circuitos y conversor","سرکٹ ٹولز اور یونٹ کنورٹر","परिपथ टूल और इकाई परिवर्तक"],
+a2:["Three first-year courses, the circuit tools, the unit converter and the full glossary stay free.","ثلاثة مقررات للسنة الأولى وأدوات الدوائر ومحوّل الوحدات والمسرد الكامل تبقى مجانية.","Trois cours de première année, les outils de circuits, le convertisseur et tout le glossaire restent gratuits.","Tres cursos de primer año, las herramientas de circuitos, el conversor y todo el glosario siguen siendo gratis.","پہلے سال کے تین کورسز، سرکٹ ٹولز، یونٹ کنورٹر اور مکمل فرہنگ مفت رہیں گے۔","प्रथम वर्ष के तीन पाठ्यक्रम, परिपथ टूल, इकाई परिवर्तक और पूरी शब्दावली निःशुल्क रहेंगे।"],
+r_phi:["Phase angle","زاوية الطور","Déphasage","Ángulo de fase","فیز زاویہ","कला कोण"],
+r_f0:["Resonant frequency","تردد الرنين","Fréquence de résonance","Frecuencia de resonancia","گمک کی تعدد","अनुनाद आवृत्ति"],
+r_lag:["Current lags voltage (inductive)","التيار متأخر عن الجهد (حثّي)","Le courant est en retard sur la tension (inductif)","La corriente se retrasa respecto a la tensión (inductivo)","کرنٹ وولٹیج سے پیچھے ہے (انڈکٹیو)","धारा वोल्टता से पीछे है (प्रेरणिक)"],
+r_lead:["Current leads voltage (capacitive)","التيار متقدم على الجهد (سعوي)","Le courant est en avance sur la tension (capacitif)","La corriente se adelanta a la tensión (capacitivo)","کرنٹ وولٹیج سے آگے ہے (کپیسیٹیو)","धारा वोल्टता से आगे है (धारितीय)"],
+r_res:["At resonance: current and voltage in phase","عند الرنين: التيار والجهد في الطور نفسه","À la résonance : courant et tension en phase","En resonancia: corriente y tensión en fase","گمک پر: کرنٹ اور وولٹیج ہم فیز","अनुनाद पर: धारा और वोल्टता समकला"]
+});
+const COURSES=[
+["circuits","EE 101",1,28,22,1,["Circuit Analysis","تحليل الدوائر الكهربائية","Analyse des circuits","Análisis de circuitos","سرکٹ تجزیہ","परिपथ विश्लेषण"],[
+ ["Ohm's and Kirchhoff's laws","قانون أوم وقوانين كيرشوف","Lois d’Ohm et de Kirchhoff","Leyes de Ohm y de Kirchhoff","اوہم اور کرخوف کے قوانین","ओम और किरखॉफ़ के नियम"],
+ ["Node and mesh analysis","تحليل العقد والحلقات","Méthodes des nœuds et des mailles","Análisis de nodos y mallas","نوڈ اور میش تجزیہ","नोड और मेश विश्लेषण"],
+ ["Thévenin and Norton theorems","نظريتا ثيفينن ونورتن","Théorèmes de Thévenin et de Norton","Teoremas de Thévenin y Norton","تھیونن اور نارٹن کے مسئلے","थेवेनिन और नॉर्टन प्रमेय"],
+ ["RC, RL and RLC transients","الحالة العابرة لدوائر RC و RL و RLC","Régimes transitoires RC, RL et RLC","Transitorios RC, RL y RLC","RC، RL اور RLC عبوری ردِعمل","RC, RL और RLC क्षणिक अवस्थाएँ"],
+ ["AC phasors and resonance","المتجهات الطورية والرنين","Phaseurs et résonance","Fasores y resonancia","AC فیزرز اور گمک","AC फेज़र और अनुनाद"]]],
+["digital","EE 102",1,24,18,1,["Digital Logic Design","تصميم المنطق الرقمي","Conception de logique numérique","Diseño lógico digital","ڈیجیٹل لاجک ڈیزائن","डिजिटल लॉजिक डिज़ाइन"],[
+ ["Number systems and codes","أنظمة العد والترميز","Systèmes de numération et codes","Sistemas numéricos y códigos","عددی نظام اور کوڈز","संख्या पद्धतियाँ और कोड"],
+ ["Boolean algebra and Karnaugh maps","الجبر البولي وخرائط كارنو","Algèbre de Boole et tableaux de Karnaugh","Álgebra de Boole y mapas de Karnaugh","بولین الجبرا اور کارناف نقشے","बूलीय बीजगणित और कार्नो मानचित्र"],
+ ["Combinational circuits","الدوائر التوافقية","Circuits combinatoires","Circuitos combinacionales","کمبینیشنل سرکٹس","संयोजी परिपथ"],
+ ["Flip-flops, counters and registers","القلّابات والعدادات والمسجلات","Bascules, compteurs et registres","Biestables, contadores y registros","فلپ فلاپ، کاؤنٹر اور رجسٹر","फ्लिप-फ्लॉप, काउंटर और रजिस्टर"],
+ ["Finite state machines","آلات الحالة المنتهية","Machines à états finis","Máquinas de estados finitos","فائنائٹ اسٹیٹ مشینیں","परिमित अवस्था मशीनें"]]],
+["meas","EE 103",1,20,15,1,["Electrical Measurements","القياسات الكهربائية","Mesures électriques","Medidas eléctricas","برقی پیمائشیں","विद्युत मापन"],[
+ ["Units, errors and uncertainty","الوحدات والأخطاء والارتياب","Unités, erreurs et incertitude","Unidades, errores e incertidumbre","اکائیاں، غلطیاں اور غیر یقینی","मात्रक, त्रुटियाँ और अनिश्चितता"],
+ ["Analog and digital meters","أجهزة القياس التماثلية والرقمية","Appareils analogiques et numériques","Instrumentos analógicos y digitales","اینالاگ اور ڈیجیٹل میٹر","एनालॉग और डिजिटल मीटर"],
+ ["Bridges and impedance measurement","القناطر وقياس المعاوقة","Ponts et mesure d’impédance","Puentes y medida de impedancia","برج اور امپیڈنس کی پیمائش","ब्रिज और प्रतिबाधा मापन"],
+ ["Oscilloscopes and signal generators","راسمات الإشارة ومولدات الإشارة","Oscilloscopes et générateurs de signaux","Osciloscopios y generadores de señal","آسیلوسکوپ اور سگنل جنریٹر","ऑसिलोस्कोप और सिग्नल जनरेटर"],
+ ["Sensors and transducers","الحساسات والمحوّلات","Capteurs et transducteurs","Sensores y transductores","سینسر اور ٹرانسڈیوسر","संवेदक और ट्रांसड्यूसर"]]],
+["analog","EE 201",2,30,24,0,["Analog Electronics","الإلكترونيات التماثلية","Électronique analogique","Electrónica analógica","اینالاگ الیکٹرانکس","एनालॉग इलेक्ट्रॉनिक्स"],[
+ ["Diodes and rectifier circuits","الديودات ودوائر التقويم","Diodes et circuits redresseurs","Diodos y circuitos rectificadores","ڈائیوڈ اور ریکٹیفائر سرکٹس","डायोड और दिष्टकारी परिपथ"],
+ ["BJT biasing and amplifiers","انحياز ترانزستور BJT والمكبرات","Polarisation du BJT et amplificateurs","Polarización del BJT y amplificadores","BJT بائسنگ اور ایمپلیفائر","BJT बायसिंग और प्रवर्धक"],
+ ["MOSFET circuits","دوائر MOSFET","Circuits à MOSFET","Circuitos con MOSFET","MOSFET سرکٹس","MOSFET परिपथ"],
+ ["Operational amplifiers","المكبرات العملياتية","Amplificateurs opérationnels","Amplificadores operacionales","آپریشنل ایمپلیفائر","संक्रियात्मक प्रवर्धक"],
+ ["Frequency response and oscillators","الاستجابة الترددية والمذبذبات","Réponse en fréquence et oscillateurs","Respuesta en frecuencia y osciladores","فریکوئنسی رسپانس اور آسیلیٹر","आवृत्ति अनुक्रिया और दोलित्र"]]],
+["emf","EE 202",2,28,22,0,["Electromagnetic Fields","المجالات الكهرومغناطيسية","Champs électromagnétiques","Campos electromagnéticos","برقی مقناطیسی میدان","विद्युतचुंबकीय क्षेत्र"],[
+ ["Vector calculus review","مراجعة حساب المتجهات","Rappels d’analyse vectorielle","Repaso de cálculo vectorial","ویکٹر کیلکولس کا اعادہ","सदिश कलन की पुनरावृत्ति"],
+ ["Electrostatics and Gauss's law","الكهروستاتيكا وقانون غاوس","Électrostatique et théorème de Gauss","Electrostática y ley de Gauss","برقی سکونیات اور گاؤس کا قانون","स्थिरवैद्युतिकी और गाउस का नियम"],
+ ["Magnetostatics and Ampère's law","المغناطيسية الساكنة وقانون أمبير","Magnétostatique et théorème d’Ampère","Magnetostática y ley de Ampère","مقناطیسی سکونیات اور ایمپیئر کا قانون","स्थिरचुंबकत्व और ऐम्पियर का नियम"],
+ ["Faraday's law and Maxwell's equations","قانون فاراداي ومعادلات ماكسويل","Loi de Faraday et équations de Maxwell","Ley de Faraday y ecuaciones de Maxwell","فیراڈے کا قانون اور میکسویل کی مساواتیں","फैराडे का नियम और मैक्सवेल के समीकरण"],
+ ["Plane waves and transmission lines","الموجات المستوية وخطوط النقل","Ondes planes et lignes de transmission","Ondas planas y líneas de transmisión","مستوی موجیں اور ٹرانسمیشن لائنیں","समतल तरंगें और संचरण लाइनें"]]],
+["signals","EE 203",2,28,22,0,["Signals and Systems","الإشارات والنظم","Signaux et systèmes","Señales y sistemas","سگنلز اور سسٹمز","संकेत और तंत्र"],[
+ ["Continuous and discrete signals","الإشارات المستمرة والمتقطعة","Signaux continus et discrets","Señales continuas y discretas","مسلسل اور مجرد سگنلز","सतत और विविक्त संकेत"],
+ ["LTI systems and convolution","الأنظمة الخطية الثابتة زمنيًا والالتفاف","Systèmes LTI et convolution","Sistemas LTI y convolución","LTI سسٹمز اور کنوولوشن","LTI तंत्र और संवलन"],
+ ["Fourier series and transform","متسلسلة فورييه وتحويل فورييه","Série et transformée de Fourier","Serie y transformada de Fourier","فوریئر سیریز اور ٹرانسفارم","फूरिये श्रेणी और रूपांतर"],
+ ["Laplace and z-transforms","تحويل لابلاس وتحويل z","Transformées de Laplace et en z","Transformadas de Laplace y z","لاپلاس اور z ٹرانسفارم","लाप्लास और z-रूपांतर"],
+ ["Sampling and filter design","التعيين وتصميم المرشحات","Échantillonnage et conception de filtres","Muestreo y diseño de filtros","سیمپلنگ اور فلٹر ڈیزائن","प्रतिचयन और फ़िल्टर डिज़ाइन"]]],
+["machines","EE 301",3,30,24,0,["Electrical Machines","الآلات الكهربائية","Machines électriques","Máquinas eléctricas","برقی مشینیں","विद्युत मशीनें"],[
+ ["Magnetic circuits","الدوائر المغناطيسية","Circuits magnétiques","Circuitos magnéticos","مقناطیسی سرکٹس","चुंबकीय परिपथ"],
+ ["Transformers","المحوّلات","Transformateurs","Transformadores","ٹرانسفارمر","ट्रांसफ़ॉर्मर"],
+ ["DC machines","آلات التيار المستمر","Machines à courant continu","Máquinas de corriente continua","DC مشینیں","DC मशीनें"],
+ ["Induction motors","المحركات الحثية","Moteurs asynchrones","Motores de inducción","انڈکشن موٹرز","प्रेरण मोटर"],
+ ["Synchronous machines","الآلات التزامنية","Machines synchrones","Máquinas síncronas","سنکرونس مشینیں","तुल्यकालिक मशीनें"]]],
+["control","EE 302",3,28,22,0,["Control Systems","أنظمة التحكم","Automatique","Sistemas de control","کنٹرول سسٹمز","नियंत्रण प्रणालियाँ"],[
+ ["Modelling and transfer functions","النمذجة ودوال التحويل","Modélisation et fonctions de transfert","Modelado y funciones de transferencia","ماڈلنگ اور ٹرانسفر فنکشنز","मॉडलिंग और अंतरण फलन"],
+ ["Time response and stability","الاستجابة الزمنية والاستقرار","Réponse temporelle et stabilité","Respuesta temporal y estabilidad","وقتی ردِعمل اور استحکام","समय अनुक्रिया और स्थायित्व"],
+ ["Root locus","المحل الهندسي للجذور","Lieu des racines","Lugar de las raíces","روٹ لوکس","मूल बिंदुपथ"],
+ ["Bode and Nyquist plots","مخططات بود ونايكويست","Diagrammes de Bode et de Nyquist","Diagramas de Bode y Nyquist","بوڈ اور نائیکوئسٹ پلاٹس","बोड और नाइक्विस्ट आरेख"],
+ ["PID controller design","تصميم متحكم PID","Synthèse de correcteurs PID","Diseño de controladores PID","PID کنٹرولر ڈیزائن","PID नियंत्रक डिज़ाइन"]]],
+["micro","EE 303",3,26,22,0,["Microprocessors and Embedded Systems","المعالجات الدقيقة والأنظمة المدمجة","Microprocesseurs et systèmes embarqués","Microprocesadores y sistemas embebidos","مائیکرو پروسیسرز اور ایمبیڈڈ سسٹمز","माइक्रोप्रोसेसर और एम्बेडेड सिस्टम"],[
+ ["Processor architecture","معمارية المعالج","Architecture du processeur","Arquitectura del procesador","پروسیسر آرکیٹیکچر","प्रोसेसर संरचना"],
+ ["Embedded C programming","البرمجة بلغة C للأنظمة المدمجة","Programmation C embarquée","Programación en C embebido","ایمبیڈڈ C پروگرامنگ","एम्बेडेड C प्रोग्रामिंग"],
+ ["Timers, interrupts and ADC","المؤقتات والمقاطعات والمحوّل التماثلي الرقمي","Temporisateurs, interruptions et CAN","Temporizadores, interrupciones y ADC","ٹائمر، انٹرپٹ اور ADC","टाइमर, इंटरप्ट और ADC"],
+ ["Serial buses: UART, SPI, I²C","النواقل التسلسلية: UART و SPI و I²C","Bus série : UART, SPI, I²C","Buses serie: UART, SPI, I²C","سیریل بسیں: UART، SPI، I²C","सीरियल बस: UART, SPI, I²C"],
+ ["Real-time systems","أنظمة الزمن الحقيقي","Systèmes temps réel","Sistemas de tiempo real","ریئل ٹائم سسٹمز","रीयल-टाइम सिस्टम"]]],
+["power","EE 401",4,30,24,0,["Power Systems","نظم القدرة الكهربائية","Réseaux électriques","Sistemas eléctricos de potencia","پاور سسٹمز","विद्युत शक्ति प्रणालियाँ"],[
+ ["Three-phase circuits and the per-unit system","الدوائر ثلاثية الأطوار ونظام الوحدة","Circuits triphasés et grandeurs réduites","Circuitos trifásicos y sistema por unidad","تھری فیز سرکٹس اور پر یونٹ سسٹم","त्रि-कला परिपथ और प्रति-इकाई पद्धति"],
+ ["Transmission line models","نماذج خطوط النقل","Modèles de lignes de transport","Modelos de líneas de transmisión","ٹرانسمیشن لائن ماڈلز","संचरण लाइन मॉडल"],
+ ["Load flow analysis","تحليل سريان الحمل","Calcul de répartition des charges","Análisis de flujo de cargas","لوڈ فلو تجزیہ","भार प्रवाह विश्लेषण"],
+ ["Fault analysis","تحليل الأعطال","Analyse des défauts","Análisis de fallas","فالٹ تجزیہ","दोष विश्लेषण"],
+ ["Protection and stability","الحماية والاستقرار","Protection et stabilité","Protección y estabilidad","حفاظت اور استحکام","संरक्षण और स्थायित्व"]]],
+["pe","EE 402",4,26,20,0,["Power Electronics","إلكترونيات القدرة","Électronique de puissance","Electrónica de potencia","پاور الیکٹرانکس","शक्ति इलेक्ट्रॉनिकी"],[
+ ["Power semiconductor devices","أشباه موصلات القدرة","Semi-conducteurs de puissance","Semiconductores de potencia","پاور سیمی کنڈکٹر آلات","शक्ति अर्धचालक युक्तियाँ"],
+ ["Rectifiers","المقوّمات","Redresseurs","Rectificadores","ریکٹیفائرز","दिष्टकारी"],
+ ["DC-DC converters","محوّلات DC-DC","Hacheurs","Convertidores CC-CC","DC-DC کنورٹرز","DC-DC परिवर्तक"],
+ ["Inverters and PWM","العواكس وتعديل عرض النبضة","Onduleurs et MLI","Inversores y PWM","انورٹرز اور PWM","इन्वर्टर और PWM"],
+ ["Motor drives","مسيّرات المحركات","Variateurs de vitesse","Accionamientos de motores","موٹر ڈرائیوز","मोटर ड्राइव"]]],
+["comm","EE 403",4,28,22,0,["Communication Systems","أنظمة الاتصالات","Systèmes de communication","Sistemas de comunicación","مواصلاتی نظام","संचार प्रणालियाँ"],[
+ ["Amplitude and frequency modulation","تضمين السعة وتضمين التردد","Modulations d’amplitude et de fréquence","Modulación de amplitud y de frecuencia","ایمپلی ٹیوڈ اور فریکوئنسی ماڈولیشن","आयाम और आवृत्ति मॉडुलन"],
+ ["Noise in communication systems","الضوضاء في أنظمة الاتصالات","Bruit dans les systèmes de communication","Ruido en sistemas de comunicación","مواصلاتی نظام میں شور","संचार प्रणालियों में रव"],
+ ["Digital modulation","التضمين الرقمي","Modulations numériques","Modulación digital","ڈیجیٹل ماڈولیشن","डिजिटल मॉडुलन"],
+ ["Information theory and coding","نظرية المعلومات والترميز","Théorie de l’information et codage","Teoría de la información y codificación","انفارمیشن تھیوری اور کوڈنگ","सूचना सिद्धांत और कूटन"],
+ ["Antennas and wireless links","الهوائيات والوصلات اللاسلكية","Antennes et liaisons sans fil","Antenas y enlaces inalámbricos","اینٹینا اور وائرلیس لنکس","ऐन्टेना और बेतार लिंक"]]]
+];
+const G=[
+["voltage","circuits",["Voltage","الجهد","Tension","Tensión","وولٹیج","वोल्टता"]],
+["current","circuits",["Current","التيار","Courant","Corriente","کرنٹ","धारा"]],
+["resistance","circuits",["Resistance","المقاومة","Résistance","Resistencia","مزاحمت","प्रतिरोध"]],
+["imped","circuits",["Impedance","المعاوقة","Impédance","Impedancia","امپیڈنس","प्रतिबाधा"]],
+["power","circuits",["Power","القدرة","Puissance","Potencia","پاور","शक्ति"]],
+["gate","digital",["Logic gate","بوابة منطقية","Porte logique","Puerta lógica","لاجک گیٹ","लॉजिक गेट"]],
+["ff","digital",["Flip-flop","قلّاب","Bascule","Biestable","فلپ فلاپ","फ्लिप-फ्लॉप"]],
+["truth","digital",["Truth table","جدول الحقيقة","Table de vérité","Tabla de verdad","ٹروتھ ٹیبل","सत्य सारणी"]],
+["scope","meas",["Oscilloscope","راسم الإشارة","Oscilloscope","Osciloscopio","آسیلوسکوپ","ऑसिलोस्कोप"]],
+["dmm","meas",["Multimeter","مقياس متعدد","Multimètre","Multímetro","ملٹی میٹر","मल्टीमीटर"]],
+["accu","meas",["Accuracy","الدقة","Exactitude","Exactitud","درستگی","यथार्थता"]],
+["diode","analog",["Diode","ديود","Diode","Diodo","ڈائیوڈ","डायोड"]],
+["bjt","analog",["Transistor","ترانزستور","Transistor","Transistor","ٹرانزسٹر","ट्रांजिस्टर"]],
+["amp","analog",["Amplifier","مكبّر","Amplificateur","Amplificador","ایمپلیفائر","प्रवर्धक"]],
+["efield","emf",["Electric field","المجال الكهربائي","Champ électrique","Campo eléctrico","برقی میدان","विद्युत क्षेत्र"]],
+["flux","emf",["Magnetic flux","التدفق المغناطيسي","Flux magnétique","Flujo magnético","مقناطیسی فلکس","चुंबकीय फ्लक्स"]],
+["induct","emf",["Inductance","المحاثة","Inductance","Inductancia","انڈکٹنس","प्रेरकत्व"]],
+["capac","emf",["Capacitance","السعة","Capacité","Capacitancia","کپیسیٹنس","धारिता"]],
+["freq","signals",["Frequency","التردد","Fréquence","Frecuencia","تعدد","आवृत्ति"]],
+["fourier","signals",["Fourier transform","تحويل فورييه","Transformée de Fourier","Transformada de Fourier","فوریئر ٹرانسفارم","फूरिये रूपांतर"]],
+["filter","signals",["Filter","مرشّح","Filtre","Filtro","فلٹر","फ़िल्टर"]],
+["trafo","machines",["Transformer","محوّل","Transformateur","Transformador","ٹرانسفارمر","ट्रांसफ़ॉर्मर"]],
+["imotor","machines",["Induction motor","محرك حثي","Moteur asynchrone","Motor de inducción","انڈکشن موٹر","प्रेरण मोटर"]],
+["gen","machines",["Generator","مولّد","Générateur","Generador","جنریٹر","जनित्र"]],
+["fb","control",["Feedback","تغذية راجعة","Rétroaction","Realimentación","فیڈ بیک","पुनर्भरण"]],
+["tf","control",["Transfer function","دالة التحويل","Fonction de transfert","Función de transferencia","ٹرانسفر فنکشن","अंतरण फलन"]],
+["stab","control",["Stability","الاستقرار","Stabilité","Estabilidad","استحکام","स्थायित्व"]],
+["mcu","micro",["Microcontroller","متحكم دقيق","Microcontrôleur","Microcontrolador","مائیکرو کنٹرولر","माइक्रोकंट्रोलर"]],
+["irq","micro",["Interrupt","مقاطعة","Interruption","Interrupción","انٹرپٹ","इंटरप्ट"]],
+["mem","micro",["Memory","ذاكرة","Mémoire","Memoria","میموری","मेमोरी"]],
+["tline","power",["Transmission line","خط نقل","Ligne de transport","Línea de transmisión","ٹرانسمیشن لائن","संचरण लाइन"]],
+["pf","power",["Power factor","معامل القدرة","Facteur de puissance","Factor de potencia","پاور فیکٹر","शक्ति गुणांक"]],
+["cb","power",["Circuit breaker","قاطع الدائرة","Disjoncteur","Interruptor automático","سرکٹ بریکر","परिपथ वियोजक"]],
+["rect","pe",["Rectifier","مقوّم","Redresseur","Rectificador","ریکٹیفائر","दिष्टकारी"]],
+["inv","pe",["Inverter","عاكس","Onduleur","Inversor","انورٹر","इन्वर्टर"]],
+["dcdc","pe",["DC-DC converter","محوّل DC-DC","Hacheur","Convertidor CC-CC","DC-DC کنورٹر","DC-DC परिवर्तक"]],
+["modul","comm",["Modulation","التضمين","Modulation","Modulación","ماڈولیشن","मॉडुलन"]],
+["bw","comm",["Bandwidth","عرض النطاق","Bande passante","Ancho de banda","بینڈ وڈتھ","बैंड चौड़ाई"]],
+["ant","comm",["Antenna","هوائي","Antenne","Antena","اینٹینا","ऐन्टेना"]]
+];
+const FORMULAS=[["voltage","V = I·R"],["power","P = V·I·cos φ"],["imped","Z = √(R² + (XL − XC)²)"],["freq","f₀ = 1 / (2π√(L·C))"],["capac","Q = C·V"],["induct","v = L·di/dt"],["trafo","V₁ / V₂ = N₁ / N₂"],["pf","cos φ = P / S"],["filter","fc = 1 / (2π·R·C)"],["fb","T = G / (1 + G·H)"]];
+const UNITS={
+ voltage:{V:1,mV:1e-3,kV:1e3},
+ current:{A:1,mA:1e-3,"µA":1e-6},
+ resistance:{"Ω":1,"kΩ":1e3,"MΩ":1e6},
+ capac:{F:1,"µF":1e-6,nF:1e-9,pF:1e-12},
+ power:{W:1,kW:1e3,MW:1e6,hp:745.6999},
+ q_ene:{J:1,Wh:3600,kWh:3.6e6},
+ freq:{Hz:1,kHz:1e3,MHz:1e6,"rad/s":0.15915494}
+};
+
+// prices: [monthly, per-month when billed yearly]; campus: per seat per month, billed yearly
+const PRICES={
+ USD:{pro:[9,6],plus:[19,13],campus:5},
+ EUR:{pro:[9,6],plus:[19,13],campus:5},
+ SAR:{pro:[35,23],plus:[72,49],campus:19},
+ INR:{pro:[299,199],plus:[599,399],campus:149},
+ PKR:{pro:[899,599],plus:[1799,1199],campus:449}
+};
+const PLAN_NAMES={free:"Starter",pro:"Pro",plus:"Pro Plus"};
+const ROWS=[["f_courses",3,12,12],["f_tools",1,1,1],["f_gloss",1,1,1],["f_prob",0,1,1],["f_exam",0,1,1],["f_off",0,1,1],["f_ai",5,50,"u"],["f_cert",0,0,1],["f_rev",0,0,1],["f_sup",0,0,1]];
+const VIEWS=[["home","nav_home","M3 11l9-7 9 7v9H3z"],["courses","nav_courses","M4 5h7v14H4zM13 5h7v14h-7z"],["tools","nav_tools","M5 4h14v16H5zM8 8h8M8 12h2M12 12h2M8 16h2M12 16h4"],["glossary","nav_gloss","M3 6h8M7 4v2M5 6c0 4 3 6 6 7M10 6c0 3-3 6-6 7M13 20l4-9 4 9M14.5 17h5"],["pricing","nav_price","M3 12V4h8l10 10-8 8zM7.5 8.5h.01"]];
+
+Object.assign(S,{
+l_ex:["Worked example","مثال محلول","Exemple résolu","Ejemplo resuelto","حل شدہ مثال","हल किया गया उदाहरण"],
+l_chk:["Check yourself","اختبر نفسك","Testez-vous","Compruébalo","خود کو جانچیں","स्वयं जाँचें"],
+l_show:["Show answer","أظهر الإجابة","Voir la réponse","Ver la respuesta","جواب دیکھیں","उत्तर देखें"],
+l_done:["Mark as done","علّم كمكتمل","Marquer comme terminé","Marcar como hecho","مکمل نشان زد کریں","पूर्ण चिह्नित करें"],
+l_undo:["Done. Tap to undo","مكتمل. اضغط للتراجع","Terminé. Touchez pour annuler","Hecho. Toca para deshacer","مکمل۔ واپس لینے کے لیے ٹیپ کریں","पूर्ण। पूर्ववत करने के लिए टैप करें"],
+l_prog:["{n} of 5 lessons done. Progress is saved on this device only.","أُنجز {n} من 5 دروس. يُحفظ التقدم على هذا الجهاز فقط.","{n} leçons sur 5 terminées. La progression est enregistrée sur cet appareil uniquement.","{n} de 5 lecciones hechas. El progreso se guarda solo en este dispositivo.","5 میں سے {n} اسباق مکمل۔ پیش رفت صرف اسی ڈیوائس پر محفوظ ہوتی ہے۔","5 में से {n} पाठ पूर्ण। प्रगति केवल इसी डिवाइस पर सहेजी जाती है।"],
+l_ready:["Lessons ready","الدروس جاهزة","Leçons disponibles","Lecciones listas","اسباق تیار","पाठ उपलब्ध"],
+ai_title:["AI tutor","المعلّم الذكي","Tuteur IA","Tutor de IA","AI ٹیوٹر","AI ट्यूटर"],
+ai_ph:["Ask an electrical engineering question","اطرح سؤالًا في الهندسة الكهربائية","Posez une question de génie électrique","Haz una pregunta de ingeniería eléctrica","الیکٹریکل انجینئرنگ کا سوال پوچھیں","इलेक्ट्रिकल इंजीनियरिंग का प्रश्न पूछें"],
+ai_ask:["Ask","اسأل","Demander","Preguntar","پوچھیں","पूछें"],
+ai_wait:["Thinking…","جارٍ التفكير…","Réflexion…","Pensando…","سوچ رہا ہے…","सोच रहा है…"],
+ai_err:["The tutor could not answer. Try again in a moment.","تعذّر على المعلّم الإجابة. حاول مجددًا بعد قليل.","Le tuteur n’a pas pu répondre. Réessayez dans un instant.","El tutor no pudo responder. Inténtalo de nuevo en un momento.","ٹیوٹر جواب نہ دے سکا۔ تھوڑی دیر بعد دوبارہ کوشش کریں۔","ट्यूटर उत्तर नहीं दे सका। थोड़ी देर में फिर प्रयास करें।"],
+ai_off:["The AI tutor is not available in this view.","المعلّم الذكي غير متاح في هذا العرض.","Le tuteur IA n’est pas disponible dans cette vue.","El tutor de IA no está disponible en esta vista.","AI ٹیوٹر اس ویو میں دستیاب نہیں۔","AI ट्यूटर इस दृश्य में उपलब्ध नहीं है।"],
+ai_note:["Answers are generated by AI. Check important results yourself.","الإجابات مولّدة بالذكاء الاصطناعي. تحقّق من النتائج المهمة بنفسك.","Les réponses sont générées par IA. Vérifiez vous-même les résultats importants.","Las respuestas las genera una IA. Comprueba tú mismo los resultados importantes.","جوابات AI سے تیار ہوتے ہیں۔ اہم نتائج خود جانچ لیں۔","उत्तर AI द्वारा बनाए जाते हैं। महत्वपूर्ण परिणाम स्वयं जाँचें।"]
+});
+// [[...]] marks maths, rendered left-to-right in every language
+const LESSONS={circuits:[
+{f:"V = I·R   ·   ΣI = 0   ·   ΣV = 0",
+x:["Ohm's law links voltage, current and resistance in a resistor. Kirchhoff's current law says the currents entering a node sum to zero. Kirchhoff's voltage law says the voltages around any closed loop sum to zero.",
+"يربط قانون أوم بين الجهد والتيار والمقاومة في المقاوم. ينص قانون كيرشوف للتيار على أن مجموع التيارات الداخلة إلى أي عقدة يساوي صفرًا. وينص قانون كيرشوف للجهد على أن مجموع الجهود حول أي مسار مغلق يساوي صفرًا.",
+"La loi d’Ohm relie tension, courant et résistance dans un résistor. La loi des nœuds dit que la somme des courants entrant dans un nœud est nulle. La loi des mailles dit que la somme des tensions le long d’une boucle fermée est nulle.",
+"La ley de Ohm relaciona tensión, corriente y resistencia en un resistor. La ley de corrientes de Kirchhoff dice que las corrientes que entran en un nodo suman cero. La ley de tensiones dice que las tensiones a lo largo de cualquier lazo cerrado suman cero.",
+"اوہم کا قانون ریزسٹر میں وولٹیج، کرنٹ اور مزاحمت کو جوڑتا ہے۔ کرخوف کا کرنٹ قانون کہتا ہے کہ کسی نوڈ میں داخل ہونے والے کرنٹس کا مجموعہ صفر ہوتا ہے۔ کرخوف کا وولٹیج قانون کہتا ہے کہ کسی بند لوپ کے گرد وولٹیجز کا مجموعہ صفر ہوتا ہے۔",
+"ओम का नियम प्रतिरोधक में वोल्टता, धारा और प्रतिरोध को जोड़ता है। किरखॉफ़ का धारा नियम कहता है कि किसी नोड में प्रवेश करने वाली धाराओं का योग शून्य होता है। किरखॉफ़ का वोल्टता नियम कहता है कि किसी बंद लूप के चारों ओर वोल्टताओं का योग शून्य होता है।"],
+e:["A [[12 V]] source feeds [[4 Ω]] and [[2 Ω]] in series. Total resistance is [[6 Ω]], so [[I = 12 / 6 = 2 A]]. The drops are [[8 V]] and [[4 V]], which add up to [[12 V]] as the voltage law requires.",
+"مصدر [[12 V]] يغذي [[4 Ω]] و [[2 Ω]] على التوالي. المقاومة الكلية [[6 Ω]]، إذن [[I = 12 / 6 = 2 A]]. هبوطا الجهد هما [[8 V]] و [[4 V]]، ومجموعهما [[12 V]] كما يقتضي قانون الجهد.",
+"Une source de [[12 V]] alimente [[4 Ω]] et [[2 Ω]] en série. La résistance totale vaut [[6 Ω]], donc [[I = 12 / 6 = 2 A]]. Les chutes de tension sont [[8 V]] et [[4 V]], soit [[12 V]] au total, comme l’exige la loi des mailles.",
+"Una fuente de [[12 V]] alimenta [[4 Ω]] y [[2 Ω]] en serie. La resistencia total es [[6 Ω]], así que [[I = 12 / 6 = 2 A]]. Las caídas son [[8 V]] y [[4 V]], que suman [[12 V]] como exige la ley de tensiones.",
+"[[12 V]] کا سورس سیریز میں [[4 Ω]] اور [[2 Ω]] کو فیڈ کرتا ہے۔ کل مزاحمت [[6 Ω]] ہے، لہٰذا [[I = 12 / 6 = 2 A]]۔ وولٹیج ڈراپ [[8 V]] اور [[4 V]] ہیں، جن کا مجموعہ [[12 V]] ہے جیسا کہ وولٹیج قانون تقاضا کرتا ہے۔",
+"[[12 V]] का स्रोत श्रेणी में [[4 Ω]] और [[2 Ω]] को आपूर्ति देता है। कुल प्रतिरोध [[6 Ω]] है, इसलिए [[I = 12 / 6 = 2 A]]। वोल्टता पात [[8 V]] और [[4 V]] हैं, जिनका योग [[12 V]] है, जैसा वोल्टता नियम माँगता है।"],
+q:["A [[9 V]] battery drives [[3 mA]] through a resistor. What is its resistance?","بطارية [[9 V]] تمرّر [[3 mA]] في مقاوم. ما قيمة مقاومته؟","Une pile de [[9 V]] fait circuler [[3 mA]] dans un résistor. Quelle est sa résistance ?","Una pila de [[9 V]] hace circular [[3 mA]] por un resistor. ¿Cuál es su resistencia?","[[9 V]] کی بیٹری ایک ریزسٹر میں سے [[3 mA]] گزارتی ہے۔ اس کی مزاحمت کیا ہے؟","[[9 V]] की बैटरी एक प्रतिरोधक में [[3 mA]] प्रवाहित करती है। उसका प्रतिरोध क्या है?"],
+a:"[[R = V / I = 9 / 0.003 = 3 kΩ]]"},
+{f:"Σ (Vn − Vk) / Rk = 0",
+x:["Node analysis writes the current law at each node, with the node voltages as unknowns. Mesh analysis writes the voltage law around each loop, with the loop currents as unknowns. Pick the method that gives fewer equations.",
+"يكتب تحليل العقد قانون التيار عند كل عقدة، والمجاهيل هي جهود العقد. ويكتب تحليل الحلقات قانون الجهد حول كل حلقة، والمجاهيل هي تيارات الحلقات. اختر الطريقة التي تعطي معادلات أقل.",
+"La méthode des nœuds écrit la loi des nœuds en chaque nœud, avec les potentiels de nœud comme inconnues. La méthode des mailles écrit la loi des mailles sur chaque boucle, avec les courants de maille comme inconnues. Choisissez celle qui donne le moins d’équations.",
+"El análisis de nodos escribe la ley de corrientes en cada nodo, con las tensiones de nodo como incógnitas. El análisis de mallas escribe la ley de tensiones en cada lazo, con las corrientes de malla como incógnitas. Elige el método que dé menos ecuaciones.",
+"نوڈ تجزیہ ہر نوڈ پر کرنٹ قانون لکھتا ہے اور نوڈ وولٹیجز نامعلوم ہوتے ہیں۔ میش تجزیہ ہر لوپ کے گرد وولٹیج قانون لکھتا ہے اور لوپ کرنٹس نامعلوم ہوتے ہیں۔ وہ طریقہ چنیں جس میں مساواتیں کم بنیں۔",
+"नोड विश्लेषण हर नोड पर धारा नियम लिखता है, जहाँ नोड वोल्टताएँ अज्ञात होती हैं। मेश विश्लेषण हर लूप के चारों ओर वोल्टता नियम लिखता है, जहाँ लूप धाराएँ अज्ञात होती हैं। वह विधि चुनें जिसमें कम समीकरण बनें।"],
+e:["A [[10 V]] source connects through [[2 Ω]] to node A. Two [[4 Ω]] resistors go from A to ground. [[(VA − 10)/2 + VA/4 + VA/4 = 0]] gives [[VA = 5 V]].",
+"مصدر [[10 V]] يتصل عبر [[2 Ω]] بالعقدة A. ومن A مقاومان [[4 Ω]] إلى الأرضي. المعادلة [[(VA − 10)/2 + VA/4 + VA/4 = 0]] تعطي [[VA = 5 V]].",
+"Une source de [[10 V]] est reliée au nœud A par [[2 Ω]]. Deux résistors de [[4 Ω]] relient A à la masse. [[(VA − 10)/2 + VA/4 + VA/4 = 0]] donne [[VA = 5 V]].",
+"Una fuente de [[10 V]] se conecta al nodo A a través de [[2 Ω]]. Dos resistores de [[4 Ω]] van de A a tierra. [[(VA − 10)/2 + VA/4 + VA/4 = 0]] da [[VA = 5 V]].",
+"[[10 V]] کا سورس [[2 Ω]] کے ذریعے نوڈ A سے جڑا ہے۔ A سے دو [[4 Ω]] ریزسٹر گراؤنڈ تک جاتے ہیں۔ [[(VA − 10)/2 + VA/4 + VA/4 = 0]] سے [[VA = 5 V]] ملتا ہے۔",
+"[[10 V]] का स्रोत [[2 Ω]] से होकर नोड A से जुड़ा है। A से दो [[4 Ω]] प्रतिरोधक भू-संपर्क तक जाते हैं। [[(VA − 10)/2 + VA/4 + VA/4 = 0]] से [[VA = 5 V]] मिलता है।"],
+q:["A circuit has 4 nodes including ground. How many node equations do you need?","دائرة فيها 4 عقد من ضمنها الأرضي. كم معادلة عقد تحتاج؟","Un circuit comporte 4 nœuds, masse comprise. Combien d’équations de nœud faut-il ?","Un circuito tiene 4 nodos, incluida la tierra. ¿Cuántas ecuaciones de nodo necesitas?","ایک سرکٹ میں گراؤنڈ سمیت 4 نوڈ ہیں۔ آپ کو کتنی نوڈ مساواتیں درکار ہیں؟","एक परिपथ में भू-संपर्क सहित 4 नोड हैं। आपको कितने नोड समीकरण चाहिए?"],
+a:["3: one for every node except the reference.","3: معادلة لكل عقدة ما عدا العقدة المرجعية.","3 : une par nœud, sauf le nœud de référence.","3: una por cada nodo, salvo el de referencia.","3: حوالہ نوڈ کے سوا ہر نوڈ کے لیے ایک۔","3: संदर्भ नोड को छोड़कर हर नोड के लिए एक।"]},
+{f:"VTh = Voc   ·   RTh = Voc / Isc   ·   IN = VTh / RTh",
+x:["Any linear two-terminal network can be replaced by one voltage source in series with one resistance (Thévenin), or by one current source in parallel with the same resistance (Norton). The load sees no difference.",
+"أي شبكة خطية ذات طرفين يمكن استبدالها بمصدر جهد واحد على التوالي مع مقاومة واحدة (ثيفينن)، أو بمصدر تيار واحد على التوازي مع المقاومة نفسها (نورتن). الحمل لا يلاحظ أي فرق.",
+"Tout réseau linéaire à deux bornes peut être remplacé par une source de tension en série avec une résistance (Thévenin), ou par une source de courant en parallèle avec la même résistance (Norton). La charge ne voit aucune différence.",
+"Cualquier red lineal de dos terminales puede sustituirse por una fuente de tensión en serie con una resistencia (Thévenin), o por una fuente de corriente en paralelo con la misma resistencia (Norton). La carga no nota la diferencia.",
+"کسی بھی دو ٹرمینل والے لکیری نیٹ ورک کو ایک وولٹیج سورس اور سیریز میں ایک مزاحمت (تھیونن)، یا ایک کرنٹ سورس اور متوازی میں اسی مزاحمت (نارٹن) سے بدلا جا سکتا ہے۔ لوڈ کو کوئی فرق محسوس نہیں ہوتا۔",
+"किसी भी दो-टर्मिनल रैखिक नेटवर्क को श्रेणी में एक प्रतिरोध वाले एक वोल्टता स्रोत (थेवेनिन), या समांतर में उसी प्रतिरोध वाले एक धारा स्रोत (नॉर्टन) से बदला जा सकता है। भार को कोई अंतर नहीं दिखता।"],
+e:["A [[12 V]] source has [[6 Ω]] in series, with [[3 Ω]] across the output terminals. [[VTh = 12 × 3 / (6 + 3) = 4 V]]. [[RTh = 6 ∥ 3 = 2 Ω]]. The Norton current is [[4 / 2 = 2 A]].",
+"مصدر [[12 V]] على التوالي مع [[6 Ω]]، و [[3 Ω]] بين طرفي الخرج. [[VTh = 12 × 3 / (6 + 3) = 4 V]]. [[RTh = 6 ∥ 3 = 2 Ω]]. تيار نورتن [[4 / 2 = 2 A]].",
+"Une source de [[12 V]] est en série avec [[6 Ω]], et [[3 Ω]] est placé entre les bornes de sortie. [[VTh = 12 × 3 / (6 + 3) = 4 V]]. [[RTh = 6 ∥ 3 = 2 Ω]]. Le courant de Norton vaut [[4 / 2 = 2 A]].",
+"Una fuente de [[12 V]] tiene [[6 Ω]] en serie y [[3 Ω]] entre los terminales de salida. [[VTh = 12 × 3 / (6 + 3) = 4 V]]. [[RTh = 6 ∥ 3 = 2 Ω]]. La corriente de Norton es [[4 / 2 = 2 A]].",
+"[[12 V]] کے سورس کے ساتھ سیریز میں [[6 Ω]] ہے اور آؤٹ پٹ ٹرمینلز کے درمیان [[3 Ω]] ہے۔ [[VTh = 12 × 3 / (6 + 3) = 4 V]]۔ [[RTh = 6 ∥ 3 = 2 Ω]]۔ نارٹن کرنٹ [[4 / 2 = 2 A]] ہے۔",
+"[[12 V]] के स्रोत के साथ श्रेणी में [[6 Ω]] है और निर्गत टर्मिनलों के बीच [[3 Ω]] है। [[VTh = 12 × 3 / (6 + 3) = 4 V]]। [[RTh = 6 ∥ 3 = 2 Ω]]। नॉर्टन धारा [[4 / 2 = 2 A]] है।"],
+q:["Which load resistance receives maximum power from a source with [[RTh = 50 Ω]]?","ما مقاومة الحمل التي تستقبل أقصى قدرة من مصدر له [[RTh = 50 Ω]]؟","Quelle résistance de charge reçoit la puissance maximale d’une source de [[RTh = 50 Ω]] ?","¿Qué resistencia de carga recibe la máxima potencia de una fuente con [[RTh = 50 Ω]]?","[[RTh = 50 Ω]] والے سورس سے کون سی لوڈ مزاحمت زیادہ سے زیادہ پاور لیتی ہے؟","[[RTh = 50 Ω]] वाले स्रोत से कौन-सा भार प्रतिरोध अधिकतम शक्ति प्राप्त करता है?"],
+a:"[[RL = RTh = 50 Ω]]"},
+{f:"τ = R·C   ·   τ = L / R   ·   v(t) = V·(1 − e^(−t/τ))",
+x:["Capacitors and inductors store energy, so voltages and currents cannot jump instantly. A first-order circuit moves toward its final value exponentially. After one time constant it has covered 63% of the change, and after five it has practically settled.",
+"المكثفات والملفات تخزّن الطاقة، لذلك لا تتغير الجهود والتيارات لحظيًا. دائرة الرتبة الأولى تقترب من قيمتها النهائية أسيًّا. بعد ثابت زمني واحد تكون قد قطعت 63% من التغير، وبعد خمسة ثوابت تكون قد استقرت عمليًا.",
+"Condensateurs et bobines stockent de l’énergie : tensions et courants ne peuvent donc pas varier instantanément. Un circuit du premier ordre tend vers sa valeur finale de façon exponentielle. Après une constante de temps, 63 % de la variation est accomplie ; après cinq, le régime est pratiquement établi.",
+"Los condensadores y las bobinas almacenan energía, así que tensiones y corrientes no pueden cambiar al instante. Un circuito de primer orden se acerca a su valor final de forma exponencial. Tras una constante de tiempo ha recorrido el 63 % del cambio y tras cinco está prácticamente estabilizado.",
+"کپیسیٹر اور انڈکٹر توانائی ذخیرہ کرتے ہیں، اس لیے وولٹیج اور کرنٹ فوراً نہیں بدل سکتے۔ فرسٹ آرڈر سرکٹ اپنی حتمی قدر کی طرف ایکسپونینشل انداز میں بڑھتا ہے۔ ایک ٹائم کانسٹنٹ کے بعد 63% تبدیلی مکمل ہو جاتی ہے اور پانچ کے بعد سرکٹ عملاً ٹھہر جاتا ہے۔",
+"संधारित्र और प्रेरक ऊर्जा संचित करते हैं, इसलिए वोल्टता और धारा तुरंत नहीं बदल सकतीं। प्रथम कोटि का परिपथ अपने अंतिम मान की ओर चरघातांकी रूप से बढ़ता है। एक समय स्थिरांक के बाद 63% परिवर्तन पूरा हो जाता है और पाँच के बाद परिपथ लगभग स्थिर हो जाता है।"],
+e:["A [[10 kΩ]] resistor charges a [[100 µF]] capacitor from [[5 V]]. [[τ = 10 000 × 0.0001 = 1 s]]. After [[1 s]] the capacitor is at [[5 × 0.632 = 3.16 V]].",
+"مقاوم [[10 kΩ]] يشحن مكثفًا [[100 µF]] من [[5 V]]. [[τ = 10 000 × 0.0001 = 1 s]]. بعد [[1 s]] يصبح جهد المكثف [[5 × 0.632 = 3.16 V]].",
+"Un résistor de [[10 kΩ]] charge un condensateur de [[100 µF]] sous [[5 V]]. [[τ = 10 000 × 0.0001 = 1 s]]. Après [[1 s]], le condensateur est à [[5 × 0.632 = 3.16 V]].",
+"Un resistor de [[10 kΩ]] carga un condensador de [[100 µF]] desde [[5 V]]. [[τ = 10 000 × 0.0001 = 1 s]]. Tras [[1 s]] el condensador está a [[5 × 0.632 = 3.16 V]].",
+"[[10 kΩ]] کا ریزسٹر [[5 V]] سے [[100 µF]] کے کپیسیٹر کو چارج کرتا ہے۔ [[τ = 10 000 × 0.0001 = 1 s]]۔ [[1 s]] کے بعد کپیسیٹر [[5 × 0.632 = 3.16 V]] پر ہوتا ہے۔",
+"[[10 kΩ]] का प्रतिरोधक [[5 V]] से [[100 µF]] के संधारित्र को आवेशित करता है। [[τ = 10 000 × 0.0001 = 1 s]]। [[1 s]] के बाद संधारित्र [[5 × 0.632 = 3.16 V]] पर होता है।"],
+q:["What is the time constant of [[2 H]] in series with [[100 Ω]]?","ما الثابت الزمني لملف [[2 H]] على التوالي مع [[100 Ω]]؟","Quelle est la constante de temps de [[2 H]] en série avec [[100 Ω]] ?","¿Cuál es la constante de tiempo de [[2 H]] en serie con [[100 Ω]]?","[[100 Ω]] کے ساتھ سیریز میں [[2 H]] کا ٹائم کانسٹنٹ کیا ہے؟","[[100 Ω]] के साथ श्रेणी में [[2 H]] का समय स्थिरांक क्या है?"],
+a:"[[τ = L / R = 2 / 100 = 20 ms]]"},
+{f:"Z = R + j(ωL − 1/ωC)   ·   f₀ = 1 / (2π√(L·C))",
+x:["In AC steady state every sine wave becomes a phasor with a magnitude and an angle. Inductors and capacitors become reactances that oppose each other. At the resonant frequency they cancel, the impedance equals R and the current is at its maximum.",
+"في الحالة المستقرة للتيار المتردد تتحول كل موجة جيبية إلى متجه طوري له مقدار وزاوية. الملفات والمكثفات تصبح مفاعلات متعاكسة. عند تردد الرنين تلغي إحداهما الأخرى، فتساوي المعاوقة R ويبلغ التيار أقصاه.",
+"En régime sinusoïdal établi, chaque sinusoïde devient un phaseur doté d’un module et d’un angle. Bobines et condensateurs deviennent des réactances de signes opposés. À la fréquence de résonance elles se compensent : l’impédance vaut R et le courant est maximal.",
+"En régimen permanente de alterna, cada senoide se convierte en un fasor con módulo y ángulo. Bobinas y condensadores pasan a ser reactancias que se oponen entre sí. A la frecuencia de resonancia se anulan, la impedancia vale R y la corriente es máxima.",
+"AC مستحکم حالت میں ہر سائن ویو ایک فیزر بن جاتی ہے جس کی ایک مقدار اور ایک زاویہ ہوتا ہے۔ انڈکٹر اور کپیسیٹر ایسے ری ایکٹنس بن جاتے ہیں جو ایک دوسرے کی مخالفت کرتے ہیں۔ گمک کی تعدد پر یہ ایک دوسرے کو ختم کر دیتے ہیں، امپیڈنس R کے برابر ہو جاتا ہے اور کرنٹ زیادہ سے زیادہ ہوتا ہے۔",
+"AC स्थायी अवस्था में हर ज्या तरंग एक फेज़र बन जाती है, जिसका एक परिमाण और एक कोण होता है। प्रेरक और संधारित्र ऐसे प्रतिघात बन जाते हैं जो एक-दूसरे का विरोध करते हैं। अनुनाद आवृत्ति पर वे एक-दूसरे को निरस्त कर देते हैं, प्रतिबाधा R के बराबर हो जाती है और धारा अधिकतम होती है।"],
+e:["[[R = 50 Ω, L = 100 mH, C = 10 µF]]. [[f₀ = 1 / (2π√(0.1 × 0.00001)) = 159.2 Hz]]. With [[12 V]] applied, the current at resonance is [[12 / 50 = 0.24 A]]. Try these values in the RLC analyser under Tools.",
+"[[R = 50 Ω, L = 100 mH, C = 10 µF]]. [[f₀ = 1 / (2π√(0.1 × 0.00001)) = 159.2 Hz]]. عند تطبيق [[12 V]] يكون التيار عند الرنين [[12 / 50 = 0.24 A]]. جرّب هذه القيم في محلّل RLC ضمن الأدوات.",
+"[[R = 50 Ω, L = 100 mH, C = 10 µF]]. [[f₀ = 1 / (2π√(0.1 × 0.00001)) = 159.2 Hz]]. Sous [[12 V]], le courant à la résonance vaut [[12 / 50 = 0.24 A]]. Essayez ces valeurs dans l’analyseur RLC, dans Outils.",
+"[[R = 50 Ω, L = 100 mH, C = 10 µF]]. [[f₀ = 1 / (2π√(0.1 × 0.00001)) = 159.2 Hz]]. Con [[12 V]] aplicados, la corriente en resonancia es [[12 / 50 = 0.24 A]]. Prueba estos valores en el analizador RLC, en Herramientas.",
+"[[R = 50 Ω, L = 100 mH, C = 10 µF]]۔ [[f₀ = 1 / (2π√(0.1 × 0.00001)) = 159.2 Hz]]۔ [[12 V]] لگانے پر گمک پر کرنٹ [[12 / 50 = 0.24 A]] ہوتا ہے۔ یہ قدریں ٹولز میں RLC اینالائزر پر آزمائیں۔",
+"[[R = 50 Ω, L = 100 mH, C = 10 µF]]। [[f₀ = 1 / (2π√(0.1 × 0.00001)) = 159.2 Hz]]। [[12 V]] लगाने पर अनुनाद पर धारा [[12 / 50 = 0.24 A]] होती है। ये मान टूल में RLC विश्लेषक पर आज़माएँ।"],
+q:["Below resonance, does the current lead or lag the voltage in a series RLC circuit?","تحت تردد الرنين، هل يتقدم التيار على الجهد أم يتأخر عنه في دائرة RLC على التوالي؟","En dessous de la résonance, le courant est-il en avance ou en retard sur la tension dans un circuit RLC série ?","Por debajo de la resonancia, ¿la corriente se adelanta o se retrasa respecto a la tensión en un circuito RLC serie?","گمک سے نیچے، سیریز RLC سرکٹ میں کرنٹ وولٹیج سے آگے ہوتا ہے یا پیچھے؟","अनुनाद से नीचे, श्रेणी RLC परिपथ में धारा वोल्टता से आगे होती है या पीछे?"],
+a:["It leads. The capacitive reactance is larger, so the circuit behaves capacitively.","يتقدم. المفاعلة السعوية أكبر، فتتصرف الدائرة كدائرة سعوية.","Il est en avance. La réactance capacitive domine, le circuit se comporte donc de façon capacitive.","Se adelanta. La reactancia capacitiva es mayor, así que el circuito se comporta de forma capacitiva.","آگے ہوتا ہے۔ کپیسیٹیو ری ایکٹنس زیادہ ہوتی ہے، اس لیے سرکٹ کپیسیٹیو رویہ دکھاتا ہے۔","आगे होती है। धारितीय प्रतिघात अधिक होता है, इसलिए परिपथ धारितीय व्यवहार करता है।"]}
+]};
+
+const $=id=>document.getElementById(id);
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const st={lang:store.get("pha_lang")||"en",cur:store.get("pha_cur")||"USD",cycle:"y",year:0,
+  rlc:{f:100,R:50,L:100,C:10,V:12},gfrom:"en",gto:null,gq:"",gcourse:"",flash:null};
+if(!LANGS.some(l=>l[0]===st.lang))st.lang="en";
+if(!PRICES[st.cur])st.cur="USD";
+const li=()=>LANGS.findIndex(l=>l[0]===st.lang);
+const t=k=>S[k]?S[k][li()]:k;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const money=(n,c)=>new Intl.NumberFormat("en",{style:"currency",currency:c||st.cur,maximumFractionDigits:0}).format(n);
+const gterm=(k,lang)=>{const g=G.find(x=>x[0]===k);return g?g[2][LANGS.findIndex(l=>l[0]===lang)]:k};
+const fx=(n,d)=>Number(n).toFixed(d);
+const fmt=s=>esc(s).replace(/\[\[(.+?)\]\]/g,'<span class="eq" dir="ltr">$1</span>');
+const L6=v=>Array.isArray(v)?v[li()]:v;
+let done=[];try{const d=JSON.parse(store.get("pha_done")||"[]");if(Array.isArray(d))done=d}catch(e){}
+
+/* ---------- series RLC ---------- */
+function rlcCalc(){const b=st.rlc,w=2*Math.PI*b.f,X=w*b.L*1e-3-1/(w*b.C*1e-6),Z=Math.hypot(b.R,X);
+  return{Z,phi:Math.atan2(X,b.R),I:b.V/Z,k:b.R/Z,f0:1/(2*Math.PI*Math.sqrt(b.L*1e-3*b.C*1e-6))};}
+const deg=r=>(r.phi*180/Math.PI).toFixed(1)+"°";
+const amps=i=>i>=1?i.toFixed(2)+" A":(i*1e3).toFixed(1)+" mA";
+function drawScope(svg){
+  const b=st.rlc,r=rlcCalc();let g="",v="",c="";
+  for(let x=44;x<350;x+=34)g+=`M${x} 10V190`;
+  for(let y=40;y<190;y+=30)g+=`M10 ${y}H350`;
+  for(let n=0;n<=170;n++){const x=10+2*n,th=n/170*4*Math.PI;
+    v+=(n?"L":"M")+x+" "+(100-58*Math.sin(th)).toFixed(1);
+    c+=(n?"L":"M")+x+" "+(100-58*r.k*Math.sin(th-r.phi)).toFixed(1);}
+  svg.innerHTML=`<rect class="scr" x="0" y="0" width="360" height="200"/><path class="grd" d="${g}"/><path class="axis" d="M10 100H350"/>
+  <path class="ti" d="${c}"/><path class="tv" d="${v}"/>
+  <text class="sv" x="16" y="24">v(t)</text><text class="si" x="50" y="24">i(t)</text>
+  <text class="sm" x="344" y="24" text-anchor="end">f = ${b.f} Hz</text>
+  <text class="sm" x="16" y="184">φ = ${deg(r)}</text><text class="si" x="344" y="184" text-anchor="end">I = ${amps(r.I)}</text>`;
+}
+function renderBeam(){
+  const r=rlcCalc(),b=st.rlc;
+  drawScope($("scope1"));drawScope($("scope2"));
+  const cell=(n,v)=>`<div><small>${esc(n)}</small><strong>${v}</strong></div>`;
+  const state=`<div class="wide"><small>${esc(t(Math.abs(r.phi)<0.03?"r_res":r.phi>0?"r_lag":"r_lead"))}</small></div>`;
+  const z=cell(gterm("imped",st.lang),r.Z.toFixed(1)+" Ω"),p=cell(t("r_phi"),deg(r));
+  $("ro1").innerHTML=z+p+state;
+  $("ro2").innerHTML=z+p+cell(gterm("current",st.lang),amps(r.I))+cell(t("r_f0"),r.f0.toFixed(1)+" Hz")+state;
+  $("h_f").value=b.f;$("t_f").value=b.f;$("t_R").value=b.R;$("t_L").value=b.L;$("t_C").value=b.C;$("t_V").value=b.V;
+  $("o_f").textContent=b.f+" Hz";$("o_R").textContent=b.R+" Ω";$("o_L").textContent=b.L+" mH";$("o_C").textContent=b.C+" µF";$("o_V").textContent=b.V+" V";
+  $("h_spec").textContent="R "+b.R+" Ω · L "+b.L+" mH · C "+b.C+" µF · "+b.V+" V";
+}
+[["h_f","f"],["t_f","f"],["t_R","R"],["t_L","L"],["t_C","C"],["t_V","V"]].forEach(([id,k])=>$(id).addEventListener("input",e=>{const v=parseFloat(e.target.value);if(v>0){st.rlc[k]=v;renderBeam()}}));
+
+/* ---------- courses ---------- */
+function renderCourses(){
+  $("yearchips").innerHTML=[0,1,2,3,4].map(y=>`<button type="button" class="chip" data-y="${y}" aria-pressed="${st.year===y}">${y?esc(t("c_year"))+" "+y:esc(t("c_all"))}</button>`).join("");
+  $("courselist").innerHTML=COURSES.filter(c=>!st.year||c[2]===st.year).map(c=>`
+   <article class="course" style="--yc:var(--y${c[2]})">
+    <div class="top"><span class="code">${c[1]}</span><span class="tag ${c[5]?"":"pro"}">${c[5]?esc(t("c_free")):"Pro"}</span></div>
+    <h3>${esc(c[6][li()])}</h3>
+    <p class="meta">${esc(t("c_year"))} ${c[2]} · ${c[3]} ${esc(t("c_les"))} · ${c[4]} ${esc(t("c_hrs"))}</p>
+    <div class="terms">${G.filter(g=>g[1]===c[0]).map(g=>`<button type="button" data-term="${g[0]}">${esc(g[2][li()])}</button>`).join("")}</div>
+    <details ${LESSONS[c[0]]?"open":""}><summary>${esc(t("c_syl"))}${LESSONS[c[0]]?` · <span class="save">${esc(t("l_ready"))}</span>`:""}</summary><ol>${c[7].map((m,i)=>`<li>${LESSONS[c[0]]?`<button type="button" class="lk" data-les="${c[0]}:${i}">${done.includes(c[0]+":"+i)?"✓ ":""}${esc(m[li()])}</button>`:esc(m[li()])}</li>`).join("")}</ol>${LESSONS[c[0]]?`<p class="meta" style="margin-top:8px">${esc(t("l_prog").replace("{n}",done.filter(d=>d.startsWith(c[0]+":")).length))}</p>`:""}</details>
+   </article>`).join("");
+  $("legend").innerHTML=[1,2,3,4].map(y=>`<span><i style="background:var(--y${y})"></i>${esc(t("c_year"))} ${y}</span>`).join("")+`<span>${esc(t("c_leg"))}</span>`;
+}
+$("yearchips").addEventListener("click",e=>{const b=e.target.closest("[data-y]");if(b){st.year=+b.dataset.y;renderCourses()}});
+$("courselist").addEventListener("click",e=>{const b=e.target.closest("[data-term]");if(!b)return;
+  st.gq="";st.gcourse="";st.flash=b.dataset.term;location.hash="glossary";renderGloss();
+  const row=document.querySelector('[data-row="'+st.flash+'"]');if(row)row.scrollIntoView({block:"center"});});
+
+/* ---------- lessons ---------- */
+let curLes=null;
+function doneBtn(){const on=done.includes(curLes);$("les_done").textContent=t(on?"l_undo":"l_done");$("les_done").classList.toggle("primary",!on)}
+function openLesson(key){
+  const [id,i]=key.split(":"),c=COURSES.find(c=>c[0]===id),L=LESSONS[id][+i];curLes=key;
+  $("les_code").textContent=c[1]+" · "+(+i+1)+" / "+LESSONS[id].length;
+  $("les_t").textContent=c[7][+i][li()];
+  $("les_x").innerHTML=fmt(L6(L.x));$("les_f").textContent=L.f;
+  $("les_e").innerHTML=fmt(L6(L.e));$("les_q").innerHTML=fmt(L6(L.q));$("les_a").innerHTML=fmt(L6(L.a));
+  $("les_d").open=false;doneBtn();
+  const d=$("les");if(d.showModal)d.showModal();else d.setAttribute("open","");d.scrollTop=0;
+}
+$("courselist").addEventListener("click",e=>{const b=e.target.closest("[data-les]");if(b)openLesson(b.dataset.les)});
+$("les_done").addEventListener("click",()=>{done=done.includes(curLes)?done.filter(d=>d!==curLes):done.concat(curLes);store.set("pha_done",JSON.stringify(done));doneBtn();renderCourses()});
+$("les_close").addEventListener("click",()=>{const d=$("les");if(d.close)d.close();else d.removeAttribute("open")});
+
+/* ---------- AI tutor ---------- */
+let ask=null,aiState="wait",aiBusy=false;
+function aiUI(){$("ai_go").disabled=aiState!=="on"||aiBusy;$("ai_q").disabled=aiState==="off";$("ai_note").textContent=t(aiState==="off"?"ai_off":"ai_note")}
+(async()=>{try{ask=window.claude&&window.claude.use?await window.claude.use("sample"):null}catch(e){ask=null}aiState=ask?"on":"off";aiUI()})();
+$("ai_go").addEventListener("click",async()=>{
+  const q=$("ai_q").value.trim();if(!q||!ask||aiBusy)return;
+  const out=$("ai_out");aiBusy=true;aiUI();out.hidden=false;out.textContent=t("ai_wait");
+  const prompt="You are a patient tutor for undergraduate electrical engineering students. Answer in "+LANGS[li()][1]+" (language code "+st.lang+"). Be accurate and concise, at most 180 words. Give the key formula and numbered calculation steps where they help. Plain text only: no Markdown and no LaTeX; write symbols such as Ω, µ, √ and π directly. If the question is not about electrical engineering, mathematics or physics, say briefly that you only help with those subjects.\n\nStudent question:\n"+q;
+  try{const r=await ask(prompt,{cache:false,onText:({text})=>{if(text)out.textContent=text}});out.textContent=r.text||t("ai_err")}
+  catch(e){if(e&&e.code==="not_granted")aiState="off";out.textContent=t("ai_err")}
+  aiBusy=false;aiUI();
+});
+
+/* ---------- tools ---------- */
+const qname=k=>S[k]?t(k):gterm(k,st.lang);
+function renderTools(){
+  document.querySelectorAll("[data-g]").forEach(e=>e.textContent=gterm(e.dataset.g,st.lang));
+  const cat=$("u_cat").value||"resistance";
+  $("u_cat").innerHTML=Object.keys(UNITS).map(k=>`<option value="${k}" ${k===cat?"selected":""}>${esc(qname(k))}</option>`).join("");
+  fillUnits(false);aiUI();
+  $("formulas").innerHTML=FORMULAS.map(f=>`<div><span>${esc(gterm(f[0],st.lang))}</span><code>${esc(f[1])}</code></div>`).join("");
+}
+function fillUnits(reset){
+  const u=Object.keys(UNITS[$("u_cat").value]),f=reset?u[0]:($("u_from").value||u[1]),o=reset?u[1]:($("u_to").value||u[0]);
+  $("u_from").innerHTML=u.map(x=>`<option ${x===f?"selected":""}>${x}</option>`).join("");
+  $("u_to").innerHTML=u.map(x=>`<option ${x===o?"selected":""}>${x}</option>`).join("");
+  convert();
+}
+function convert(){
+  const m=UNITS[$("u_cat").value],v=parseFloat($("u_val").value),f=$("u_from").value,o=$("u_to").value;
+  if(!isFinite(v)){$("u_out").textContent="–";return}
+  const r=v*m[f]/m[o];
+  $("u_out").textContent=v+" "+f+" = "+(Math.abs(r)>=1e6||(Math.abs(r)<1e-3&&r!==0)?r.toExponential(4):+r.toPrecision(6))+" "+o;
+}
+$("u_cat").addEventListener("change",()=>fillUnits(true));
+["u_val","u_from","u_to"].forEach(id=>$(id).addEventListener("input",convert));
+
+/* ---------- glossary ---------- */
+function renderGloss(){
+  if(!st.gto||st.gto===st.gfrom)st.gto=st.lang!==st.gfrom?st.lang:(st.gfrom==="ar"?"en":"ar");
+  const opts=sel=>LANGS.map(l=>`<option value="${l[0]}" ${l[0]===sel?"selected":""}>${l[1]}</option>`).join("");
+  $("g_from").innerHTML=opts(st.gfrom);$("g_to").innerHTML=opts(st.gto);
+  $("g_course").innerHTML=`<option value="">${esc(t("c_all"))}</option>`+COURSES.map(c=>`<option value="${c[0]}" ${c[0]===st.gcourse?"selected":""}>${esc(c[6][li()])}</option>`).join("");
+  if($("g_q").value!==st.gq)$("g_q").value=st.gq;
+  const a=LANGS.findIndex(l=>l[0]===st.gfrom),b=LANGS.findIndex(l=>l[0]===st.gto),q=st.gq.trim().toLowerCase();
+  const dir=l=>RTL.includes(l)?"rtl":"ltr";
+  const rows=G.filter(g=>(!st.gcourse||g[1]===st.gcourse)&&(!q||g[2].some(x=>x.toLowerCase().includes(q))));
+  $("glist").innerHTML=rows.length?rows.map(g=>{const c=COURSES.find(c=>c[0]===g[1]);
+    return `<div class="r ${g[0]===st.flash?"flash":""}" data-row="${g[0]}"><span lang="${st.gfrom}" dir="${dir(st.gfrom)}">${esc(g[2][a])}</span><span lang="${st.gto}" dir="${dir(st.gto)}">${esc(g[2][b])}</span><small>${c[1]} · ${esc(c[6][li()])}</small></div>`}).join("")
+   :`<div class="r"><small>${esc(t("g_none"))}</small></div>`;
+}
+$("g_from").addEventListener("change",e=>{st.gfrom=e.target.value;if(st.gto===st.gfrom)st.gto=null;renderGloss()});
+$("g_to").addEventListener("change",e=>{st.gto=e.target.value;if(st.gto===st.gfrom)st.gfrom=st.gto==="en"?"ar":"en";renderGloss()});
+$("g_q").addEventListener("input",e=>{st.gq=e.target.value;st.flash=null;renderGloss()});
+$("g_course").addEventListener("change",e=>{st.gcourse=e.target.value;renderGloss()});
+
+/* ---------- pricing ---------- */
+function renderPricing(){
+  const P=PRICES[st.cur],y=st.cycle==="y";
+  $("cur").innerHTML=Object.keys(PRICES).map(c=>`<option ${c===st.cur?"selected":""}>${c}</option>`).join("");
+  document.querySelectorAll("#cycle button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.c===st.cycle));
+  const card=(id,desc)=>{
+    const free=id==="free",p=free?0:P[id][y?1:0],sv=free?0:Math.round((1-P[id][1]/P[id][0])*100);
+    return `<div class="plan ${id==="pro"?"pop":""}">${id==="pro"?`<span class="badge">${esc(t("p_pop"))}</span>`:""}
+     <div class="name">${PLAN_NAMES[id]}</div><p class="muted">${esc(t(desc))}</p>
+     <div class="price">${money(p)} <small>${esc(t("p_per"))}</small></div>
+     <p class="meta" style="min-height:2.6em">${free?"":y?esc(t("p_bill").replace("{x}",money(p*12)))+` · <span class="save">${esc(t("p_save").replace("{n}",sv))}</span>`:`<span class="save">${esc(t("p_y"))}: ${esc(t("p_save").replace("{n}",sv))}</span>`}</p>
+     ${free?`<a class="btn" href="#courses">${esc(t("p_start"))}</a>`:`<button type="button" class="btn ${id==="pro"?"primary":""}" data-plan="${id}">${esc(t("p_choose"))}</button>`}
+    </div>`};
+  $("plans").innerHTML=card("free","d_free")+card("pro","d_pro")+card("plus","d_plus");
+  const cellv=v=>v==="u"?`<td class="y">${esc(t("f_unl"))}</td>`:v===1?'<td class="y">✓</td>':v===0?'<td class="n">–</td>':`<td class="mono">${v}</td>`;
+  $("cmp").innerHTML=`<thead><tr><th>${esc(t("p_feat"))}</th><th>Starter</th><th>Pro</th><th>Pro Plus</th></tr></thead><tbody>`+
+    ROWS.map(r=>`<tr><td>${esc(t(r[0]))}</td>${cellv(r[1])}${cellv(r[2])}${cellv(r[3])}</tr>`).join("")+"</tbody>";
+  $("cp_list").innerHTML=["cp_1","cp_2","cp_3"].map(k=>`<li>${esc(t(k))}</li>`).join("");
+  const n=+$("seats").value;$("o_seats").textContent=n;
+  $("cp_out").innerHTML=`<div><small>${esc(t("cp_per"))}</small><strong>${money(P.campus)}</strong></div><div><small>${esc(t("cp_tot"))}</small><strong>${money(P.campus*n*12)}</strong></div>`;
+  $("faq").innerHTML=[1,2,3].map(i=>`<details><summary>${esc(t("q"+i))}</summary><p>${esc(t("a"+i))}</p></details>`).join("");
+}
+$("cycle").addEventListener("click",e=>{const b=e.target.closest("[data-c]");if(b){st.cycle=b.dataset.c;renderPricing()}});
+$("cur").addEventListener("change",e=>{st.cur=e.target.value;store.set("pha_cur",st.cur);renderPricing()});
+$("seats").addEventListener("input",renderPricing);
+$("plans").addEventListener("click",e=>{const b=e.target.closest("[data-plan]");if(!b)return;
+  const id=b.dataset.plan,y=st.cycle==="y",p=PRICES[st.cur][id][y?1:0],after=y?money(p*12)+" / "+t("p_y"):money(p)+" / "+t("p_m");
+  $("co").innerHTML=`<dt>${esc(t("co_plan"))}</dt><dd>${PLAN_NAMES[id]}</dd><dt>${esc(t("co_bill"))}</dt><dd>${esc(t(y?"p_y":"p_m"))}</dd><dt>${esc(t("co_today"))}</dt><dd>${money(0)}</dd><dt>${esc(t("co_after"))}</dt><dd>${esc(after)}</dd>`;
+  const d=$("dlg");if(d.showModal)d.showModal();else d.setAttribute("open","");});
+$("dlg_x").addEventListener("click",()=>{const d=$("dlg");if(d.close)d.close();else d.removeAttribute("open")});
+
+/* ---------- shell ---------- */
+function route(){
+  const h=(location.hash||"#home").slice(1),v=VIEWS.some(x=>x[0]===h)?h:"home";
+  document.querySelectorAll("section.view").forEach(s=>s.classList.toggle("on",s.id==="v-"+v));
+  document.querySelectorAll("[data-nav]").forEach(a=>{if(a.dataset.nav===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+  if(!st.flash)window.scrollTo(0,0);
+}
+function renderAll(){
+  document.documentElement.lang=st.lang;document.documentElement.dir=RTL.includes(st.lang)?"rtl":"ltr";
+  document.querySelectorAll("[data-t]").forEach(e=>e.textContent=t(e.dataset.t));
+  $("topnav").innerHTML=VIEWS.map(v=>`<a href="#${v[0]}" data-nav="${v[0]}">${esc(t(v[1]))}</a>`).join("");
+  $("tabs").innerHTML=VIEWS.map(v=>`<a href="#${v[0]}" data-nav="${v[0]}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${v[2]}"/></svg><span>${esc(t(v[1]))}</span></a>`).join("");
+  renderBeam();renderCourses();renderTools();renderGloss();renderPricing();route();
+}
+$("lang").innerHTML=LANGS.map(l=>`<option value="${l[0]}">${l[1]}</option>`).join("");
+$("lang").value=st.lang;
+$("lang").addEventListener("change",e=>{st.lang=e.target.value;store.set("pha_lang",st.lang);st.gto=null;renderAll()});
+window.addEventListener("hashchange",()=>{route();st.flash=null});
+renderAll();
+</script>
+</body>
+</html>

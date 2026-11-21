@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Awan AI Calendar</title>
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a working calendar first (AI bar on top, month grid beside the day panel), marketing views behind tabs. */
+:root{
+  --bg:#F3F5F7; --surface:#FFFFFF; --ink:#14222E; --muted:#5B6B78; --line:#DCE2E8;
+  --accent:#0E6F6B; --accent-ink:#FFFFFF; --ai:#9A6508; --ai-soft:#FBF1DC;
+  --work:#2F6FDE; --personal:#C2487A; --focus:#0E8F6B; --family:#C77A12; --warn:#C2362B;
+  --display:"Bricolage Grotesque","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --body:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F171D; --surface:#17222B; --ink:#E8EEF2; --muted:#93A3AF; --line:#27353F;
+    --accent:#3CC2B8; --accent-ink:#06211F; --ai:#F0B63F; --ai-soft:#2A2414;
+    --work:#6FA0F5; --personal:#EC7FAC; --focus:#3FCB9F; --family:#EFA94A; --warn:#F0776C;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F171D; --surface:#17222B; --ink:#E8EEF2; --muted:#93A3AF; --line:#27353F;
+  --accent:#3CC2B8; --accent-ink:#06211F; --ai:#F0B63F; --ai-soft:#2A2414;
+  --work:#6FA0F5; --personal:#EC7FAC; --focus:#3FCB9F; --family:#EFA94A; --warn:#F0776C;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+header{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0 8px}
+.brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+.brand b{font-family:var(--display);font-size:1.5rem;font-weight:700;color:var(--accent)}
+.brand span{color:var(--muted);font-size:.85rem}
+select,input[type=text],input[type=date],input[type=time]{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:40px}
+nav{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px}
+nav a{padding:6px 12px;border-radius:999px;text-decoration:none;color:var(--muted);font-weight:500;white-space:nowrap}
+nav a.on{background:var(--accent);color:var(--accent-ink)}
+main{padding:20px 0 48px}
+section[hidden]{display:none}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:9px 14px;font-weight:600;min-height:40px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.danger{background:transparent;color:var(--warn);border:1px solid var(--line)}
+/* AI bar */
+.ai{background:var(--ai-soft);border:1px solid var(--line);border-inline-start:4px solid var(--ai);border-radius:14px;padding:14px;margin-bottom:16px}
+.ai form{display:flex;gap:8px;flex-wrap:wrap}
+.ai input{flex:1 1 220px;min-width:0}
+.ai .btn{background:var(--ai);color:var(--surface)}
+.preview{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.preview .what{flex:1 1 240px}
+.preview small{display:block;color:var(--muted)}
+.label{font-size:.75rem;font-weight:600;color:var(--ai);text-transform:uppercase;letter-spacing:.04em}
+/* Calendar */
+.cols{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.cols{grid-template-columns:minmax(0,1fr)}}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.bar h2{font-size:1.25rem}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{background:transparent;border:0;padding:7px 12px;min-height:38px}
+.seg button.on{background:var(--ink);color:var(--surface)}
+.arrows{display:flex;gap:6px}
+.arrows button{background:transparent;border:1px solid var(--line);border-radius:8px;min-width:38px;min-height:38px}
+[dir=rtl] .arrows .flip{transform:scaleX(-1)}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.dow{font-size:.72rem;color:var(--muted);text-align:center;padding:4px 0;font-weight:600}
+.cell{background:transparent;border:1px solid transparent;border-radius:10px;aspect-ratio:1/1;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:2px;font-variant-numeric:tabular-nums}
+.cell:hover{border-color:var(--line)}
+.cell.out{color:var(--muted);opacity:.55}
+.cell.tod .num{color:var(--accent);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.cell.sel{background:var(--ink);color:var(--surface)}
+.cell.sel .num{color:var(--surface)}
+.dots{display:flex;gap:3px;height:6px}
+.dot{width:6px;height:6px;border-radius:50%}
+.c-work{background:var(--work)}.c-personal{background:var(--personal)}.c-focus{background:var(--focus)}.c-family{background:var(--family)}
+.dayhead h3{font-size:1.15rem}
+.dayhead p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+.brief{margin:12px 0;padding:10px 12px;border-radius:10px;background:var(--bg);font-size:.92rem}
+.brief .w{color:var(--warn);font-weight:600}
+.ev{display:flex;gap:10px;align-items:stretch;width:100%;text-align:start;background:transparent;border:0;border-top:1px solid var(--line);padding:10px 0}
+.ev .stripe{width:4px;border-radius:2px;flex:none}
+.ev .time{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.85rem;flex:none;width:92px}
+.ev .ttl{flex:1;min-width:0;overflow-wrap:anywhere;font-weight:500}
+.pill{display:inline-block;font-size:.72rem;font-weight:600;border-radius:999px;padding:1px 8px;border:1px solid var(--warn);color:var(--warn);margin-inline-start:6px;white-space:nowrap}
+.empty{color:var(--muted);padding:14px 0;border-top:1px solid var(--line)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.note{color:var(--muted);font-size:.85rem;margin-top:12px}
+.aghead{font-weight:600;margin-top:14px;font-size:.92rem}
+/* Editor */
+.overlay{position:fixed;inset:0;background:rgba(8,14,19,.55);display:flex;align-items:flex-end;justify-content:center;padding:16px;z-index:10}
+@media (min-width:600px){.overlay{align-items:center}}
+.overlay[hidden]{display:none}
+.sheet{background:var(--surface);border-radius:14px;padding:18px;width:100%;max-width:420px;display:grid;gap:12px}
+.sheet label{display:grid;gap:4px;font-size:.85rem;color:var(--muted)}
+.sheet input,.sheet select{width:100%;color:var(--ink)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sheet .actions{justify-content:space-between;margin-top:4px}
+#toast{position:fixed;inset-inline:16px;bottom:16px;margin:auto;max-width:360px;background:var(--ink);color:var(--surface);padding:10px 14px;border-radius:10px;text-align:center;z-index:20}
+#toast[hidden]{display:none}
+/* Marketing views */
+.lead{max-width:60ch;margin:0 0 20px}
+.lead h2{font-size:1.7rem;margin-bottom:6px}
+.lead p{margin:0;color:var(--muted)}
+.feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.feat{border-top:3px solid var(--accent);padding-top:12px}
+.feat h3{font-size:1.05rem;margin-bottom:4px}
+.feat p{margin:0;color:var(--muted);font-size:.95rem}
+.ptools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.save{color:var(--focus);font-weight:600;font-size:.85rem}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.plan{display:flex;flex-direction:column;gap:10px}
+.plan.best{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.plan h3{font-size:1.1rem}
+.price{font-family:var(--display);font-size:1.9rem;font-weight:700;font-variant-numeric:tabular-nums}
+.price small{font-family:var(--body);font-size:.8rem;font-weight:400;color:var(--muted)}
+.plan ul{margin:0;padding-inline-start:18px;color:var(--muted);font-size:.93rem;flex:1}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:start;font-size:.93rem}
+thead th{font-family:var(--display)}
+td.us,th.us{background:var(--ai-soft);font-weight:600}
+.y{color:var(--focus);font-weight:600}.n{color:var(--warn);font-weight:600}.p{color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.cell,.btn,nav a{transition:background-color .15s,border-color .15s}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand"><b>Awan</b><span data-i="tagline"></span></div>
+      <select id="lang" aria-label="Language">
+        <option value="en">English</option><option value="ar">العربية</option><option value="fr">Français</option>
+        <option value="es">Español</option><option value="tr">Türkçe</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <nav id="nav">
+      <a href="#calendar" data-i="cal"></a><a href="#features" data-i="features"></a>
+      <a href="#pricing" data-i="pricing"></a><a href="#compare" data-i="compare"></a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="v-calendar">
+    <div class="ai">
+      <div class="label">AI</div>
+      <form id="aiForm">
+        <input type="text" id="aiText" autocomplete="off" data-ip="aiPh" aria-label="AI">
+        <button class="btn" type="submit" data-i="aiBtn"></button>
+      </form>
+      <div id="preview"></div>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <div class="bar">
+          <h2 id="monthTitle"></h2>
+          <div class="arrows">
+            <button type="button" id="prev" aria-label="Previous"><span class="flip">‹</span></button>
+            <button type="button" id="goToday" data-i="today" style="padding:0 12px"></button>
+            <button type="button" id="next" aria-label="Next"><span class="flip">›</span></button>
+          </div>
+        </div>
+        <div class="seg" style="width:max-content;margin-bottom:12px">
+          <button type="button" data-view="month" data-i="month"></button>
+          <button type="button" data-view="agenda" data-i="agenda"></button>
+        </div>
+        <div id="calBody"></div>
+        <p class="note" data-i="sample"></p>
+        <p class="note" id="sync" role="status"></p>
+      </div>
+      <div class="card" id="dayPanel"></div>
+    </div>
+  </section>
+
+  <section id="v-features" hidden>
+    <div class="lead"><h2 data-i="fH"></h2><p data-i="tagline"></p></div>
+    <div class="feats" id="feats"></div>
+    <p class="note" data-i="road"></p>
+  </section>
+
+  <section id="v-pricing" hidden>
+    <div class="lead"><h2 data-i="pH"></h2></div>
+    <div class="ptools">
+      <div class="seg">
+        <button type="button" data-bill="m" data-i="monthly"></button>
+        <button type="button" data-bill="y" data-i="yearly"></button>
+      </div>
+      <span class="save" data-i="save20"></span>
+      <select id="curr" aria-label="Currency"><option value="USD">USD $</option><option value="SAR">SAR ر.س</option></select>
+    </div>
+    <div class="plans" id="plans"></div>
+    <p class="note" data-i="demo"></p>
+  </section>
+
+  <section id="v-compare" hidden>
+    <div class="lead"><h2 data-i="cH"></h2></div>
+    <div class="card tablewrap"><table id="cmp"></table></div>
+    <p class="note" data-i="cNote"></p>
+  </section>
+</main>
+
+<div class="overlay" id="overlay" hidden>
+  <form class="sheet" id="edForm">
+    <h3 id="edHead"></h3>
+    <label><span data-i="fTitle"></span><input type="text" id="edTitle" required></label>
+    <label><span data-i="fDate"></span><input type="date" id="edDate" required></label>
+    <div class="row2">
+      <label><span data-i="fStart"></span><input type="time" id="edStart" required></label>
+      <label><span data-i="fEnd"></span><input type="time" id="edEnd" required></label>
+    </div>
+    <label><span data-i="fCat"></span><select id="edCat"></select></label>
+    <div class="actions">
+      <button type="button" class="btn danger" id="edDel" data-i="del"></button>
+      <span style="display:flex;gap:8px">
+        <button type="button" class="btn ghost" id="edCancel" data-i="cancel"></button>
+        <button type="submit" class="btn" data-i="save"></button>
+      </span>
+    </div>
+  </form>
+</div>
+<div id="toast" role="status" hidden></div>
+
+<script>
+const L={
+en:{cal:"Calendar",features:"Features",pricing:"Pricing",compare:"Compare",tagline:"The calendar that plans with you",
+aiPh:"Try: Lunch with Sara tomorrow at 1pm",aiBtn:"Plan it",today:"Today",tomorrow:"Tomorrow",month:"Month",agenda:"Agenda",
+add:"Add event",focus:"Find focus time",none:"Nothing planned. Enjoy the space.",overlap:"Overlaps",
+briefTxt:"{n} events · {h} h free between 9:00 and 17:00",briefConf:"{c} overlapping",
+newEv:"New event",editEv:"Edit event",fTitle:"Title",fDate:"Date",fStart:"Starts",fEnd:"Ends",fCat:"Category",
+save:"Save",del:"Delete",cancel:"Cancel",work:"Work",personal:"Personal",focusC:"Focus time",family:"Family",
+understood:"Here is what I understood",autoSlot:"No time given, so I picked the first free slot.",noSlot:"No free slot on that day.",
+sample:"Sample events are loaded. Edit or delete them freely.",upNext:"Next 14 days",syncOn:"Saved to your account. Open Awan on any device to see it.",syncOff:"Saved on this device only.",syncWait:"Your saved calendar can't be reached yet. Changes stay on this device for now.",
+s1:"Team stand-up",s2:"Lunch with Sara",s3:"Supplier call",s4:"Deep work: product roadmap",s5:"Family dinner",
+fH:"Built to save you time every day",
+f1t:"Type it and it is planned",f1d:"Write one sentence in your own language. Awan sets the date, the time and the length.",
+f2t:"Finds the free slot for you",f2d:"Leave the time out and Awan picks the first open slot, then warns you when two events overlap.",
+f3t:"Hijri and Gregorian together",f3d:"Every day shows both dates, so prayer seasons, holidays and work deadlines sit in one view.",
+f4t:"Six languages, right-to-left ready",f4d:"Switch language at any moment. Arabic mirrors the whole layout, not only the words.",
+road:"This is a working prototype. Sync with other calendars and real payments need a server before launch.",
+pH:"Simple prices for everyone",monthly:"Monthly",yearly:"Yearly",save20:"Save 20% yearly",perMo:"/month",perSeat:"/seat/month",free:"Free",
+p0a:"Unlimited events on one calendar",p0b:"10 AI plans per month",p1a:"Unlimited AI planning",p1b:"Focus time and day briefs",
+p2a:"Sync with Google, Outlook and Apple",p2b:"Booking links and reminders",p3a:"Shared calendars for a family or a team",p3b:"Finds a time that suits everyone",
+choose:"Choose plan",current:"Current plan",demo:"Demo checkout. No payment is taken.",
+cH:"How Awan compares",cBasic:"Basic calendars",cAI:"Typical AI schedulers",
+r1:"Plan by typing a sentence",r2:"Picks free time for you",r3:"Hijri and Gregorian in one view",r4:"Full right-to-left Arabic interface",r5:"Free plan",r6:"Paid plans from",
+yes:"Yes",no:"No",partial:"Partly",varies:"Varies",
+cNote:"Typical prices come from public pricing pages in November 2026. Check each product before you decide."},
+ar:{cal:"التقويم",features:"المزايا",pricing:"الأسعار",compare:"المقارنة",tagline:"التقويم الذي يخطط معك",
+aiPh:"جرّب: غداء مع سارة غدا الساعة 1 م",aiBtn:"خطّط",today:"اليوم",tomorrow:"غدا",month:"شهر",agenda:"جدول",
+add:"إضافة حدث",focus:"احجز وقت تركيز",none:"لا شيء مخطط. استمتع بوقتك.",overlap:"تعارض",
+briefTxt:"{n} أحداث · {h} س فراغ بين 9:00 و17:00",briefConf:"{c} متعارضة",
+newEv:"حدث جديد",editEv:"تعديل الحدث",fTitle:"العنوان",fDate:"التاريخ",fStart:"البداية",fEnd:"النهاية",fCat:"الفئة",
+save:"حفظ",del:"حذف",cancel:"إلغاء",work:"عمل",personal:"شخصي",focusC:"وقت تركيز",family:"عائلة",
+understood:"هذا ما فهمته",autoSlot:"لم تحدد وقتا، فاخترت أول وقت فارغ.",noSlot:"لا يوجد وقت فارغ في ذلك اليوم.",
+sample:"هذه أحداث تجريبية. عدّلها أو احذفها كما تشاء.",upNext:"الأيام الـ14 القادمة",syncOn:"محفوظ في حسابك. افتح أوان على أي جهاز لتراه.",syncOff:"محفوظ على هذا الجهاز فقط.",syncWait:"تعذر الوصول إلى تقويمك المحفوظ الآن. تبقى التغييرات على هذا الجهاز مؤقتا.",
+s1:"اجتماع الفريق اليومي",s2:"غداء مع سارة",s3:"مكالمة المورّد",s4:"عمل مركّز: خطة المنتج",s5:"عشاء عائلي",
+fH:"مصمم ليوفر وقتك كل يوم",
+f1t:"اكتبها فتُجدول",f1d:"اكتب جملة واحدة بلغتك، ويحدد أوان التاريخ والوقت والمدة.",
+f2t:"يجد لك الوقت الفارغ",f2d:"اترك الوقت فارغا ويختار أوان أول فترة متاحة، وينبهك عند تعارض حدثين.",
+f3t:"الهجري والميلادي معا",f3d:"كل يوم يعرض التاريخين، فتجتمع المواسم والعطل ومواعيد العمل في عرض واحد.",
+f4t:"ست لغات مع دعم كامل للعربية",f4d:"بدّل اللغة في أي لحظة. في العربية تنعكس الواجهة كلها وليس الكلمات فقط.",
+road:"هذا نموذج أولي يعمل. المزامنة مع التقاويم الأخرى والدفع الحقيقي يحتاجان خادما قبل الإطلاق.",
+pH:"أسعار بسيطة للجميع",monthly:"شهري",yearly:"سنوي",save20:"وفّر 20% سنويا",perMo:"/شهر",perSeat:"/مستخدم/شهر",free:"مجاني",
+p0a:"أحداث غير محدودة في تقويم واحد",p0b:"10 خطط بالذكاء الاصطناعي شهريا",p1a:"تخطيط غير محدود بالذكاء الاصطناعي",p1b:"وقت التركيز وملخص اليوم",
+p2a:"مزامنة مع Google وOutlook وApple",p2b:"روابط حجز وتذكيرات",p3a:"تقاويم مشتركة للعائلة أو الفريق",p3b:"يجد وقتا يناسب الجميع",
+choose:"اختر الخطة",current:"خطتك الحالية",demo:"دفع تجريبي. لا يتم خصم أي مبلغ.",
+cH:"مقارنة أوان بغيره",cBasic:"التقاويم العادية",cAI:"مجدولات الذكاء الاصطناعي المعتادة",
+r1:"التخطيط بكتابة جملة",r2:"يختار لك الوقت الفارغ",r3:"الهجري والميلادي في عرض واحد",r4:"واجهة عربية كاملة من اليمين لليسار",r5:"خطة مجانية",r6:"الخطط المدفوعة تبدأ من",
+yes:"نعم",no:"لا",partial:"جزئيا",varies:"يختلف",
+cNote:"الأسعار المعتادة مأخوذة من صفحات الأسعار العامة في نوفمبر 2026. راجع كل منتج قبل أن تقرر."},
+fr:{cal:"Calendrier",features:"Fonctions",pricing:"Tarifs",compare:"Comparer",tagline:"Le calendrier qui planifie avec vous",
+aiPh:"Essayez : Déjeuner avec Sara demain à 13h",aiBtn:"Planifier",today:"Aujourd'hui",tomorrow:"Demain",month:"Mois",agenda:"Agenda",
+add:"Ajouter",focus:"Trouver un temps de concentration",none:"Rien de prévu. Profitez-en.",overlap:"Conflit",
+briefTxt:"{n} événements · {h} h libres entre 9:00 et 17:00",briefConf:"{c} en conflit",
+newEv:"Nouvel événement",editEv:"Modifier l'événement",fTitle:"Titre",fDate:"Date",fStart:"Début",fEnd:"Fin",fCat:"Catégorie",
+save:"Enregistrer",del:"Supprimer",cancel:"Annuler",work:"Travail",personal:"Personnel",focusC:"Concentration",family:"Famille",
+understood:"Voici ce que j'ai compris",autoSlot:"Aucune heure indiquée, j'ai choisi le premier créneau libre.",noSlot:"Aucun créneau libre ce jour-là.",
+sample:"Des exemples sont chargés. Modifiez-les ou supprimez-les librement.",upNext:"14 prochains jours",syncOn:"Enregistré dans votre compte. Ouvrez Awan sur n'importe quel appareil.",syncOff:"Enregistré sur cet appareil uniquement.",syncWait:"Votre calendrier enregistré est injoignable pour l'instant. Les changements restent sur cet appareil.",
+s1:"Point d'équipe",s2:"Déjeuner avec Sara",s3:"Appel fournisseur",s4:"Travail de fond : feuille de route",s5:"Dîner en famille",
+fH:"Conçu pour vous faire gagner du temps",
+f1t:"Écrivez, c'est planifié",f1d:"Une phrase dans votre langue suffit. Awan fixe la date, l'heure et la durée.",
+f2t:"Trouve le créneau libre",f2d:"Sans heure indiquée, Awan choisit le premier créneau libre et signale les conflits.",
+f3t:"Hégire et grégorien ensemble",f3d:"Chaque jour affiche les deux dates : fêtes, saisons et échéances dans une seule vue.",
+f4t:"Six langues, droite à gauche inclus",f4d:"Changez de langue à tout moment. En arabe, toute l'interface s'inverse.",
+road:"Ceci est un prototype fonctionnel. La synchronisation et les paiements réels demandent un serveur avant le lancement.",
+pH:"Des prix simples pour tous",monthly:"Mensuel",yearly:"Annuel",save20:"20 % d'économie à l'année",perMo:"/mois",perSeat:"/poste/mois",free:"Gratuit",
+p0a:"Événements illimités sur un calendrier",p0b:"10 plans IA par mois",p1a:"Planification IA illimitée",p1b:"Temps de concentration et résumés du jour",
+p2a:"Synchro Google, Outlook et Apple",p2b:"Liens de réservation et rappels",p3a:"Calendriers partagés, famille ou équipe",p3b:"Trouve une heure qui convient à tous",
+choose:"Choisir",current:"Offre actuelle",demo:"Paiement de démonstration. Rien n'est débité.",
+cH:"Awan face aux autres",cBasic:"Calendriers classiques",cAI:"Planificateurs IA courants",
+r1:"Planifier en écrivant une phrase",r2:"Choisit le créneau libre",r3:"Hégire et grégorien dans une vue",r4:"Interface arabe complète de droite à gauche",r5:"Offre gratuite",r6:"Offres payantes à partir de",
+yes:"Oui",no:"Non",partial:"En partie",varies:"Variable",
+cNote:"Prix courants relevés sur les pages tarifaires publiques en novembre 2026. Vérifiez chaque produit avant de décider."},
+es:{cal:"Calendario",features:"Funciones",pricing:"Precios",compare:"Comparar",tagline:"El calendario que planifica contigo",
+aiPh:"Prueba: Almuerzo con Sara mañana a las 13:00",aiBtn:"Planificar",today:"Hoy",tomorrow:"Mañana",month:"Mes",agenda:"Agenda",
+add:"Añadir evento",focus:"Buscar tiempo de enfoque",none:"Nada planeado. Disfruta el espacio.",overlap:"Se solapa",
+briefTxt:"{n} eventos · {h} h libres entre 9:00 y 17:00",briefConf:"{c} solapados",
+newEv:"Nuevo evento",editEv:"Editar evento",fTitle:"Título",fDate:"Fecha",fStart:"Empieza",fEnd:"Termina",fCat:"Categoría",
+save:"Guardar",del:"Eliminar",cancel:"Cancelar",work:"Trabajo",personal:"Personal",focusC:"Tiempo de enfoque",family:"Familia",
+understood:"Esto es lo que entendí",autoSlot:"No indicaste hora, así que elegí el primer hueco libre.",noSlot:"No hay hueco libre ese día.",
+sample:"Hay eventos de ejemplo. Edítalos o elimínalos con libertad.",upNext:"Próximos 14 días",syncOn:"Guardado en tu cuenta. Abre Awan en cualquier dispositivo.",syncOff:"Guardado solo en este dispositivo.",syncWait:"Aún no se puede acceder a tu calendario guardado. Los cambios quedan en este dispositivo.",
+s1:"Reunión diaria del equipo",s2:"Almuerzo con Sara",s3:"Llamada con proveedor",s4:"Trabajo profundo: hoja de ruta",s5:"Cena familiar",
+fH:"Hecho para ahorrarte tiempo cada día",
+f1t:"Escríbelo y queda planificado",f1d:"Escribe una frase en tu idioma. Awan pone la fecha, la hora y la duración.",
+f2t:"Encuentra el hueco libre",f2d:"Si no indicas hora, Awan elige el primer hueco y te avisa cuando dos eventos se solapan.",
+f3t:"Hijri y gregoriano juntos",f3d:"Cada día muestra las dos fechas: festivos, temporadas y plazos en una sola vista.",
+f4t:"Seis idiomas, derecha a izquierda incluido",f4d:"Cambia de idioma cuando quieras. En árabe se invierte toda la interfaz.",
+road:"Esto es un prototipo que funciona. La sincronización y los pagos reales necesitan un servidor antes del lanzamiento.",
+pH:"Precios sencillos para todos",monthly:"Mensual",yearly:"Anual",save20:"Ahorra 20 % al año",perMo:"/mes",perSeat:"/usuario/mes",free:"Gratis",
+p0a:"Eventos ilimitados en un calendario",p0b:"10 planes con IA al mes",p1a:"Planificación con IA ilimitada",p1b:"Tiempo de enfoque y resumen del día",
+p2a:"Sincroniza con Google, Outlook y Apple",p2b:"Enlaces de reserva y recordatorios",p3a:"Calendarios compartidos para familia o equipo",p3b:"Encuentra una hora que sirva a todos",
+choose:"Elegir plan",current:"Plan actual",demo:"Pago de demostración. No se cobra nada.",
+cH:"Awan frente a los demás",cBasic:"Calendarios básicos",cAI:"Planificadores con IA habituales",
+r1:"Planificar escribiendo una frase",r2:"Elige el hueco libre",r3:"Hijri y gregoriano en una vista",r4:"Interfaz árabe completa de derecha a izquierda",r5:"Plan gratis",r6:"Planes de pago desde",
+yes:"Sí",no:"No",partial:"En parte",varies:"Varía",
+cNote:"Precios habituales tomados de páginas públicas de precios en noviembre de 2026. Revisa cada producto antes de decidir."},
+tr:{cal:"Takvim",features:"Özellikler",pricing:"Fiyatlar",compare:"Karşılaştır",tagline:"Sizinle birlikte planlayan takvim",
+aiPh:"Deneyin: Sara ile öğle yemeği yarın saat 13:00",aiBtn:"Planla",today:"Bugün",tomorrow:"Yarın",month:"Ay",agenda:"Ajanda",
+add:"Etkinlik ekle",focus:"Odak zamanı bul",none:"Plan yok. Boşluğun tadını çıkarın.",overlap:"Çakışıyor",
+briefTxt:"{n} etkinlik · 9:00 ile 17:00 arasında {h} sa boş",briefConf:"{c} çakışma",
+newEv:"Yeni etkinlik",editEv:"Etkinliği düzenle",fTitle:"Başlık",fDate:"Tarih",fStart:"Başlangıç",fEnd:"Bitiş",fCat:"Kategori",
+save:"Kaydet",del:"Sil",cancel:"Vazgeç",work:"İş",personal:"Kişisel",focusC:"Odak zamanı",family:"Aile",
+understood:"Anladığım şu",autoSlot:"Saat verilmedi, ilk boş aralığı seçtim.",noSlot:"O gün boş aralık yok.",
+sample:"Örnek etkinlikler yüklü. Dilediğiniz gibi düzenleyin veya silin.",upNext:"Önümüzdeki 14 gün",syncOn:"Hesabınıza kaydedildi. Awan'ı herhangi bir cihazda açın.",syncOff:"Yalnızca bu cihaza kaydedildi.",syncWait:"Kayıtlı takviminize şu an ulaşılamıyor. Değişiklikler şimdilik bu cihazda kalır.",
+s1:"Ekip toplantısı",s2:"Sara ile öğle yemeği",s3:"Tedarikçi görüşmesi",s4:"Derin çalışma: ürün yol haritası",s5:"Aile yemeği",
+fH:"Her gün zaman kazandırmak için tasarlandı",
+f1t:"Yazın, planlansın",f1d:"Kendi dilinizde tek bir cümle yazın. Awan tarihi, saati ve süreyi belirler.",
+f2t:"Boş aralığı sizin için bulur",f2d:"Saat yazmazsanız Awan ilk boş aralığı seçer ve iki etkinlik çakışınca uyarır.",
+f3t:"Hicri ve miladi bir arada",f3d:"Her gün iki tarihi de gösterir: bayramlar, mevsimler ve iş tarihleri tek görünümde.",
+f4t:"Altı dil, sağdan sola hazır",f4d:"Dili istediğiniz an değiştirin. Arapçada tüm arayüz yön değiştirir.",
+road:"Bu çalışan bir prototiptir. Takvim eşitleme ve gerçek ödeme için yayından önce sunucu gerekir.",
+pH:"Herkes için sade fiyatlar",monthly:"Aylık",yearly:"Yıllık",save20:"Yıllıkta %20 tasarruf",perMo:"/ay",perSeat:"/kişi/ay",free:"Ücretsiz",
+p0a:"Tek takvimde sınırsız etkinlik",p0b:"Ayda 10 yapay zekâ planı",p1a:"Sınırsız yapay zekâ planlama",p1b:"Odak zamanı ve gün özeti",
+p2a:"Google, Outlook ve Apple ile eşitleme",p2b:"Randevu bağlantıları ve hatırlatmalar",p3a:"Aile veya ekip için ortak takvimler",p3b:"Herkese uyan saati bulur",
+choose:"Planı seç",current:"Mevcut plan",demo:"Deneme ödemesi. Ücret alınmaz.",
+cH:"Awan ve diğerleri",cBasic:"Temel takvimler",cAI:"Yaygın yapay zekâ planlayıcılar",
+r1:"Cümle yazarak planlama",r2:"Boş zamanı sizin için seçer",r3:"Hicri ve miladi tek görünümde",r4:"Tam sağdan sola Arapça arayüz",r5:"Ücretsiz plan",r6:"Ücretli planlar",
+yes:"Evet",no:"Hayır",partial:"Kısmen",varies:"Değişir",
+cNote:"Yaygın fiyatlar Kasım 2026'da herkese açık fiyat sayfalarından alındı. Karar vermeden önce her ürünü kontrol edin."},
+zh:{cal:"日历",features:"功能",pricing:"价格",compare:"对比",tagline:"和你一起规划的日历",
+aiPh:"试试：明天下午1点和Sara吃午饭",aiBtn:"安排",today:"今天",tomorrow:"明天",month:"月",agenda:"日程",
+add:"添加事件",focus:"安排专注时间",none:"暂无安排，享受空闲。",overlap:"冲突",
+briefTxt:"{n} 个事件 · 9:00 至 17:00 间空闲 {h} 小时",briefConf:"{c} 个冲突",
+newEv:"新事件",editEv:"编辑事件",fTitle:"标题",fDate:"日期",fStart:"开始",fEnd:"结束",fCat:"类别",
+save:"保存",del:"删除",cancel:"取消",work:"工作",personal:"个人",focusC:"专注时间",family:"家庭",
+understood:"我的理解如下",autoSlot:"没有给出时间，我选了第一个空闲时段。",noSlot:"那天没有空闲时段。",
+sample:"已载入示例事件，可随意编辑或删除。",upNext:"未来 14 天",syncOn:"已保存到你的账户，在任何设备上打开 Awan 都能看到。",syncOff:"仅保存在此设备上。",syncWait:"暂时无法连接已保存的日历，更改先保留在此设备上。",
+s1:"团队站会",s2:"和Sara吃午饭",s3:"供应商电话",s4:"深度工作：产品路线图",s5:"家庭晚餐",
+fH:"每天为你节省时间",
+f1t:"输入一句话即可安排",f1d:"用你的语言写一句话，Awan 会设定日期、时间和时长。",
+f2t:"为你找到空闲时段",f2d:"不写时间时，Awan 选择第一个空闲时段，并在事件冲突时提醒你。",
+f3t:"伊斯兰历与公历并列",f3d:"每天同时显示两种日期，节日、季节和工作期限一目了然。",
+f4t:"六种语言，支持从右到左",f4d:"随时切换语言。阿拉伯语下整个界面都会镜像。",
+road:"这是可运行的原型。日历同步和真实支付在上线前需要服务器。",
+pH:"人人都用得起的价格",monthly:"按月",yearly:"按年",save20:"按年省 20%",perMo:"/月",perSeat:"/人/月",free:"免费",
+p0a:"一个日历，事件不限",p0b:"每月 10 次 AI 安排",p1a:"AI 安排不限次数",p1b:"专注时间和每日摘要",
+p2a:"与 Google、Outlook、Apple 同步",p2b:"预约链接和提醒",p3a:"家庭或团队共享日历",p3b:"找到大家都合适的时间",
+choose:"选择方案",current:"当前方案",demo:"演示结账，不会扣款。",
+cH:"Awan 与其他产品对比",cBasic:"普通日历",cAI:"常见 AI 日程工具",
+r1:"输入一句话来安排",r2:"自动选择空闲时间",r3:"伊斯兰历与公历同屏",r4:"完整的从右到左阿拉伯语界面",r5:"免费方案",r6:"付费方案起价",
+yes:"有",no:"无",partial:"部分",varies:"不一定",
+cNote:"常见价格来自 2026 年 11 月的公开定价页面。决定前请核对各产品。"}
+};
+const CATS=["work","personal","focus","family"], CATKEY={work:"work",personal:"personal",focus:"focusC",family:"family"};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const fromYmd=s=>{const[a,b,c]=s.split("-").map(Number);return new Date(a,b-1,c)};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const hm=m=>pad(Math.floor(m/60))+":"+pad(m%60);
+const toMin=s=>{const[a,b]=s.split(":").map(Number);return a*60+b};
+
+let S={lang:"en",events:null,plan:"free",yearly:false,curr:"USD"};
+let hadLocal=false;
+try{const r=JSON.parse(localStorage.getItem("awan-v1"));if(r&&typeof r==="object"){S=Object.assign(S,r);hadLocal=true}}catch(e){}
+if(!L[S.lang])S.lang="en";
+const TODAY=new Date();
+let sel=ymd(TODAY), cur=new Date(TODAY.getFullYear(),TODAY.getMonth(),1), view="month", draft=null, editing=null;
+if(!Array.isArray(S.events)){
+  const d=n=>ymd(addDays(TODAY,n));
+  S.events=[{id:1,k:"s1",date:d(0),s:570,e:600,cat:"work"},{id:2,k:"s2",date:d(0),s:780,e:840,cat:"personal"},
+    {id:3,k:"s3",date:d(0),s:810,e:855,cat:"work"},{id:4,k:"s4",date:d(1),s:600,e:690,cat:"focus"},
+    {id:5,k:"s5",date:d(3),s:1080,e:1170,cat:"family"}];
+}
+const localSave=()=>{try{localStorage.setItem("awan-v1",JSON.stringify(S))}catch(e){}};
+/* ---- account storage: one private document per signed-in person ---- */
+let cloud=null,lastCloud="",saveT=null,saving=false,dirty=false,syncState="off";
+const payload=()=>JSON.stringify({events:S.events,plan:S.plan,yearly:S.yearly,curr:S.curr});
+function setSync(s){syncState=s;const el=document.getElementById("sync");if(el)el.textContent=t({on:"syncOn",off:"syncOff",wait:"syncWait"}[s])}
+function queueSave(){if(!cloud||payload()===lastCloud)return;dirty=true;clearTimeout(saveT);saveT=setTimeout(flush,700)}
+async function flush(){
+  if(saving||!cloud)return;
+  const p=payload();if(p===lastCloud){dirty=false;return}
+  saving=true;
+  try{await cloud.set(JSON.parse(p));lastCloud=p;setSync("on")}
+  catch(e){
+    if(e&&e.code==="unavailable"){
+      try{await new Promise(r=>setTimeout(r,800+Math.random()*800));await cloud.set(JSON.parse(p));lastCloud=p;setSync("on")}catch(e2){setSync("wait")}
+    }else{cloud=null;setSync("off")}
+  }
+  saving=false;
+  if(cloud&&syncState==="on"&&payload()!==lastCloud)queueSave();else dirty=false;
+}
+function cleanEvents(list){
+  return list.filter(e=>e&&typeof e.id==="number"&&/^\d{4}-\d{2}-\d{2}$/.test(e.date)&&Number.isFinite(e.s)&&Number.isFinite(e.e))
+    .map(e=>{const o={id:e.id,date:e.date,s:e.s,e:e.e,cat:CATS.includes(e.cat)?e.cat:"work"};
+      if(/^s[1-5]$/.test(e.k))o.k=e.k;else o.title=String(e.title||"");return o});
+}
+async function startCloud(){
+  try{
+    if(!window.claude||!window.claude.use)return;
+    const [user,db]=await Promise.all([window.claude.use("user"),window.claude.use("db")]);
+    if(!user||!db)return;
+    const id=await user.id();if(!id)return;
+    const ref=db.doc("data/users/"+id+"/calendar");cloud=ref;
+    const timer=setTimeout(()=>setSync("wait"),10000);
+    ref.onSnapshot(snap=>{
+      const live=!snap.metadata.fromCache;
+      if(live)clearTimeout(timer);
+      if(snap.metadata.hasPendingWrites||dirty||saving)return;
+      if(snap.exists){
+        const d=snap.data()||{};
+        if(Array.isArray(d.events)){
+          const before=payload();
+          S.events=cleanEvents(d.events);S.plan=["free","plus","pro","team"].includes(d.plan)?d.plan:"free";S.yearly=!!d.yearly;S.curr=d.curr==="SAR"?"SAR":"USD";
+          lastCloud=payload();
+          if(lastCloud!==before){localSave();if(editing)editing=S.events.find(x=>x.id===editing.id)||null;render()}
+        }
+        if(live)setSync("on");
+      }else if(live){setSync("on");if(hadLocal)queueSave()}
+    },()=>{clearTimeout(timer);cloud=null;setSync("off")});
+  }catch(e){}
+}
+const persist=()=>{localSave();queueSave()};
+const t=(k,v)=>{let s=L[S.lang][k]??L.en[k]??k;if(v)for(const x in v)s=s.replace("{"+x+"}",v[x]);return s};
+const loc=cal=>S.lang+"-u-ca-"+cal+"-nu-latn";
+const fmt=(d,o,cal)=>new Intl.DateTimeFormat(loc(cal||"gregory"),o).format(d);
+const title=ev=>ev.k?t(ev.k):ev.title;
+const dayEvents=d=>S.events.filter(e=>e.date===d).sort((a,b)=>a.s-b.s);
+const clashes=(ev,list)=>list.some(o=>o!==ev&&o.s<ev.e&&ev.s<o.e);
+
+function findSlot(date,len){
+  const list=dayEvents(date);
+  for(const [from,to] of [[540,1020],[1020,1260]]){
+    let c=from;
+    if(date===ymd(TODAY)){const n=new Date();c=Math.max(c,Math.ceil((n.getHours()*60+n.getMinutes())/30)*30)}
+    for(const e of list){ if(e.e<=c)continue; if(e.s-c>=len)break; c=Math.max(c,e.e) }
+    if(c+len<=to&&!list.some(e=>e.s<c+len&&c<e.e))return c;
+  }
+  return null;
+}
+function freeHours(date){
+  let free=480,c=540;
+  for(const e of dayEvents(date)){const a=Math.max(e.s,c),b=Math.min(e.e,1020);if(b>a){free-=b-a;c=b}}
+  return Math.round(free/6)/10;
+}
+
+/* ---- AI sentence parser ---- */
+const wordRe=w=>/[一-鿿]/.test(w)?new RegExp(w,"u"):new RegExp("(?<![\\p{L}])"+w+"(?![\\p{L}])","iu");
+const WORDS={tom:["غداً","غدًا","بكرة","manana","yarin"],tod:[]},DOW=[];
+for(const l in L){WORDS.tom.push(L[l].tomorrow.toLowerCase());WORDS.tod.push(L[l].today.toLowerCase());
+  for(let i=0;i<7;i++){const n=new Intl.DateTimeFormat(l,{weekday:"long"}).format(new Date(2023,0,1+i)).toLowerCase();DOW.push([n,i])}}
+function parse(raw){
+  let s=" "+raw.trim()+" ", date=sel, m;
+  const cut=re=>{const x=s.match(re);if(x){s=s.replace(re," ")}return x};
+  let len=60;
+  if(m=cut(/(?:(?:\bfor|pendant|durante|لمدة)\s*)?(\d+(?:[.,]\d+)?)\s*(hours?|hrs?|heures?|horas?|saat|小时|ساعات|ساعة|minutes?|mins?|minutos?|dakika|分钟|دقائق|دقيقة)/i)){
+    const n=parseFloat(m[1].replace(",","."));len=Math.round(/^(m|d|分|دق)/i.test(m[2])?n:n*60)||60;
+  }
+  let hit=false;
+  for(const w of WORDS.tom){const re=wordRe(w);if(re.test(s)){date=ymd(addDays(TODAY,1));s=s.replace(re," ");hit=true;break}}
+  if(!hit)for(const w of WORDS.tod){const re=wordRe(w);if(re.test(s)){date=ymd(TODAY);s=s.replace(re," ");hit=true;break}}
+  if(!hit)for(const [n,i] of DOW){const re=wordRe(n);if(re.test(s)){const diff=(i-TODAY.getDay()+7)%7||7;date=ymd(addDays(TODAY,diff));s=s.replace(new RegExp("(?:\\bon\\s+)?"+re.source,re.flags)," ");break}}
+  const pmWord=/下午|晚上|مساء|akşam|tarde|soir/i.test(s), amWord=/上午|早上|صباحا|sabah/i.test(s);
+  s=s.replace(/下午|晚上|上午|早上|مساءً?|صباحاً?/g," ");
+  let start=null;
+  if(m=cut(/(?:(?:\bat|@|à|a las|a la|saat|الساعة|在)\s*)?(\d{1,2})\s*(?:[:.h]\s*(\d{2})|h)?\s*(am|pm|a\.m\.|p\.m\.|ص(?![؀-ۿ])|م(?![؀-ۿ])|点|點)?/i)){
+    let h=+m[1],mi=+(m[2]||0),x=(m[3]||"").toLowerCase();
+    const pm=/^p|م/.test(x)||pmWord, am=/^a|ص/.test(x)||amWord;
+    if(pm&&h<12)h+=12; else if(am&&h===12)h=0; else if(!pm&&!am&&h>=1&&h<=7)h+=12;
+    if(h<24&&mi<60)start=h*60+mi;
+  }
+  let ttl=s.replace(/\s+/g," ").trim();
+  for(let i=0;i<3;i++)ttl=ttl.replace(/[\s,.·\-]+$/,"").replace(/(?:^|\s)(at|on|for|à|a las|saat|في|الساعة|لمدة|在)$/i,"");
+  ttl=ttl?ttl.charAt(0).toUpperCase()+ttl.slice(1):t("newEv");
+  const low=raw.toLowerCase();
+  const cat=/focus|study|deep|concentr|enfoque|odak|专注|تركيز|مذاكرة/.test(low)?"focus":
+    /family|mom|dad|kids|famil|aile|家|عائل|أمي|أبي/.test(low)?"family":
+    /lunch|dinner|gym|doctor|coffee|déjeuner|dîner|almuerzo|cena|yemek|午饭|晚餐|غداء|عشاء|طبيب/.test(low)?"personal":"work";
+  let auto=false;
+  if(start===null){start=findSlot(date,len);auto=true;if(start===null)return {fail:true}}
+  return {title:ttl,date,s:start,e:Math.min(start+len,1439),cat,auto};
+}
+
+/* ---- rendering ---- */
+function toast(msg){const el=$("toast");el.textContent=msg;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600)}
+function renderCal(){
+  $("monthTitle").textContent=view==="month"?fmt(cur,{month:"long",year:"numeric"}):t("upNext");
+  document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("on",b.dataset.view===view));
+  const body=$("calBody");
+  if(view==="agenda"){
+    let h="";
+    for(let i=0;i<14;i++){const d=addDays(TODAY,i),k=ymd(d),list=dayEvents(k);if(!list.length)continue;
+      h+='<div class="aghead">'+esc(fmt(d,{weekday:"long",day:"numeric",month:"long"}))+"</div>"+list.map(e=>evRow(e,list)).join("")}
+    body.innerHTML=h||'<p class="empty">'+esc(t("none"))+"</p>";return;
+  }
+  const ws=["fr","es","tr"].includes(S.lang)?1:0;
+  let h='<div class="grid">';
+  for(let i=0;i<7;i++)h+='<div class="dow">'+esc(fmt(new Date(2023,0,1+ws+i),{weekday:"short"}))+"</div>";
+  const off=(cur.getDay()-ws+7)%7, start=addDays(cur,-off), tk=ymd(TODAY);
+  for(let i=0;i<42;i++){
+    const d=addDays(start,i),k=ymd(d),list=dayEvents(k);
+    const cls="cell"+(d.getMonth()!==cur.getMonth()?" out":"")+(k===tk?" tod":"")+(k===sel?" sel":"");
+    h+='<button type="button" class="'+cls+'" data-d="'+k+'" aria-label="'+esc(fmt(d,{day:"numeric",month:"long"}))+'"><span class="num">'+d.getDate()+
+      '</span><span class="dots">'+list.slice(0,3).map(e=>'<i class="dot c-'+e.cat+'"></i>').join("")+"</span></button>";
+  }
+  body.innerHTML=h+"</div>";
+}
+function evRow(e,list){
+  return '<button type="button" class="ev" data-ev="'+e.id+'"><span class="stripe c-'+e.cat+'"></span><span class="time">'+hm(e.s)+"–"+hm(e.e)+
+    '</span><span class="ttl">'+esc(title(e))+(clashes(e,list)?'<span class="pill">'+esc(t("overlap"))+"</span>":"")+"</span></button>";
+}
+function renderDay(){
+  const d=fromYmd(sel),list=dayEvents(sel),c=list.filter(e=>clashes(e,list)).length;
+  let hij="";try{hij=fmt(d,{day:"numeric",month:"long",year:"numeric"},"islamic-umalqura")}catch(e){}
+  $("dayPanel").innerHTML='<div class="dayhead"><h3>'+esc(fmt(d,{weekday:"long",day:"numeric",month:"long"}))+"</h3><p>"+esc(hij)+"</p></div>"+
+    '<div class="brief">'+esc(t("briefTxt",{n:list.length,h:freeHours(sel)}))+(c?' · <span class="w">'+esc(t("briefConf",{c}))+"</span>":"")+"</div>"+
+    (list.length?list.map(e=>evRow(e,list)).join(""):'<p class="empty">'+esc(t("none"))+"</p>")+
+    '<div class="actions"><button type="button" class="btn" id="addBtn">'+esc(t("add"))+'</button><button type="button" class="btn ghost" id="focusBtn">'+esc(t("focus"))+"</button></div>";
+}
+function renderPreview(){
+  const el=$("preview");
+  if(!draft){el.innerHTML="";return}
+  const d=fromYmd(draft.date);
+  el.innerHTML='<div class="preview"><div class="what"><span class="label">'+esc(t("understood"))+"</span><div><b>"+esc(draft.title)+"</b> · "+
+    esc(fmt(d,{weekday:"short",day:"numeric",month:"short"}))+" · "+hm(draft.s)+"–"+hm(draft.e)+" · "+esc(t(CATKEY[draft.cat]))+"</div>"+
+    (draft.auto?"<small>"+esc(t("autoSlot"))+"</small>":"")+'</div><button type="button" class="btn" id="pvAdd">'+esc(t("add"))+
+    '</button><button type="button" class="btn ghost" id="pvNo">'+esc(t("cancel"))+"</button></div>";
+}
+const PLANS=[{id:"free",name:null,usd:0,b:["p0a","p0b"]},{id:"plus",name:"Plus",usd:4.99,b:["p1a","p1b"]},
+  {id:"pro",name:"Pro",usd:9.99,b:["p2a","p2b"],best:true},{id:"team",name:"Team",usd:6.99,b:["p3a","p3b"],seat:true}];
+function money(usd){
+  if(!usd)return t("free");
+  const v=S.yearly?usd*0.8:usd;
+  return S.curr==="SAR"?Math.round(v*3.75)+" SAR":"$"+v.toFixed(2);
+}
+function renderMarketing(){
+  $("feats").innerHTML=[1,2,3,4].map(i=>'<div class="feat"><h3>'+esc(t("f"+i+"t"))+"</h3><p>"+esc(t("f"+i+"d"))+"</p></div>").join("");
+  document.querySelectorAll("[data-bill]").forEach(b=>b.classList.toggle("on",(b.dataset.bill==="y")===S.yearly));
+  $("curr").value=S.curr;
+  $("plans").innerHTML=PLANS.map(p=>'<div class="card plan'+(p.best?" best":"")+'"><h3>'+esc(p.name||t("free"))+'</h3><div class="price">'+esc(money(p.usd))+
+    (p.usd?" <small>"+esc(t(p.seat?"perSeat":"perMo"))+"</small>":"")+"</div><ul>"+p.b.map(k=>"<li>"+esc(t(k))+"</li>").join("")+"</ul>"+
+    '<button type="button" class="btn'+(S.plan===p.id?" ghost":"")+'" data-plan="'+p.id+'">'+esc(t(S.plan===p.id?"current":"choose"))+"</button></div>").join("");
+  const V={y:["y","yes"],n:["n","no"],p:["p","partial"],v:["p","varies"]};
+  const cell=(x,us)=>{const v=V[x];return "<td"+(us?' class="us"':"")+">"+(v?'<span class="'+v[0]+'">'+esc(t(v[1]))+"</span>":esc(x))+"</td>"};
+  const rows=[["r1","y","p","y"],["r2","y","n","y"],["r3","y","p","v"],["r4","y","y","v"],["r5","y","y","v"],["r6",money(4.99),t("free"),"$10–20"]];
+  $("cmp").innerHTML='<thead><tr><th></th><th class="us">Awan</th><th>'+esc(t("cBasic"))+"</th><th>"+esc(t("cAI"))+"</th></tr></thead><tbody>"+
+    rows.map(r=>"<tr><th>"+esc(t(r[0]))+"</th>"+cell(r[1],true)+cell(r[2])+cell(r[3])+"</tr>").join("")+"</tbody>";
+}
+function render(){
+  document.documentElement.lang=S.lang;document.documentElement.dir=S.lang==="ar"?"rtl":"ltr";
+  $("lang").value=S.lang;
+  document.querySelectorAll("[data-i]").forEach(el=>el.textContent=t(el.dataset.i));
+  document.querySelectorAll("[data-ip]").forEach(el=>el.placeholder=t(el.dataset.ip));
+  $("edCat").innerHTML=CATS.map(c=>'<option value="'+c+'">'+esc(t(CATKEY[c]))+"</option>").join("");
+  renderCal();renderDay();renderPreview();renderMarketing();setSync(syncState);
+}
+function route(){
+  const v=["calendar","features","pricing","compare"].includes(location.hash.slice(1))?location.hash.slice(1):"calendar";
+  ["calendar","features","pricing","compare"].forEach(x=>$("v-"+x).hidden=x!==v);
+  document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#"+v));
+  window.scrollTo(0,0);
+}
+
+/* ---- editor ---- */
+function openEd(ev){
+  editing=ev||null;
+  $("edHead").textContent=t(ev?"editEv":"newEv");
+  const s=ev?ev.s:(findSlot(sel,60)??540);
+  $("edTitle").value=ev?title(ev):"";$("edDate").value=ev?ev.date:sel;
+  $("edStart").value=hm(s);$("edEnd").value=hm(ev?ev.e:s+60);$("edCat").value=ev?ev.cat:"work";
+  $("edDel").style.visibility=ev?"visible":"hidden";
+  $("overlay").hidden=false;$("edTitle").focus();
+}
+const closeEd=()=>{$("overlay").hidden=true;editing=null};
+function addEvent(o){S.events.push({id:Date.now(),title:o.title,date:o.date,s:o.s,e:o.e,cat:o.cat});sel=o.date;const d=fromYmd(sel);cur=new Date(d.getFullYear(),d.getMonth(),1);persist();render()}
+
+/* ---- events ---- */
+$("lang").onchange=e=>{S.lang=e.target.value;draft=null;persist();render()};
+$("aiForm").onsubmit=e=>{e.preventDefault();const v=$("aiText").value.trim();if(!v)return;const r=parse(v);if(r.fail){draft=null;renderPreview();toast(t("noSlot"));return}draft=r;renderPreview()};
+$("preview").onclick=e=>{if(e.target.id==="pvAdd"&&draft){const d=draft;draft=null;$("aiText").value="";addEvent(d)}else if(e.target.id==="pvNo"){draft=null;renderPreview()}};
+$("prev").onclick=()=>{cur=new Date(cur.getFullYear(),cur.getMonth()-1,1);view="month";renderCal()};
+$("next").onclick=()=>{cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);view="month";renderCal()};
+$("goToday").onclick=()=>{sel=ymd(TODAY);cur=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);renderCal();renderDay()};
+document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>{view=b.dataset.view;renderCal()});
+function evClick(e){const b=e.target.closest("[data-ev]");if(b){const ev=S.events.find(x=>String(x.id)===b.dataset.ev);if(ev)openEd(ev);return true}}
+$("calBody").onclick=e=>{if(evClick(e))return;const c=e.target.closest("[data-d]");if(c){sel=c.dataset.d;const d=fromYmd(sel);if(d.getMonth()!==cur.getMonth())cur=new Date(d.getFullYear(),d.getMonth(),1);renderCal();renderDay()}};
+$("dayPanel").onclick=e=>{if(evClick(e))return;
+  if(e.target.id==="addBtn")openEd();
+  if(e.target.id==="focusBtn"){const s=findSlot(sel,90);if(s===null)toast(t("noSlot"));else addEvent({title:t("focusC"),date:sel,s,e:s+90,cat:"focus"})}};
+$("edCancel").onclick=closeEd;
+$("overlay").onclick=e=>{if(e.target.id==="overlay")closeEd()};
+$("edDel").onclick=()=>{if(editing){S.events=S.events.filter(x=>x!==editing);persist();closeEd();render()}};
+$("edForm").onsubmit=e=>{e.preventDefault();
+  let s=toMin($("edStart").value),en=toMin($("edEnd").value);if(en<=s)en=Math.min(s+60,1439);
+  const o={title:$("edTitle").value.trim()||t("newEv"),date:$("edDate").value,s,e:en,cat:$("edCat").value};
+  if(editing){delete editing.k;Object.assign(editing,o);sel=o.date;persist();closeEd();render()}else{closeEd();addEvent(o)}};
+document.querySelectorAll("[data-bill]").forEach(b=>b.onclick=()=>{S.yearly=b.dataset.bill==="y";persist();renderMarketing()});
+$("curr").onchange=e=>{S.curr=e.target.value;persist();renderMarketing()};
+$("plans").onclick=e=>{const b=e.target.closest("[data-plan]");if(b){S.plan=b.dataset.plan;persist();renderMarketing();toast(t("demo"))}};
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("overlay").hidden)closeEd()});
+window.addEventListener("hashchange",route);
+render();route();startCloud();
+</script>
+</body>
+</html>
